@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { statesData } from '../data/stateData';
+import { vaFacilityLocations } from '../data/vaFacilityLocations';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -17,12 +19,16 @@ import {
   AlertCircle,
   Shield,
   Star,
+  ChevronDown,
+  ChevronUp,
+  MapPin,
 } from 'lucide-react';
 import StateShapeMap from '../components/StateShapeMap';
 
 export default function StateDetail() {
   const { stateId } = useParams();
   const navigate = useNavigate();
+  const [facilitiesExpanded, setFacilitiesExpanded] = useState(false);
   const state = statesData.find((s) => s.id === stateId);
 
   if (!state) {
@@ -60,6 +66,10 @@ export default function StateDetail() {
 
   const taxBadge = getTaxBadge(state.militaryPensionTax);
   const TaxIcon = taxBadge.icon;
+
+  const allFacilities = vaFacilityLocations[state.id] ?? [];
+  const vamcs = allFacilities.filter((f) => f.type !== 'clinic');
+  const clinics = allFacilities.filter((f) => f.type === 'clinic');
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -373,11 +383,85 @@ export default function StateDetail() {
                 <CardTitle>Quick Facts</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-start gap-3">
+                <div
+                  className="flex items-start gap-3 cursor-pointer group"
+                  onClick={() => setFacilitiesExpanded((v) => !v)}
+                >
                   <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-sm">VA Medical Facilities</div>
-                    <div className="text-2xl font-bold">{state.vaFacilities}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-sm">VA Facilities</div>
+                      {facilitiesExpanded ? (
+                        <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                      )}
+                    </div>
+                    <div className="flex items-end gap-3 mt-0.5">
+                      <div>
+                        <span className="text-2xl font-bold">{state.vaFacilities}</span>
+                        <span className="text-xs text-slate-500 ml-1">Medical Centers</span>
+                      </div>
+                      {clinics.length > 0 && (
+                        <div>
+                          <span className="text-2xl font-bold text-green-600">{clinics.length}</span>
+                          <span className="text-xs text-slate-500 ml-1">Clinics</span>
+                        </div>
+                      )}
+                    </div>
+                    {facilitiesExpanded && allFacilities.length > 0 && (
+                      <div className="mt-3 space-y-3">
+                        <p className="text-xs text-slate-400 italic">
+                          Tap any location to open in Google Maps
+                        </p>
+                        {vamcs.length > 0 && (
+                          <div>
+                            <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1.5">
+                              Medical Centers
+                            </div>
+                            <ul className="space-y-1">
+                              {vamcs.map((f, i) => (
+                                <li key={i}>
+                                  <a
+                                    href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="flex items-start gap-1.5 text-xs text-blue-600 hover:text-blue-800 hover:underline"
+                                  >
+                                    <MapPin className="w-3 h-3 text-blue-500 flex-shrink-0 mt-0.5" />
+                                    <span>{f.name}</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {clinics.length > 0 && (
+                          <div>
+                            <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1.5">
+                              Clinics
+                            </div>
+                            <ul className="space-y-1">
+                              {clinics.map((f, i) => (
+                                <li key={i}>
+                                  <a
+                                    href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
+                                    className="flex items-start gap-1.5 text-xs text-green-600 hover:text-green-800 hover:underline"
+                                  >
+                                    <MapPin className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" />
+                                    <span>{f.name}</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Separator />

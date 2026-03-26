@@ -127,33 +127,63 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
         <GeoJSON ref={geoJsonRef} data={stateGeojson} style={stateStyle} />
 
         {/* VA facility markers */}
-        {facilities.map((facility, i) => (
-          <CircleMarker
-            key={i}
-            center={[facility.lat, facility.lon]}
-            radius={8}
-            pathOptions={{
-              color: '#ffffff',
-              weight: 2,
-              fillColor: '#1d4ed8',
-              fillOpacity: 0.9,
-            }}
-          >
-            <Popup>
-              <div className="text-sm font-medium leading-snug max-w-[200px]">{facility.name}</div>
-            </Popup>
-          </CircleMarker>
-        ))}
+        {facilities.map((facility, i) => {
+          const isClinic = facility.type === 'clinic';
+          return (
+            <CircleMarker
+              key={i}
+              center={[facility.lat, facility.lon]}
+              radius={isClinic ? 6 : 8}
+              pathOptions={{
+                color: '#ffffff',
+                weight: 2,
+                fillColor: isClinic ? '#16a34a' : '#1d4ed8',
+                fillOpacity: 0.9,
+              }}
+            >
+              <Popup>
+                <div className="text-sm leading-snug max-w-[220px] space-y-1">
+                  <div className="font-semibold">{facility.name}</div>
+                  <div className="text-xs text-gray-500 italic">
+                    {isClinic ? 'VA Outpatient Clinic' : 'VA Medical Center'}
+                  </div>
+                  {facility.address && (
+                    <a
+                      href={`https://maps.google.com/?q=${encodeURIComponent(facility.address)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-blue-600 hover:underline block"
+                    >
+                      {facility.address}
+                    </a>
+                  )}
+                  {facility.phone && (
+                    <a
+                      href={`tel:${facility.phone.replace(/\D/g, '')}`}
+                      className="text-xs text-blue-600 hover:underline block"
+                    >
+                      {facility.phone}
+                    </a>
+                  )}
+                </div>
+              </Popup>
+            </CircleMarker>
+          );
+        })}
 
         <FitBounds geojson={stateGeojson} />
       </MapContainer>
 
       {/* Legend */}
       <div className="px-4 py-3 bg-white border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-4 text-xs text-slate-600">
+        <div className="flex items-center gap-4 text-xs text-slate-600 flex-wrap">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-sm" />
-            <span>VA Medical Center ({facilities.length} shown)</span>
+            <span>VA Medical Center ({facilities.filter((f) => f.type !== 'clinic').length})</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow-sm" />
+            <span>VA Clinic ({facilities.filter((f) => f.type === 'clinic').length})</span>
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-3 rounded-sm bg-blue-100 border border-blue-700 opacity-70" />
