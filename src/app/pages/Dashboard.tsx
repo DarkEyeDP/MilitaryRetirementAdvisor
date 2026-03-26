@@ -27,9 +27,17 @@ export default function Dashboard() {
   };
 
   const [view, setView] = useState<'table' | 'cards' | 'map'>('cards');
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('comparison-favorites');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [showComparison, setShowComparison] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   
   const [filters, setFilters] = useState({
     noIncomeTax: false,
@@ -66,24 +74,36 @@ export default function Dashboard() {
     });
   };
 
+  const saveFavorites = (next: string[]) => {
+    localStorage.setItem('comparison-favorites', JSON.stringify(next));
+    setFavorites(next);
+  };
+
   const toggleFavorite = (stateId: string) => {
     setFavorites((prev) => {
       if (prev.includes(stateId)) {
-        return prev.filter((id) => id !== stateId);
-      } else {
-        if (prev.length >= 3) {
-          toast.warning('Comparison limit reached', {
-            description: 'Remove a bookmarked state before adding another.',
-          });
-          return prev;
-        }
-        return [...prev, stateId];
+        const next = prev.filter((id) => id !== stateId);
+        localStorage.setItem('comparison-favorites', JSON.stringify(next));
+        return next;
       }
+      if (prev.length >= 3) {
+        toast.warning('Comparison limit reached', {
+          description: 'Remove a bookmarked state before adding another.',
+        });
+        return prev;
+      }
+      const next = [...prev, stateId];
+      localStorage.setItem('comparison-favorites', JSON.stringify(next));
+      return next;
     });
   };
 
   const removeFavorite = (stateId: string) => {
-    setFavorites((prev) => prev.filter((id) => id !== stateId));
+    setFavorites((prev) => {
+      const next = prev.filter((id) => id !== stateId);
+      localStorage.setItem('comparison-favorites', JSON.stringify(next));
+      return next;
+    });
   };
 
   const filteredStates = useMemo(() => {
@@ -150,11 +170,17 @@ export default function Dashboard() {
               )}
               <Button
                 variant="outline"
-                onClick={() => setShowFilters(true)}
-                className="gap-2 lg:hidden"
+                onClick={() => {
+                  if (window.innerWidth >= 1024) {
+                    setSidebarOpen((v) => !v);
+                  } else {
+                    setShowFilters(true);
+                  }
+                }}
+                className="gap-2"
               >
                 <Filter className="w-4 h-4" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
                 {(activeFiltersCount > 0 || hasCustomWeights) && (
                   <Badge variant="secondary">{activeFiltersCount}</Badge>
                 )}
@@ -167,35 +193,38 @@ export default function Dashboard() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-6">
           {/* Filters Sidebar - Desktop */}
-          <aside className="hidden lg:block w-80 flex-shrink-0">
-            <div className="sticky top-24">
-              <FilterPanel
-                filters={filters}
-                weights={weights}
-                onFilterChange={handleFilterChange}
-                onWeightChange={handleWeightChange}
-                onReset={handleReset}
-              />
-              
-              {/* Active Filters Summary */}
-              {(activeFiltersCount > 0 || hasCustomWeights) && (
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-900">Custom Settings Active</span>
-                    <Button variant="ghost" size="sm" onClick={handleReset} className="h-6 text-xs">
-                      Clear
-                    </Button>
+          {sidebarOpen && (
+            <aside className="hidden lg:block w-80 flex-shrink-0">
+              <div className="sticky top-24">
+                <FilterPanel
+                  filters={filters}
+                  weights={weights}
+                  onFilterChange={handleFilterChange}
+                  onWeightChange={handleWeightChange}
+                  onReset={handleReset}
+                  onClose={() => setSidebarOpen(false)}
+                />
+
+                {/* Active Filters Summary */}
+                {(activeFiltersCount > 0 || hasCustomWeights) && (
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-blue-900">Custom Settings Active</span>
+                      <Button variant="ghost" size="sm" onClick={handleReset} className="h-6 text-xs">
+                        Clear
+                      </Button>
+                    </div>
+                    {hasCustomWeights && (
+                      <p className="text-xs text-blue-700">Custom priority weights applied</p>
+                    )}
+                    {activeFiltersCount > 0 && (
+                      <p className="text-xs text-blue-700">{activeFiltersCount} filter(s) active</p>
+                    )}
                   </div>
-                  {hasCustomWeights && (
-                    <p className="text-xs text-blue-700">Custom priority weights applied</p>
-                  )}
-                  {activeFiltersCount > 0 && (
-                    <p className="text-xs text-blue-700">{activeFiltersCount} filter(s) active</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </aside>
+                )}
+              </div>
+            </aside>
+          )}
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">

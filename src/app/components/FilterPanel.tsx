@@ -36,7 +36,7 @@ export default function FilterPanel({
     <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">Filters & Preferences</h3>
-        {isMobile && onClose && (
+        {onClose && (
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>

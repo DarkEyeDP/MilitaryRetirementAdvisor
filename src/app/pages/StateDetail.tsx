@@ -19,6 +19,7 @@ import {
   Shield,
   Star,
 } from 'lucide-react';
+import StateShapeMap from '../components/StateShapeMap';
 
 export default function StateDetail() {
   const { stateId } = useParams();
@@ -103,6 +104,15 @@ export default function StateDetail() {
               <div className="text-xs text-slate-600 mt-1">out of 100</div>
             </div>
           </div>
+        </div>
+
+        {/* State Map + VA Facilities */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-blue-600" />
+            VA Medical Centers in {state.name}
+          </h2>
+          <StateShapeMap stateId={state.id} stateName={state.name} />
         </div>
 
         {/* Quick Stats */}
