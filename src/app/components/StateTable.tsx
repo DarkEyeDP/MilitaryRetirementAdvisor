@@ -3,7 +3,7 @@ import { StateData } from '../data/stateData';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Heart, ArrowUpDown } from 'lucide-react';
+import { Bookmark, BookmarkCheck, ArrowUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface StateTableProps {
@@ -135,7 +135,10 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
                       }}
                       className="h-8 w-8 p-0"
                     >
-                      <Heart className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                      {isFavorite
+                        ? <BookmarkCheck className="w-4 h-4 text-blue-600" />
+                        : <Bookmark className="w-4 h-4 text-slate-400" />
+                      }
                     </Button>
                   </TableCell>
                   <TableCell className="font-medium">{state.name}</TableCell>

@@ -1,11 +1,14 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore, StateData } from '../data/stateData';
+import { FinancialInputs } from '../data/financialReality';
+import FinancialRealityBanner from '../components/FinancialRealityBanner';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Sheet, SheetContent } from '../components/ui/sheet';
 import { Badge } from '../components/ui/badge';
-import { Shield, Table as TableIcon, LayoutGrid, Map, Heart, Filter, ArrowLeft, X } from 'lucide-react';
+import { Shield, Table as TableIcon, LayoutGrid, Map, Scale, Filter, ArrowLeft, X } from 'lucide-react';
+import { toast } from 'sonner';
 import FilterPanel from '../components/FilterPanel';
 import StateCard from '../components/StateCard';
 import StateTable from '../components/StateTable';
@@ -14,6 +17,15 @@ import ComparisonDrawer from '../components/ComparisonDrawer';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Read inputs passed from Landing page; fall back to sensible defaults
+  const locationState = location.state as { retirementIncome?: number; disabilityRating?: string; preferredRegion?: string } | null;
+  const financialInputs: FinancialInputs = {
+    retirementIncome: locationState?.retirementIncome ?? 60000,
+    disabilityRating: locationState?.disabilityRating ?? 'none',
+  };
+
   const [view, setView] = useState<'table' | 'cards' | 'map'>('cards');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -60,6 +72,9 @@ export default function Dashboard() {
         return prev.filter((id) => id !== stateId);
       } else {
         if (prev.length >= 3) {
+          toast.warning('Comparison limit reached', {
+            description: 'Remove a bookmarked state before adding another.',
+          });
           return prev;
         }
         return [...prev, stateId];
@@ -128,7 +143,7 @@ export default function Dashboard() {
                   onClick={() => setShowComparison(true)}
                   className="gap-2"
                 >
-                  <Heart className="w-4 h-4 fill-red-500 text-red-500" />
+                  <Scale className="w-4 h-4 text-blue-600" />
                   <span className="hidden sm:inline">Compare</span>
                   <Badge variant="secondary">{favorites.length}</Badge>
                 </Button>
@@ -184,6 +199,9 @@ export default function Dashboard() {
 
           {/* Main Content */}
           <main className="flex-1 min-w-0">
+            {/* Financial Reality Banner */}
+            <FinancialRealityBanner states={sortedStates} inputs={financialInputs} />
+
             {/* Results Summary */}
             <div className="bg-white rounded-lg border border-slate-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">

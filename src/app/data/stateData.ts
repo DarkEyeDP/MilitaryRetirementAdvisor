@@ -949,6 +949,25 @@ export const statesData: StateData[] = [
     pros: ['Year-round warm weather', 'Strong military community', 'Unique culture', 'Beautiful scenery'],
     cons: ['Extremely high cost of living', 'Very expensive housing', 'Military retirement is taxed', 'Remote location'],
     coordinates: { x: 5, y: 90 }
+  },
+  {
+    id: 'north-dakota',
+    name: 'North Dakota',
+    abbreviation: 'ND',
+    militaryPensionTax: 'No',
+    stateIncomeTax: 2.5,
+    propertyTaxLevel: 'Medium',
+    costOfLivingIndex: 90,
+    veteranBenefitsScore: 78,
+    retirementScore: 87,
+    salesTax: 5.0,
+    militaryBenefits: ['Military retirement pay fully exempt', 'Property tax credit for disabled veterans', 'Free hunting/fishing licenses', 'Veteran hiring preference'],
+    vaFacilities: 2,
+    veteranPopulation: 58000,
+    avgHomeCost: 265000,
+    pros: ['Military retirement fully exempt', 'Low cost of living', 'No income tax on military pension', 'Affordable housing'],
+    cons: ['Very cold winters', 'Limited VA facilities', 'Rural and remote', 'Limited entertainment options'],
+    coordinates: { x: 38, y: 28 }
   }
 ];
 

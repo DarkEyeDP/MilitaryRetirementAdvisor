@@ -11,7 +11,6 @@ import {
   DollarSign,
   Home,
   TrendingDown,
-  Heart,
   Building2,
   Users,
   CheckCircle2,

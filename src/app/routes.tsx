@@ -1,19 +1,24 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Outlet, useLocation } from "react-router";
+import { useEffect } from "react";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import StateDetail from "./pages/StateDetail";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return <Outlet />;
+}
+
 export const router = createBrowserRouter([
   {
-    path: "/",
-    Component: Landing,
-  },
-  {
-    path: "/dashboard",
-    Component: Dashboard,
-  },
-  {
-    path: "/state/:stateId",
-    Component: StateDetail,
+    Component: ScrollToTop,
+    children: [
+      { path: "/", Component: Landing },
+      { path: "/dashboard", Component: Dashboard },
+      { path: "/state/:stateId", Component: StateDetail },
+    ],
   },
 ]);

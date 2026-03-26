@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { StateData } from '../data/stateData';
-import { Heart, TrendingUp, DollarSign, Home, Star } from 'lucide-react';
+import { Bookmark, BookmarkCheck, TrendingUp, DollarSign, Home, Star } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface StateCardProps {
@@ -57,7 +57,10 @@ export default function StateCard({ state, customScore, isFavorite, onToggleFavo
               }}
               className="h-8 w-8 p-0"
             >
-              <Heart className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+              {isFavorite
+                ? <BookmarkCheck className="w-4 h-4 text-blue-600" />
+                : <Bookmark className="w-4 h-4 text-slate-400" />
+              }
             </Button>
           </div>
         </div>
