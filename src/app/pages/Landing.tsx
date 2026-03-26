@@ -1,10 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Slider } from '../components/ui/slider';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import { Shield, TrendingDown, Heart, MapPin } from 'lucide-react';
 
 export default function Landing() {
@@ -39,10 +44,13 @@ export default function Landing() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         <div className="text-center mb-12">
           <h2 className="text-4xl lg:text-6xl font-bold text-slate-900 mb-4">
-            Choose Where Your<br />Retirement Works for You
+            Choose Where Your
+            <br />
+            Retirement Works for You
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Compare all 50 states based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
+            Compare all 50 states based on taxes, benefits, and quality of life. Make an informed
+            decision about where to live after service.
           </p>
         </div>
 
@@ -53,28 +61,36 @@ export default function Landing() {
               <TrendingDown className="w-6 h-6 text-blue-600" />
             </div>
             <h3 className="font-semibold text-lg mb-2">Tax Analysis</h3>
-            <p className="text-slate-600">Compare state income taxes, property taxes, and military pension exemptions across all 50 states.</p>
+            <p className="text-slate-600">
+              Compare state income taxes, property taxes, and military pension exemptions across all
+              50 states.
+            </p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
             <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
               <Heart className="w-6 h-6 text-green-600" />
             </div>
             <h3 className="font-semibold text-lg mb-2">Veteran Benefits</h3>
-            <p className="text-slate-600">See VA facilities, veteran populations, and state-specific benefits available to you.</p>
+            <p className="text-slate-600">
+              See VA facilities, veteran populations, and state-specific benefits available to you.
+            </p>
           </div>
           <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
             <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
               <MapPin className="w-6 h-6 text-purple-600" />
             </div>
             <h3 className="font-semibold text-lg mb-2">Cost of Living</h3>
-            <p className="text-slate-600">Understand how far your retirement income will go in each state with detailed cost comparisons.</p>
+            <p className="text-slate-600">
+              Understand how far your retirement income will go in each state with detailed cost
+              comparisons.
+            </p>
           </div>
         </div>
 
         {/* Input Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto border border-slate-200">
           <h3 className="text-2xl font-semibold mb-6">Get Your Personalized Comparison</h3>
-          
+
           <div className="space-y-6">
             {/* Retirement Income */}
             <div className="space-y-3">
@@ -141,11 +157,7 @@ export default function Landing() {
             </div>
 
             {/* CTA Button */}
-            <Button 
-              onClick={handleCompare}
-              className="w-full h-12 text-lg"
-              size="lg"
-            >
+            <Button onClick={handleCompare} className="w-full h-12 text-lg" size="lg">
               Compare States
             </Button>
           </div>
@@ -153,7 +165,9 @@ export default function Landing() {
 
         {/* Footer Stats */}
         <div className="mt-16 text-center">
-          <p className="text-slate-500 text-sm mb-4">Trusted by thousands of retiring service members</p>
+          <p className="text-slate-500 text-sm mb-4">
+            Trusted by thousands of retiring service members
+          </p>
           <div className="flex justify-center gap-8 text-sm">
             <div>
               <div className="font-semibold text-2xl text-blue-600">50</div>

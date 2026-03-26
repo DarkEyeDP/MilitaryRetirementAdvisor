@@ -1,13 +1,21 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { statesData, calculateCustomScore, StateData } from '../data/stateData';
+import { statesData, calculateCustomScore } from '../data/stateData';
 import { FinancialInputs } from '../data/financialReality';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
 import { Button } from '../components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Sheet, SheetContent } from '../components/ui/sheet';
 import { Badge } from '../components/ui/badge';
-import { Shield, Table as TableIcon, LayoutGrid, Map, Scale, Filter, ArrowLeft, X } from 'lucide-react';
+import {
+  Shield,
+  Table as TableIcon,
+  LayoutGrid,
+  Map,
+  Scale,
+  Filter,
+  ArrowLeft,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import FilterPanel from '../components/FilterPanel';
 import StateCard from '../components/StateCard';
@@ -20,7 +28,11 @@ export default function Dashboard() {
   const location = useLocation();
 
   // Read inputs passed from Landing page; fall back to sensible defaults
-  const locationState = location.state as { retirementIncome?: number; disabilityRating?: string; preferredRegion?: string } | null;
+  const locationState = location.state as {
+    retirementIncome?: number;
+    disabilityRating?: string;
+    preferredRegion?: string;
+  } | null;
   const financialInputs: FinancialInputs = {
     retirementIncome: locationState?.retirementIncome ?? 60000,
     disabilityRating: locationState?.disabilityRating ?? 'none',
@@ -38,7 +50,7 @@ export default function Dashboard() {
   const [showComparison, setShowComparison] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   const [filters, setFilters] = useState({
     noIncomeTax: false,
     taxFreeMilitary: false,
@@ -72,11 +84,6 @@ export default function Dashboard() {
       cost: 30,
       benefits: 30,
     });
-  };
-
-  const saveFavorites = (next: string[]) => {
-    localStorage.setItem('comparison-favorites', JSON.stringify(next));
-    setFavorites(next);
   };
 
   const toggleFavorite = (stateId: string) => {
@@ -155,14 +162,10 @@ export default function Dashboard() {
                 <h1 className="font-semibold text-lg">State Comparison Results</h1>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {favorites.length > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowComparison(true)}
-                  className="gap-2"
-                >
+                <Button variant="outline" onClick={() => setShowComparison(true)} className="gap-2">
                   <Scale className="w-4 h-4 text-blue-600" />
                   <span className="hidden sm:inline">Compare</span>
                   <Badge variant="secondary">{favorites.length}</Badge>
@@ -209,8 +212,15 @@ export default function Dashboard() {
                 {(activeFiltersCount > 0 || hasCustomWeights) && (
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-blue-900">Custom Settings Active</span>
-                      <Button variant="ghost" size="sm" onClick={handleReset} className="h-6 text-xs">
+                      <span className="text-sm font-medium text-blue-900">
+                        Custom Settings Active
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleReset}
+                        className="h-6 text-xs"
+                      >
                         Clear
                       </Button>
                     </div>
@@ -247,15 +257,13 @@ export default function Dashboard() {
                 {sortedStates.length > 0 && (
                   <div className="text-right">
                     <div className="text-sm text-slate-500 mb-1">Top Ranked</div>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {sortedStates[0].name}
-                    </div>
+                    <div className="text-2xl font-bold text-blue-600">{sortedStates[0].name}</div>
                   </div>
                 )}
               </div>
 
               {/* View Toggle */}
-              <Tabs value={view} onValueChange={(v) => setView(v as any)}>
+              <Tabs value={view} onValueChange={(v) => setView(v as 'table' | 'cards' | 'map')}>
                 <TabsList className="grid w-full max-w-md grid-cols-3">
                   <TabsTrigger value="cards" className="gap-2">
                     <LayoutGrid className="w-4 h-4" />
@@ -297,9 +305,7 @@ export default function Dashboard() {
               />
             )}
 
-            {view === 'map' && (
-              <MapView states={sortedStates} customScores={customScores} />
-            )}
+            {view === 'map' && <MapView states={sortedStates} customScores={customScores} />}
 
             {/* No Results */}
             {filteredStates.length === 0 && (
@@ -324,7 +330,6 @@ export default function Dashboard() {
             onWeightChange={handleWeightChange}
             onReset={handleReset}
             onClose={() => setShowFilters(false)}
-            isMobile
           />
         </SheetContent>
       </Sheet>
@@ -344,7 +349,8 @@ export default function Dashboard() {
           <div className="text-center text-sm text-slate-500">
             <p>Data last updated: March 2026</p>
             <p className="mt-1">
-              Information compiled from state tax departments, VA facilities, and cost of living indices.
+              Information compiled from state tax departments, VA facilities, and cost of living
+              indices.
             </p>
           </div>
         </div>

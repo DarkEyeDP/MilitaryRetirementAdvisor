@@ -1,8 +1,8 @@
-import { createBrowserRouter, Outlet, useLocation } from "react-router";
-import { useEffect } from "react";
-import Landing from "./pages/Landing";
-import Dashboard from "./pages/Dashboard";
-import StateDetail from "./pages/StateDetail";
+import { createBrowserRouter, Outlet, useLocation } from 'react-router';
+import { useEffect } from 'react';
+import Landing from './pages/Landing';
+import Dashboard from './pages/Dashboard';
+import StateDetail from './pages/StateDetail';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -16,9 +16,9 @@ export const router = createBrowserRouter([
   {
     Component: ScrollToTop,
     children: [
-      { path: "/", Component: Landing },
-      { path: "/dashboard", Component: Dashboard },
-      { path: "/state/:stateId", Component: StateDetail },
+      { path: '/', Component: Landing },
+      { path: '/dashboard', Component: Dashboard },
+      { path: '/state/:stateId', Component: StateDetail },
     ],
   },
 ]);

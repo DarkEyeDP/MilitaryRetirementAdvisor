@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { StateData } from '../data/stateData';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Badge } from './ui/badge';
@@ -16,7 +17,34 @@ interface StateTableProps {
 type SortField = 'name' | 'score' | 'tax' | 'costOfLiving' | 'benefits';
 type SortDirection = 'asc' | 'desc';
 
-export default function StateTable({ states, favorites, onToggleFavorite, customScores }: StateTableProps) {
+function SortButton({
+  field,
+  children,
+  onSort,
+}: {
+  field: SortField;
+  children: ReactNode;
+  onSort: (field: SortField) => void;
+}) {
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      onClick={() => onSort(field)}
+      className="h-8 -ml-3 hover:bg-transparent"
+    >
+      {children}
+      <ArrowUpDown className="ml-2 h-4 w-4" />
+    </Button>
+  );
+}
+
+export default function StateTable({
+  states,
+  favorites,
+  onToggleFavorite,
+  customScores,
+}: StateTableProps) {
   const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>('score');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -31,7 +59,9 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
   };
 
   const sortedStates = [...states].sort((a, b) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let aVal: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let bVal: any;
 
     switch (sortField) {
@@ -76,18 +106,6 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
     return 'bg-slate-100 text-slate-700';
   };
 
-  const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => handleSort(field)}
-      className="h-8 -ml-3 hover:bg-transparent"
-    >
-      {children}
-      <ArrowUpDown className="ml-2 h-4 w-4" />
-    </Button>
-  );
-
   return (
     <div className="rounded-lg border border-slate-200 overflow-hidden bg-white">
       <div className="overflow-x-auto">
@@ -96,21 +114,31 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
             <TableRow>
               <TableHead className="w-12"></TableHead>
               <TableHead>
-                <SortButton field="name">State</SortButton>
+                <SortButton field="name" onSort={handleSort}>
+                  State
+                </SortButton>
               </TableHead>
               <TableHead>
-                <SortButton field="tax">Military Pension Tax</SortButton>
+                <SortButton field="tax" onSort={handleSort}>
+                  Military Pension Tax
+                </SortButton>
               </TableHead>
               <TableHead>State Income Tax</TableHead>
               <TableHead>Property Tax</TableHead>
               <TableHead>
-                <SortButton field="costOfLiving">Cost of Living</SortButton>
+                <SortButton field="costOfLiving" onSort={handleSort}>
+                  Cost of Living
+                </SortButton>
               </TableHead>
               <TableHead>
-                <SortButton field="benefits">VA Benefits</SortButton>
+                <SortButton field="benefits" onSort={handleSort}>
+                  VA Benefits
+                </SortButton>
               </TableHead>
               <TableHead>
-                <SortButton field="score">Score</SortButton>
+                <SortButton field="score" onSort={handleSort}>
+                  Score
+                </SortButton>
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -118,7 +146,7 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
             {sortedStates.map((state) => {
               const isFavorite = favorites.includes(state.id);
               const displayScore = customScores?.[state.id] ?? state.retirementScore;
-              
+
               return (
                 <TableRow
                   key={state.id}
@@ -135,10 +163,11 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
                       }}
                       className="h-8 w-8 p-0"
                     >
-                      {isFavorite
-                        ? <BookmarkCheck className="w-4 h-4 text-blue-600" />
-                        : <Bookmark className="w-4 h-4 text-slate-400" />
-                      }
+                      {isFavorite ? (
+                        <BookmarkCheck className="w-4 h-4 text-blue-600" />
+                      ) : (
+                        <Bookmark className="w-4 h-4 text-slate-400" />
+                      )}
                     </Button>
                   </TableCell>
                   <TableCell className="font-medium">{state.name}</TableCell>
@@ -158,9 +187,7 @@ export default function StateTable({ states, favorites, onToggleFavorite, custom
                   <TableCell>{state.costOfLivingIndex}</TableCell>
                   <TableCell>{state.veteranBenefitsScore}/100</TableCell>
                   <TableCell>
-                    <Badge className={getScoreBadge(displayScore)}>
-                      {displayScore}
-                    </Badge>
+                    <Badge className={getScoreBadge(displayScore)}>{displayScore}</Badge>
                   </TableCell>
                 </TableRow>
               );

@@ -23,7 +23,7 @@ export interface StateFinancialData {
 }
 
 export const stateFinancialData: Record<string, StateFinancialData> = {
-  'florida': {
+  florida: {
     propertyTaxRate: 0.83,
     medianAnnualPropertyTax: 3196,
     salesTaxCombined: 7.02,
@@ -31,15 +31,15 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 175,
     avgMonthlyUtilities: 175,
   },
-  'texas': {
-    propertyTaxRate: 1.60,
+  texas: {
+    propertyTaxRate: 1.6,
     medianAnnualPropertyTax: 5200,
     salesTaxCombined: 8.19,
     avgHomeInsuranceMonthly: 198,
     avgAutoInsuranceMonthly: 145,
     avgMonthlyUtilities: 165,
   },
-  'virginia': {
+  virginia: {
     propertyTaxRate: 0.82,
     medianAnnualPropertyTax: 3075,
     salesTaxCombined: 5.73,
@@ -47,7 +47,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 98,
     avgMonthlyUtilities: 148,
   },
-  'tennessee': {
+  tennessee: {
     propertyTaxRate: 0.56,
     medianAnnualPropertyTax: 1736,
     salesTaxCombined: 9.55,
@@ -55,7 +55,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 108,
     avgMonthlyUtilities: 145,
   },
-  'nevada': {
+  nevada: {
     propertyTaxRate: 0.55,
     medianAnnualPropertyTax: 2310,
     salesTaxCombined: 8.23,
@@ -63,7 +63,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 148,
     avgMonthlyUtilities: 145,
   },
-  'washington': {
+  washington: {
     propertyTaxRate: 0.93,
     medianAnnualPropertyTax: 5348,
     salesTaxCombined: 9.29,
@@ -71,7 +71,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 115,
     avgMonthlyUtilities: 118,
   },
-  'alaska': {
+  alaska: {
     propertyTaxRate: 1.04,
     medianAnnualPropertyTax: 3640,
     salesTaxCombined: 1.76,
@@ -79,7 +79,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 110,
     avgMonthlyUtilities: 210,
   },
-  'wyoming': {
+  wyoming: {
     propertyTaxRate: 0.55,
     medianAnnualPropertyTax: 1623,
     salesTaxCombined: 5.36,
@@ -90,7 +90,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
   'south-dakota': {
     propertyTaxRate: 1.01,
     medianAnnualPropertyTax: 2677,
-    salesTaxCombined: 6.40,
+    salesTaxCombined: 6.4,
     avgHomeInsuranceMonthly: 113,
     avgAutoInsuranceMonthly: 85,
     avgMonthlyUtilities: 152,
@@ -111,7 +111,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 97,
     avgMonthlyUtilities: 140,
   },
-  'georgia': {
+  georgia: {
     propertyTaxRate: 0.87,
     medianAnnualPropertyTax: 2741,
     salesTaxCombined: 7.39,
@@ -119,7 +119,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 138,
     avgMonthlyUtilities: 148,
   },
-  'california': {
+  california: {
     propertyTaxRate: 0.73,
     medianAnnualPropertyTax: 5658,
     salesTaxCombined: 8.82,
@@ -127,15 +127,15 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 162,
     avgMonthlyUtilities: 148,
   },
-  'arizona': {
-    propertyTaxRate: 0.60,
+  arizona: {
+    propertyTaxRate: 0.6,
     medianAnnualPropertyTax: 2550,
     salesTaxCombined: 8.37,
     avgHomeInsuranceMonthly: 82,
     avgAutoInsuranceMonthly: 125,
     avgMonthlyUtilities: 168,
   },
-  'colorado': {
+  colorado: {
     propertyTaxRate: 0.49,
     medianAnnualPropertyTax: 2695,
     salesTaxCombined: 7.77,
@@ -143,7 +143,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 135,
     avgMonthlyUtilities: 138,
   },
-  'oregon': {
+  oregon: {
     propertyTaxRate: 0.82,
     medianAnnualPropertyTax: 4223,
     salesTaxCombined: 0,
@@ -151,7 +151,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 112,
     avgMonthlyUtilities: 108,
   },
-  'idaho': {
+  idaho: {
     propertyTaxRate: 0.63,
     medianAnnualPropertyTax: 2835,
     salesTaxCombined: 6.03,
@@ -159,7 +159,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 88,
     avgMonthlyUtilities: 125,
   },
-  'montana': {
+  montana: {
     propertyTaxRate: 0.74,
     medianAnnualPropertyTax: 3589,
     salesTaxCombined: 0,
@@ -167,7 +167,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 102,
     avgMonthlyUtilities: 148,
   },
-  'utah': {
+  utah: {
     propertyTaxRate: 0.52,
     medianAnnualPropertyTax: 2600,
     salesTaxCombined: 7.19,
@@ -183,7 +183,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 115,
     avgMonthlyUtilities: 148,
   },
-  'oklahoma': {
+  oklahoma: {
     propertyTaxRate: 0.87,
     medianAnnualPropertyTax: 1871,
     salesTaxCombined: 8.95,
@@ -191,7 +191,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 130,
     avgMonthlyUtilities: 148,
   },
-  'missouri': {
+  missouri: {
     propertyTaxRate: 0.97,
     medianAnnualPropertyTax: 2377,
     salesTaxCombined: 8.28,
@@ -199,7 +199,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 125,
     avgMonthlyUtilities: 152,
   },
-  'kansas': {
+  kansas: {
     propertyTaxRate: 1.33,
     medianAnnualPropertyTax: 3126,
     salesTaxCombined: 8.69,
@@ -207,7 +207,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 115,
     avgMonthlyUtilities: 148,
   },
-  'nebraska': {
+  nebraska: {
     propertyTaxRate: 1.67,
     medianAnnualPropertyTax: 4593,
     salesTaxCombined: 6.92,
@@ -215,7 +215,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 105,
     avgMonthlyUtilities: 152,
   },
-  'iowa': {
+  iowa: {
     propertyTaxRate: 1.52,
     medianAnnualPropertyTax: 3420,
     salesTaxCombined: 6.94,
@@ -223,7 +223,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 92,
     avgMonthlyUtilities: 148,
   },
-  'minnesota': {
+  minnesota: {
     propertyTaxRate: 1.11,
     medianAnnualPropertyTax: 3885,
     salesTaxCombined: 7.49,
@@ -231,7 +231,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 108,
     avgMonthlyUtilities: 162,
   },
-  'wisconsin': {
+  wisconsin: {
     propertyTaxRate: 1.73,
     medianAnnualPropertyTax: 5104,
     salesTaxCombined: 5.43,
@@ -239,15 +239,15 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 98,
     avgMonthlyUtilities: 158,
   },
-  'michigan': {
+  michigan: {
     propertyTaxRate: 1.44,
     medianAnnualPropertyTax: 3384,
-    salesTaxCombined: 6.00,
+    salesTaxCombined: 6.0,
     avgHomeInsuranceMonthly: 101,
     avgAutoInsuranceMonthly: 183,
     avgMonthlyUtilities: 155,
   },
-  'illinois': {
+  illinois: {
     propertyTaxRate: 2.08,
     medianAnnualPropertyTax: 5824,
     salesTaxCombined: 8.82,
@@ -255,15 +255,15 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 120,
     avgMonthlyUtilities: 152,
   },
-  'indiana': {
+  indiana: {
     propertyTaxRate: 0.83,
     medianAnnualPropertyTax: 1951,
-    salesTaxCombined: 7.00,
+    salesTaxCombined: 7.0,
     avgHomeInsuranceMonthly: 97,
     avgAutoInsuranceMonthly: 105,
     avgMonthlyUtilities: 148,
   },
-  'ohio': {
+  ohio: {
     propertyTaxRate: 1.62,
     medianAnnualPropertyTax: 3726,
     salesTaxCombined: 7.24,
@@ -271,7 +271,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 96,
     avgMonthlyUtilities: 145,
   },
-  'pennsylvania': {
+  pennsylvania: {
     propertyTaxRate: 1.49,
     medianAnnualPropertyTax: 3949,
     salesTaxCombined: 6.34,
@@ -295,7 +295,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 165,
     avgMonthlyUtilities: 158,
   },
-  'delaware': {
+  delaware: {
     propertyTaxRate: 0.56,
     medianAnnualPropertyTax: 2044,
     salesTaxCombined: 0,
@@ -303,10 +303,10 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 121,
     avgMonthlyUtilities: 145,
   },
-  'maryland': {
+  maryland: {
     propertyTaxRate: 1.07,
     medianAnnualPropertyTax: 4548,
-    salesTaxCombined: 6.00,
+    salesTaxCombined: 6.0,
     avgHomeInsuranceMonthly: 97,
     avgAutoInsuranceMonthly: 132,
     avgMonthlyUtilities: 145,
@@ -319,23 +319,23 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 112,
     avgMonthlyUtilities: 145,
   },
-  'kentucky': {
-    propertyTaxRate: 0.80,
+  kentucky: {
+    propertyTaxRate: 0.8,
     medianAnnualPropertyTax: 1760,
-    salesTaxCombined: 6.00,
+    salesTaxCombined: 6.0,
     avgHomeInsuranceMonthly: 104,
     avgAutoInsuranceMonthly: 112,
     avgMonthlyUtilities: 140,
   },
-  'alabama': {
-    propertyTaxRate: 0.40,
+  alabama: {
+    propertyTaxRate: 0.4,
     medianAnnualPropertyTax: 840,
     salesTaxCombined: 9.25,
     avgHomeInsuranceMonthly: 142,
     avgAutoInsuranceMonthly: 118,
     avgMonthlyUtilities: 152,
   },
-  'mississippi': {
+  mississippi: {
     propertyTaxRate: 0.67,
     medianAnnualPropertyTax: 1240,
     salesTaxCombined: 7.07,
@@ -343,7 +343,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 122,
     avgMonthlyUtilities: 148,
   },
-  'louisiana': {
+  louisiana: {
     propertyTaxRate: 0.55,
     medianAnnualPropertyTax: 1320,
     salesTaxCombined: 9.56,
@@ -351,7 +351,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 182,
     avgMonthlyUtilities: 155,
   },
-  'arkansas': {
+  arkansas: {
     propertyTaxRate: 0.61,
     medianAnnualPropertyTax: 1251,
     salesTaxCombined: 9.46,
@@ -367,15 +367,15 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 125,
     avgMonthlyUtilities: 148,
   },
-  'maine': {
+  maine: {
     propertyTaxRate: 1.09,
     medianAnnualPropertyTax: 4088,
-    salesTaxCombined: 5.50,
+    salesTaxCombined: 5.5,
     avgHomeInsuranceMonthly: 103,
     avgAutoInsuranceMonthly: 90,
     avgMonthlyUtilities: 158,
   },
-  'vermont': {
+  vermont: {
     propertyTaxRate: 1.83,
     medianAnnualPropertyTax: 7046,
     salesTaxCombined: 6.24,
@@ -383,7 +383,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 84,
     avgMonthlyUtilities: 165,
   },
-  'massachusetts': {
+  massachusetts: {
     propertyTaxRate: 1.14,
     medianAnnualPropertyTax: 7125,
     salesTaxCombined: 6.25,
@@ -391,7 +391,7 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 128,
     avgMonthlyUtilities: 172,
   },
-  'connecticut': {
+  connecticut: {
     propertyTaxRate: 2.15,
     medianAnnualPropertyTax: 8493,
     salesTaxCombined: 6.35,
@@ -402,12 +402,12 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
   'rhode-island': {
     propertyTaxRate: 1.53,
     medianAnnualPropertyTax: 6503,
-    salesTaxCombined: 7.00,
+    salesTaxCombined: 7.0,
     avgHomeInsuranceMonthly: 110,
     avgAutoInsuranceMonthly: 148,
     avgMonthlyUtilities: 168,
   },
-  'hawaii': {
+  hawaii: {
     propertyTaxRate: 0.27,
     medianAnnualPropertyTax: 2295,
     salesTaxCombined: 4.44,

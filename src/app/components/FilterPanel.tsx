@@ -20,7 +20,6 @@ interface FilterPanelProps {
   onWeightChange: (key: string, value: number) => void;
   onReset: () => void;
   onClose?: () => void;
-  isMobile?: boolean;
 }
 
 export default function FilterPanel({
@@ -30,7 +29,6 @@ export default function FilterPanel({
   onWeightChange,
   onReset,
   onClose,
-  isMobile,
 }: FilterPanelProps) {
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
@@ -93,7 +91,7 @@ export default function FilterPanel({
       {/* Weights */}
       <div className="space-y-4 pt-4 border-t border-slate-200">
         <h4 className="font-medium text-sm text-slate-700">Customize Priorities</h4>
-        
+
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm mb-1">
             <Label>Tax Friendliness</Label>

@@ -25,8 +25,10 @@ function FitBounds({ geojson }: { geojson: GeoJsonObject | null }) {
   useEffect(() => {
     if (!geojson) return;
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
       const L = (window as any).L ?? map;
       // Use Leaflet's geoJSON to get bounds
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const layer = (window as any).L?.geoJSON(geojson);
       if (layer) {
         const bounds = layer.getBounds();
@@ -50,6 +52,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
   const [stateGeojson, setStateGeojson] = useState<GeoJsonObject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const geoJsonRef = useRef<any>(null);
 
   const facilities = vaFacilityLocations[stateId] ?? [];
@@ -60,9 +63,10 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
       try {
         if (!topoCache) {
           const res = await fetch(TOPO_URL);
-          topoCache = await res.json() as Topology;
+          topoCache = (await res.json()) as Topology;
         }
         const topo = topoCache;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const statesCollection = feature(topo, (topo as any).objects.states) as any;
         const stateFeature: Feature | undefined = statesCollection.features.find(
           (f: Feature) => String(f.id) === fips
@@ -120,11 +124,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
         />
 
         {/* State boundary */}
-        <GeoJSON
-          ref={geoJsonRef}
-          data={stateGeojson}
-          style={stateStyle}
-        />
+        <GeoJSON ref={geoJsonRef} data={stateGeojson} style={stateStyle} />
 
         {/* VA facility markers */}
         {facilities.map((facility, i) => (
@@ -140,9 +140,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
             }}
           >
             <Popup>
-              <div className="text-sm font-medium leading-snug max-w-[200px]">
-                {facility.name}
-              </div>
+              <div className="text-sm font-medium leading-snug max-w-[200px]">{facility.name}</div>
             </Popup>
           </CircleMarker>
         ))}

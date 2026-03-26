@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
-import { ChevronDown, ChevronUp, ShieldCheck, TrendingUp, TrendingDown, DollarSign, Info } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Info,
+} from 'lucide-react';
 import { StateData } from '../data/stateData';
 import {
   FinancialInputs,
@@ -24,7 +32,11 @@ function BreakdownTooltip({ breakdown }: { breakdown: FinancialBreakdown }) {
   const items: LineItem[] = [
     { label: 'State tax on pension', value: fmt$(breakdown.stateTaxOnPension) },
     { label: 'Property tax (monthly)', value: fmt$(breakdown.propertyTaxMonthly) },
-    { label: 'Sales tax on spending', value: fmt$(breakdown.salesTaxOnSpending), sub: '~35% of income × combined rate' },
+    {
+      label: 'Sales tax on spending',
+      value: fmt$(breakdown.salesTaxOnSpending),
+      sub: '~35% of income × combined rate',
+    },
     { label: 'Home insurance', value: fmt$(breakdown.homeInsuranceMonthly) },
     { label: 'Auto insurance', value: fmt$(breakdown.autoInsuranceMonthly) },
     { label: 'Utilities', value: fmt$(breakdown.utilitiesMonthly) },
@@ -49,7 +61,8 @@ function BreakdownTooltip({ breakdown }: { breakdown: FinancialBreakdown }) {
         </div>
       </div>
       <p className="mt-3 text-xs text-slate-400 leading-relaxed">
-        Estimates based on state averages. Does not include food, healthcare, transportation, or personal spending.
+        Estimates based on state averages. Does not include food, healthcare, transportation, or
+        personal spending.
       </p>
     </div>
   );
@@ -59,10 +72,7 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
-  const results = useMemo(
-    () => computeAllRealities(states, inputs),
-    [states, inputs]
-  );
+  const results = useMemo(() => computeAllRealities(states, inputs), [states, inputs]);
 
   if (results.length === 0) return null;
 
@@ -78,7 +88,8 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
   // Use the top-ranked state (already sorted by score in Dashboard) for center card
   const topState = results[0];
 
-  const hasDisability = inputs.disabilityRating && inputs.disabilityRating !== 'none' && inputs.disabilityRating !== '';
+  const hasDisability =
+    inputs.disabilityRating && inputs.disabilityRating !== 'none' && inputs.disabilityRating !== '';
   const monthlyPension = inputs.retirementIncome / 12;
 
   return (
@@ -101,18 +112,18 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
           </button>
         </div>
         <p className="text-slate-400 text-sm">
-          Based on{' '}
-          <span className="text-white font-medium">{fmt$(monthlyPension)}/mo pension</span>
+          Based on <span className="text-white font-medium">{fmt$(monthlyPension)}/mo pension</span>
           {hasDisability && (
             <>
-              {' '}+{' '}
+              {' '}
+              +{' '}
               <span className="text-white font-medium">
-                {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability ({inputs.disabilityRating}%)
+                {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability (
+                {inputs.disabilityRating}%)
               </span>
             </>
-          )}
-          {' '}across{' '}
-          <span className="text-white font-medium">{results.length} states</span>
+          )}{' '}
+          across <span className="text-white font-medium">{results.length} states</span>
         </p>
       </div>
 
@@ -120,14 +131,14 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-slate-700">
         {/* Total monthly income */}
         <div className="bg-slate-800/80 px-5 py-4">
-          <p className="text-slate-400 text-xs uppercase tracking-wide mb-1">Total Monthly Income</p>
+          <p className="text-slate-400 text-xs uppercase tracking-wide mb-1">
+            Total Monthly Income
+          </p>
           <p className="text-2xl font-bold text-white">
             {fmt$(topState.breakdown.totalMonthlyIncome)}
           </p>
           {hasDisability && (
-            <p className="text-xs text-slate-400 mt-1">
-              Pension + disability combined
-            </p>
+            <p className="text-xs text-slate-400 mt-1">Pension + disability combined</p>
           )}
           <div className="mt-2 flex items-center gap-1.5">
             <ShieldCheck className="w-3 h-3 text-green-400 flex-shrink-0" />
@@ -148,15 +159,9 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
           <p className="text-2xl font-bold text-white">
             {fmt$(topState.breakdown.totalTrackedExpenses)}
           </p>
-          <p className="text-xs text-slate-400 mt-1">
-            Tax + insurance + utilities
-          </p>
-          <p className="text-xs text-slate-500 mt-1">
-            In {topState.state.name} (top ranked)
-          </p>
-          {showTooltip === 'costs' && (
-            <BreakdownTooltip breakdown={topState.breakdown} />
-          )}
+          <p className="text-xs text-slate-400 mt-1">Tax + insurance + utilities</p>
+          <p className="text-xs text-slate-500 mt-1">In {topState.state.name} (top ranked)</p>
+          {showTooltip === 'costs' && <BreakdownTooltip breakdown={topState.breakdown} />}
         </div>
 
         {/* Best state */}
@@ -213,15 +218,14 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
                 {sorted.slice(0, 10).map(({ state, breakdown }, i) => (
                   <tr
                     key={state.id}
-                    className={cn(
-                      'border-t border-slate-800',
-                      i === 0 && 'bg-green-900/20'
-                    )}
+                    className={cn('border-t border-slate-800', i === 0 && 'bg-green-900/20')}
                   >
                     <td className="py-2 pr-4">
                       <div className="flex items-center gap-2">
                         {i === 0 && (
-                          <span className="text-xs bg-green-700/50 text-green-300 px-1.5 py-0.5 rounded">Best</span>
+                          <span className="text-xs bg-green-700/50 text-green-300 px-1.5 py-0.5 rounded">
+                            Best
+                          </span>
                         )}
                         <span className="text-white font-medium">{state.name}</span>
                         <span className="text-slate-500 text-xs">{state.abbreviation}</span>
@@ -260,8 +264,8 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
                           breakdown.monthlyRemaining > avgRemaining
                             ? 'text-green-400'
                             : breakdown.monthlyRemaining < avgRemaining
-                            ? 'text-red-400'
-                            : 'text-slate-300'
+                              ? 'text-red-400'
+                              : 'text-slate-300'
                         )}
                       >
                         {fmt$(breakdown.monthlyRemaining)}
@@ -273,9 +277,11 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
             </table>
           </div>
           <p className="text-xs text-slate-600 mt-4 leading-relaxed">
-            Estimates use state average insurance and utility rates. Property tax based on state median home value × effective rate.
-            Sales tax applied to ~35% of monthly income. Does not include food, healthcare, mortgage principal, or discretionary spending.
-            VA Disability Compensation is exempt from all state taxes under federal law (38 U.S.C. § 5301).
+            Estimates use state average insurance and utility rates. Property tax based on state
+            median home value × effective rate. Sales tax applied to ~35% of monthly income. Does
+            not include food, healthcare, mortgage principal, or discretionary spending. VA
+            Disability Compensation is exempt from all state taxes under federal law (38 U.S.C. §
+            5301).
           </p>
         </div>
       )}

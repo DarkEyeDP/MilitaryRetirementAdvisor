@@ -10,7 +10,6 @@ import {
   ArrowLeft,
   DollarSign,
   Home,
-  TrendingDown,
   Building2,
   Users,
   CheckCircle2,
@@ -52,8 +51,10 @@ export default function StateDetail() {
   };
 
   const getTaxBadge = (tax: string) => {
-    if (tax === 'No') return { text: 'Tax Free', color: 'bg-green-100 text-green-700', icon: CheckCircle2 };
-    if (tax === 'Partial') return { text: 'Partially Taxed', color: 'bg-yellow-100 text-yellow-700', icon: AlertCircle };
+    if (tax === 'No')
+      return { text: 'Tax Free', color: 'bg-green-100 text-green-700', icon: CheckCircle2 };
+    if (tax === 'Partial')
+      return { text: 'Partially Taxed', color: 'bg-yellow-100 text-yellow-700', icon: AlertCircle };
     return { text: 'Fully Taxed', color: 'bg-red-100 text-red-700', icon: XCircle };
   };
 
@@ -92,9 +93,7 @@ export default function StateDetail() {
                   {taxBadge.text}
                 </Badge>
               </div>
-              <p className="text-blue-100 text-lg">
-                Retirement Friendliness Analysis for Veterans
-              </p>
+              <p className="text-blue-100 text-lg">Retirement Friendliness Analysis for Veterans</p>
             </div>
             <div className={`text-right ${getScoreBg(state.retirementScore)} rounded-xl p-4`}>
               <div className="text-sm text-slate-600 mb-1">Overall Score</div>
@@ -151,10 +150,14 @@ export default function StateDetail() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600">Veteran Population</CardTitle>
+              <CardTitle className="text-sm font-medium text-slate-600">
+                Veteran Population
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{(state.veteranPopulation / 1000).toFixed(0)}k</div>
+              <div className="text-2xl font-bold">
+                {(state.veteranPopulation / 1000).toFixed(0)}k
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -165,7 +168,15 @@ export default function StateDetail() {
             {/* Summary Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Why {state.name} {state.retirementScore >= 85 ? 'is Great' : state.retirementScore >= 75 ? 'Could Work' : 'May Challenge'} for Your Retirement</CardTitle>
+                <CardTitle>
+                  Why {state.name}{' '}
+                  {state.retirementScore >= 85
+                    ? 'is Great'
+                    : state.retirementScore >= 75
+                      ? 'Could Work'
+                      : 'May Challenge'}{' '}
+                  for Your Retirement
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -212,7 +223,7 @@ export default function StateDetail() {
                     <TabsTrigger value="property">Property Tax</TabsTrigger>
                     <TabsTrigger value="sales">Sales Tax</TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="income" className="space-y-4">
                     <div>
                       <div className="flex justify-between mb-2">
@@ -229,8 +240,8 @@ export default function StateDetail() {
                         {state.militaryPensionTax === 'No'
                           ? 'Your military retirement income is fully exempt from state income tax.'
                           : state.militaryPensionTax === 'Partial'
-                          ? 'A portion of your military retirement income may be exempt from state income tax. Check current exemption limits.'
-                          : 'Military retirement income is subject to state income tax.'}
+                            ? 'A portion of your military retirement income may be exempt from state income tax. Check current exemption limits.'
+                            : 'Military retirement income is subject to state income tax.'}
                       </p>
                     </div>
                   </TabsContent>
@@ -239,10 +250,15 @@ export default function StateDetail() {
                     <div>
                       <div className="flex justify-between mb-2">
                         <span className="font-medium">Property Tax Level</span>
-                        <Badge variant={
-                          state.propertyTaxLevel === 'Low' ? 'default' :
-                          state.propertyTaxLevel === 'Medium' ? 'secondary' : 'destructive'
-                        }>
+                        <Badge
+                          variant={
+                            state.propertyTaxLevel === 'Low'
+                              ? 'default'
+                              : state.propertyTaxLevel === 'Medium'
+                                ? 'secondary'
+                                : 'destructive'
+                          }
+                        >
                           {state.propertyTaxLevel}
                         </Badge>
                       </div>
@@ -253,7 +269,8 @@ export default function StateDetail() {
                         <span className="font-semibold">${state.avgHomeCost.toLocaleString()}</span>
                       </div>
                       <p className="text-xs text-slate-600 mt-2">
-                        Property tax exemptions and credits may be available for disabled veterans. Check local county assessor for details.
+                        Property tax exemptions and credits may be available for disabled veterans.
+                        Check local county assessor for details.
                       </p>
                     </div>
                   </TabsContent>
@@ -270,7 +287,8 @@ export default function StateDetail() {
                     </div>
                     <div className="bg-slate-50 rounded-lg p-4 text-sm text-slate-600">
                       <p>
-                        Local sales taxes may apply in addition to state rates. Total combined rates vary by county and city.
+                        Local sales taxes may apply in addition to state rates. Total combined rates
+                        vary by county and city.
                       </p>
                     </div>
                   </TabsContent>
@@ -311,23 +329,33 @@ export default function StateDetail() {
                   <div className="flex justify-between mb-2 text-sm">
                     <span>Tax Friendliness</span>
                     <span className="font-semibold">
-                      {state.militaryPensionTax === 'No' ? '100' : state.militaryPensionTax === 'Partial' ? '60' : '20'}/100
+                      {state.militaryPensionTax === 'No'
+                        ? '100'
+                        : state.militaryPensionTax === 'Partial'
+                          ? '60'
+                          : '20'}
+                      /100
                     </span>
                   </div>
-                  <Progress 
-                    value={state.militaryPensionTax === 'No' ? 100 : state.militaryPensionTax === 'Partial' ? 60 : 20} 
-                    className="h-2" 
+                  <Progress
+                    value={
+                      state.militaryPensionTax === 'No'
+                        ? 100
+                        : state.militaryPensionTax === 'Partial'
+                          ? 60
+                          : 20
+                    }
+                    className="h-2"
                   />
                 </div>
                 <div>
                   <div className="flex justify-between mb-2 text-sm">
                     <span>Cost of Living</span>
-                    <span className="font-semibold">{Math.max(0, 200 - state.costOfLivingIndex)}/100</span>
+                    <span className="font-semibold">
+                      {Math.max(0, 200 - state.costOfLivingIndex)}/100
+                    </span>
                   </div>
-                  <Progress 
-                    value={Math.max(0, 200 - state.costOfLivingIndex)} 
-                    className="h-2" 
-                  />
+                  <Progress value={Math.max(0, 200 - state.costOfLivingIndex)} className="h-2" />
                 </div>
                 <div>
                   <div className="flex justify-between mb-2 text-sm">
@@ -357,7 +385,9 @@ export default function StateDetail() {
                   <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium text-sm">Total Veterans</div>
-                    <div className="text-2xl font-bold">{state.veteranPopulation.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">
+                      {state.veteranPopulation.toLocaleString()}
+                    </div>
                   </div>
                 </div>
                 <Separator />
@@ -365,7 +395,9 @@ export default function StateDetail() {
                   <Home className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
                     <div className="font-medium text-sm">Average Home Price</div>
-                    <div className="text-2xl font-bold">${(state.avgHomeCost / 1000).toFixed(0)}k</div>
+                    <div className="text-2xl font-bold">
+                      ${(state.avgHomeCost / 1000).toFixed(0)}k
+                    </div>
                   </div>
                 </div>
                 <Separator />
@@ -387,8 +419,8 @@ export default function StateDetail() {
                 <p className="text-blue-100 text-sm mb-4">
                   Add more states to your comparison to make the best decision.
                 </p>
-                <Button 
-                  variant="secondary" 
+                <Button
+                  variant="secondary"
                   className="w-full"
                   onClick={() => navigate('/dashboard')}
                 >
@@ -406,7 +438,8 @@ export default function StateDetail() {
           <div className="text-center text-sm text-slate-500">
             <p>Data last updated: March 2026</p>
             <p className="mt-1">
-              Always verify current tax laws and benefits with official state resources and your tax advisor.
+              Always verify current tax laws and benefits with official state resources and your tax
+              advisor.
             </p>
           </div>
         </div>

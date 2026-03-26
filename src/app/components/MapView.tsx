@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { StateData } from '../data/stateData';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
 import { useNavigate } from 'react-router';
 
 interface MapViewProps {
@@ -61,7 +59,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
           {states.map((state) => {
             const score = customScores?.[state.id] ?? state.retirementScore;
             const color = getScoreColor(score);
-            
+
             return (
               <button
                 key={state.id}

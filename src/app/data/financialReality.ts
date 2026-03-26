@@ -22,25 +22,25 @@ import { stateFinancialData } from './financialData';
 // ─── VA Disability Monthly Pay (2026, single veteran, no dependents) ────────
 // Source: VA.gov compensation rate tables (with 2.5% COLA from 2025)
 export const VA_DISABILITY_MONTHLY: Record<string, number> = {
-  '':     0,
-  'none': 0,
-  '10':   175,
-  '20':   347,
-  '30':   537,
-  '40':   774,
-  '50':   1102,
-  '60':   1396,
-  '70':   1759,
-  '80':   2045,
-  '90':   2298,
-  '100':  3831,
+  '': 0,
+  none: 0,
+  '10': 175,
+  '20': 347,
+  '30': 537,
+  '40': 774,
+  '50': 1102,
+  '60': 1396,
+  '70': 1759,
+  '80': 2045,
+  '90': 2298,
+  '100': 3831,
 };
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export interface FinancialInputs {
-  retirementIncome: number;  // annual military pension ($)
-  disabilityRating: string;  // '10'–'100', 'none', or ''
+  retirementIncome: number; // annual military pension ($)
+  disabilityRating: string; // '10'–'100', 'none', or ''
 }
 
 export interface FinancialBreakdown {
@@ -62,7 +62,7 @@ export interface FinancialBreakdown {
   monthlyRemaining: number;
 
   // Meta
-  hasFinancialData: boolean;  // false if state not in financialData.ts yet
+  hasFinancialData: boolean; // false if state not in financialData.ts yet
 }
 
 // ─── Calculator ──────────────────────────────────────────────────────────────
@@ -76,10 +76,18 @@ export function calculateFinancialReality(
   if (!fin) {
     // State not yet in financial data — return zeroed breakdown
     return {
-      monthlyPension: 0, monthlyDisabilityPay: 0, totalMonthlyIncome: 0,
-      stateTaxOnPension: 0, propertyTaxMonthly: 0, salesTaxOnSpending: 0,
-      homeInsuranceMonthly: 0, autoInsuranceMonthly: 0, utilitiesMonthly: 0,
-      totalTrackedExpenses: 0, monthlyRemaining: 0, hasFinancialData: false,
+      monthlyPension: 0,
+      monthlyDisabilityPay: 0,
+      totalMonthlyIncome: 0,
+      stateTaxOnPension: 0,
+      propertyTaxMonthly: 0,
+      salesTaxOnSpending: 0,
+      homeInsuranceMonthly: 0,
+      autoInsuranceMonthly: 0,
+      utilitiesMonthly: 0,
+      totalTrackedExpenses: 0,
+      monthlyRemaining: 0,
+      hasFinancialData: false,
     };
   }
 

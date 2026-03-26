@@ -13,7 +13,13 @@ interface ComparisonDrawerProps {
   customScores?: Record<string, number>;
 }
 
-export default function ComparisonDrawer({ states, open, onClose, onRemove, customScores }: ComparisonDrawerProps) {
+export default function ComparisonDrawer({
+  states,
+  open,
+  onClose,
+  onRemove,
+  customScores,
+}: ComparisonDrawerProps) {
   const navigate = useNavigate();
 
   if (states.length === 0) return null;
@@ -61,11 +67,15 @@ export default function ComparisonDrawer({ states, open, onClose, onRemove, cust
                       const score = customScores?.[state.id] ?? state.retirementScore;
                       return (
                         <td key={state.id} className="text-center py-3 px-2">
-                          <Badge className={
-                            score >= 90 ? 'bg-green-100 text-green-700' :
-                            score >= 80 ? 'bg-blue-100 text-blue-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }>
+                          <Badge
+                            className={
+                              score >= 90
+                                ? 'bg-green-100 text-green-700'
+                                : score >= 80
+                                  ? 'bg-blue-100 text-blue-700'
+                                  : 'bg-yellow-100 text-yellow-700'
+                            }
+                          >
                             {score}
                           </Badge>
                         </td>
@@ -76,11 +86,15 @@ export default function ComparisonDrawer({ states, open, onClose, onRemove, cust
                     <td className="py-3 px-2 font-medium">Military Pension Tax</td>
                     {states.map((state) => (
                       <td key={state.id} className="text-center py-3 px-2">
-                        <Badge className={
-                          state.militaryPensionTax === 'No' ? 'bg-green-100 text-green-700' :
-                          state.militaryPensionTax === 'Partial' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
-                        }>
+                        <Badge
+                          className={
+                            state.militaryPensionTax === 'No'
+                              ? 'bg-green-100 text-green-700'
+                              : state.militaryPensionTax === 'Partial'
+                                ? 'bg-yellow-100 text-yellow-700'
+                                : 'bg-red-100 text-red-700'
+                          }
+                        >
                           {state.militaryPensionTax}
                         </Badge>
                       </td>

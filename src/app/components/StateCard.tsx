@@ -12,7 +12,12 @@ interface StateCardProps {
   onToggleFavorite: (stateId: string) => void;
 }
 
-export default function StateCard({ state, customScore, isFavorite, onToggleFavorite }: StateCardProps) {
+export default function StateCard({
+  state,
+  customScore,
+  isFavorite,
+  onToggleFavorite,
+}: StateCardProps) {
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
 
@@ -37,11 +42,13 @@ export default function StateCard({ state, customScore, isFavorite, onToggleFavo
             <CardTitle className="text-xl mb-2">{state.name}</CardTitle>
             <div className="flex items-center gap-2 flex-wrap">
               <Badge className={getTaxBadgeColor(state.militaryPensionTax)}>
-                {state.militaryPensionTax === 'No' ? 'Tax Free' : state.militaryPensionTax === 'Partial' ? 'Partial Tax' : 'Taxed'}
+                {state.militaryPensionTax === 'No'
+                  ? 'Tax Free'
+                  : state.militaryPensionTax === 'Partial'
+                    ? 'Partial Tax'
+                    : 'Taxed'}
               </Badge>
-              {state.stateIncomeTax === 0 && (
-                <Badge variant="outline">No Income Tax</Badge>
-              )}
+              {state.stateIncomeTax === 0 && <Badge variant="outline">No Income Tax</Badge>}
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -57,10 +64,11 @@ export default function StateCard({ state, customScore, isFavorite, onToggleFavo
               }}
               className="h-8 w-8 p-0"
             >
-              {isFavorite
-                ? <BookmarkCheck className="w-4 h-4 text-blue-600" />
-                : <Bookmark className="w-4 h-4 text-slate-400" />
-              }
+              {isFavorite ? (
+                <BookmarkCheck className="w-4 h-4 text-blue-600" />
+              ) : (
+                <Bookmark className="w-4 h-4 text-slate-400" />
+              )}
             </Button>
           </div>
         </div>
@@ -112,7 +120,10 @@ export default function StateCard({ state, customScore, isFavorite, onToggleFavo
             </ul>
           </div>
 
-          <Button variant="outline" className="w-full group-hover:bg-blue-50 group-hover:border-blue-200 transition-colors">
+          <Button
+            variant="outline"
+            className="w-full group-hover:bg-blue-50 group-hover:border-blue-200 transition-colors"
+          >
             View Details
           </Button>
         </div>
