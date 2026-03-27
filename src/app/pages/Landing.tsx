@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import { Label } from '../components/ui/label';
@@ -37,14 +37,29 @@ export default function Landing() {
   const [disabilityRating, setDisabilityRating] = useState<string>(prefs.disabilityRating ?? '');
   const [preferredRegion, setPreferredRegion] = useState<string>(prefs.preferredRegion ?? '');
 
+  const [isLoading, setIsLoading] = useState(false);
+  const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states…', 'Ranking your results…'];
+  const [loadingMsg, setLoadingMsg] = useState(loadingMessages[0]);
+  const msgIndex = useRef(0);
+
   const handleCompare = () => {
-    navigate('/dashboard', {
-      state: {
-        retirementIncome,
-        disabilityRating,
-        preferredRegion,
-      },
-    });
+    setIsLoading(true);
+    setLoadingMsg(loadingMessages[0]);
+    msgIndex.current = 0;
+
+    const interval = setInterval(() => {
+      msgIndex.current += 1;
+      if (msgIndex.current < loadingMessages.length) {
+        setLoadingMsg(loadingMessages[msgIndex.current]);
+      }
+    }, 400);
+
+    setTimeout(() => {
+      clearInterval(interval);
+      navigate('/dashboard', {
+        state: { retirementIncome, disabilityRating, preferredRegion },
+      });
+    }, 1200);
   };
 
   return (
@@ -176,8 +191,20 @@ export default function Landing() {
             </div>
 
             {/* CTA Button */}
-            <Button onClick={handleCompare} className="w-full h-12 text-lg" size="lg">
-              Compare States
+            <Button
+              onClick={handleCompare}
+              disabled={isLoading}
+              className="w-full h-12 text-lg"
+              size="lg"
+            >
+              {isLoading ? (
+                <span className="flex items-center gap-3">
+                  <span className="inline-block w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                  {loadingMsg}
+                </span>
+              ) : (
+                'Compare States'
+              )}
             </Button>
           </div>
         </div>

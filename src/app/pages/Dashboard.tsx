@@ -44,6 +44,8 @@ export default function Dashboard() {
 
   const [view, setView] = useState<'table' | 'cards' | 'map'>('cards');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const savedScrollY = useRef(0);
 
   const handleViewChange = (newView: 'table' | 'cards' | 'map') => {
@@ -250,10 +252,39 @@ export default function Dashboard() {
 
               {/* Search */}
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                  <AnimatePresence mode="wait">
+                    {isSearching ? (
+                      <motion.span
+                        key="spinner"
+                        initial={{ opacity: 0, rotate: 0 }}
+                        animate={{ opacity: 1, rotate: 360 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ rotate: { duration: 0.6, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.15 } }}
+                        className="block w-4 h-4 rounded-full border-2 border-slate-200 border-t-blue-500"
+                      />
+                    ) : (
+                      <motion.span
+                        key="icon"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="block"
+                      >
+                        <Search className="w-4 h-4 text-slate-400" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </div>
                 <Input
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsSearching(true);
+                    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+                    searchTimerRef.current = setTimeout(() => setIsSearching(false), 600);
+                  }}
                   placeholder="Search states by name or abbreviation — separate multiple with spaces or commas"
                   className="pl-9 pr-9 h-10 bg-white border border-slate-300 rounded-lg shadow-sm placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
                 />
