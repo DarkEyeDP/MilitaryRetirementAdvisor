@@ -190,7 +190,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
             <span>{stateName} boundary</span>
           </div>
         </div>
-        <span className="text-xs text-slate-400">Click markers for facility names</span>
+        <span className="text-xs text-slate-400">Click markers for facility information</span>
       </div>
     </div>
   );

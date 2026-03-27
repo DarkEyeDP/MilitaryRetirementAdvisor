@@ -8,19 +8,25 @@ import {
   Wallet,
   DollarSign,
   Info,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { StateData } from '../data/stateData';
 import {
   FinancialInputs,
   FinancialBreakdown,
+  UserCostProfile,
   computeAllRealities,
   fmt$,
 } from '../data/financialReality';
+import { StateFinancialData } from '../data/financialData';
 import { cn } from '@/app/components/ui/utils';
 
 interface Props {
   states: StateData[];
   inputs: FinancialInputs;
+  profile: UserCostProfile;
+  stateAvg: StateFinancialData | null;
+  onCustomize: () => void;
 }
 
 interface LineItem {
@@ -29,19 +35,21 @@ interface LineItem {
   sub?: string;
 }
 
-function BreakdownTooltip({ breakdown }: { breakdown: FinancialBreakdown }) {
-  const items: LineItem[] = [
+function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdown; profile: UserCostProfile }) {
+  const items: (LineItem & { overridden?: boolean })[] = [
     { label: 'State tax on pension', value: fmt$(breakdown.stateTaxOnPension) },
-    { label: 'Property tax (monthly)', value: fmt$(breakdown.propertyTaxMonthly) },
+    { label: 'Property tax (monthly)', value: fmt$(breakdown.propertyTaxMonthly), overridden: profile.propertyTaxOverride !== null },
     {
       label: 'Sales tax on spending',
       value: fmt$(breakdown.salesTaxOnSpending),
       sub: '~35% of income × combined rate',
     },
-    { label: 'Home insurance', value: fmt$(breakdown.homeInsuranceMonthly) },
-    { label: 'Auto insurance', value: fmt$(breakdown.autoInsuranceMonthly) },
-    { label: 'Utilities', value: fmt$(breakdown.utilitiesMonthly) },
+    { label: 'Home insurance', value: fmt$(breakdown.homeInsuranceMonthly), overridden: profile.homeInsuranceOverride !== null },
+    { label: 'Auto insurance', value: fmt$(breakdown.autoInsuranceMonthly), overridden: profile.autoInsuranceOverride !== null },
+    { label: 'Utilities', value: fmt$(breakdown.utilitiesMonthly), overridden: profile.utilitiesOverride !== null },
   ];
+
+  const hasCustom = breakdown.groceryMonthly > 0 || breakdown.customExpensesMonthly > 0;
 
   return (
     <div className="absolute z-50 top-full mt-2 left-0 w-72 bg-white border border-slate-200 rounded-lg shadow-xl p-4 text-sm">
@@ -50,30 +58,55 @@ function BreakdownTooltip({ breakdown }: { breakdown: FinancialBreakdown }) {
         {items.map((item) => (
           <div key={item.label} className="flex justify-between items-start gap-2">
             <div>
-              <span className="text-slate-600">{item.label}</span>
+              <span className={item.overridden ? 'text-blue-600' : 'text-slate-600'}>{item.label}</span>
               {item.sub && <p className="text-xs text-slate-400">{item.sub}</p>}
             </div>
-            <span className="font-medium text-slate-800 flex-shrink-0">{item.value}</span>
+            <span className={cn('font-medium flex-shrink-0', item.overridden ? 'text-blue-600' : 'text-slate-800')}>{item.value}</span>
           </div>
         ))}
+        {breakdown.groceryMonthly > 0 && (
+          <div className="flex justify-between items-start gap-2">
+            <span className="text-blue-600">Groceries</span>
+            <span className="font-medium text-blue-600 flex-shrink-0">{fmt$(breakdown.groceryMonthly)}</span>
+          </div>
+        )}
+        {breakdown.customExpensesMonthly > 0 && (
+          <div className="flex justify-between items-start gap-2">
+            <span className="text-blue-600">Custom expenses</span>
+            <span className="font-medium text-blue-600 flex-shrink-0">{fmt$(breakdown.customExpensesMonthly)}</span>
+          </div>
+        )}
         <div className="border-t border-slate-200 pt-2 flex justify-between font-semibold text-slate-900">
           <span>Total tracked</span>
           <span>{fmt$(breakdown.totalTrackedExpenses)}</span>
         </div>
       </div>
       <p className="mt-3 text-xs text-slate-400 leading-relaxed">
-        Estimates based on state averages. Does not include food, healthcare, transportation, or
-        personal spending.
+        {hasCustom
+          ? 'Includes your customized expenses. State averages used for non-overridden items.'
+          : 'Estimates based on state averages. Does not include food, healthcare, or personal spending.'}
       </p>
     </div>
   );
 }
 
-export default function FinancialRealityBanner({ states, inputs }: Props) {
+export default function FinancialRealityBanner({ states, inputs, profile, stateAvg, onCustomize }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
 
-  const results = useMemo(() => computeAllRealities(states, inputs), [states, inputs]);
+  const results = useMemo(
+    () => computeAllRealities(states, inputs, profile),
+    [states, inputs, profile]
+  );
+
+  const hasCustomizations =
+    profile.propertyTaxOverride !== null ||
+    profile.homeInsuranceOverride !== null ||
+    profile.autoInsuranceOverride !== null ||
+    profile.utilitiesOverride !== null ||
+    profile.groceryOverride !== null ||
+    profile.customLineItems.length > 0 ||
+    profile.householdMembers.length > 0;
 
   if (results.length === 0) return null;
 
@@ -104,13 +137,25 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
               Your Financial Reality
             </span>
           </div>
-          <button
-            onClick={() => setExpanded((v) => !v)}
-            className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg px-3 py-1.5 transition-colors"
-          >
-            {expanded ? 'Less detail' : 'Full breakdown'}
-            {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onCustomize}
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              Customize
+              {hasCustomizations && (
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 ml-0.5" />
+              )}
+            </button>
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              {expanded ? 'Less detail' : 'Full breakdown'}
+              {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
         <p className="text-slate-500 text-sm">
           Based on <span className="text-slate-900 font-medium">{fmt$(monthlyPension)}/mo pension</span>
@@ -156,13 +201,14 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
           <div className="flex items-center gap-1 mb-1">
             <p className="text-slate-400 text-xs uppercase tracking-wide">Est. Monthly Costs</p>
             <Info className="w-3 h-3 text-slate-400 cursor-help" />
+            {hasCustomizations && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
           </div>
           <p className="text-2xl font-bold text-slate-900">
             {fmt$(topState.breakdown.totalTrackedExpenses)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Tax + insurance + utilities</p>
           <p className="text-xs text-slate-400 mt-1">In {topState.state.name} (top ranked)</p>
-          {showTooltip === 'costs' && <BreakdownTooltip breakdown={topState.breakdown} />}
+          {showTooltip === 'costs' && <BreakdownTooltip breakdown={topState.breakdown} profile={profile} />}
         </div>
 
         {/* Best state */}
@@ -220,7 +266,12 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
                   <th className="text-right pb-2 pr-4">Prop. Tax/mo</th>
                   <th className="text-right pb-2 pr-4">Insurance/mo</th>
                   <th className="text-right pb-2 pr-4">Utilities/mo</th>
-                  <th className="text-right pb-2 pr-4">Total Costs</th>
+                  <th className="text-right pb-2 pr-4">
+                    <span className="inline-flex items-center gap-1">
+                      Total Costs
+                      {hasCustomizations && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
+                    </span>
+                  </th>
                   <th className="text-right pb-2">Remaining</th>
                 </tr>
               </thead>
@@ -289,11 +340,23 @@ export default function FinancialRealityBanner({ states, inputs }: Props) {
               </tbody>
             </table>
           </div>
+          {(topState.breakdown.groceryMonthly > 0 || topState.breakdown.customExpensesMonthly > 0) && (
+            <p className="text-xs text-blue-600 mt-3 leading-relaxed bg-blue-50 border border-blue-100 rounded-md px-3 py-2">
+              Total Costs includes
+              {topState.breakdown.groceryMonthly > 0 && (
+                <> your grocery estimate ({fmt$(topState.breakdown.groceryMonthly)}/mo)</>
+              )}
+              {topState.breakdown.groceryMonthly > 0 && topState.breakdown.customExpensesMonthly > 0 && ' and '}
+              {topState.breakdown.customExpensesMonthly > 0 && (
+                <> {profile.customLineItems.length} custom expense{profile.customLineItems.length !== 1 ? 's' : ''} ({fmt$(topState.breakdown.customExpensesMonthly)}/mo)</>
+              )}.
+            </p>
+          )}
           <p className="text-xs text-slate-400 mt-4 leading-relaxed">
             Estimates use state average insurance and utility rates. Property tax based on state
             median home value × effective rate. Sales tax applied to ~35% of monthly income. Does
-            not include food, healthcare, mortgage principal, or discretionary spending. VA
-            Disability Compensation is exempt from all state taxes under federal law (38 U.S.C. §
+            not include healthcare, mortgage principal, or discretionary spending unless customized.
+            VA Disability Compensation is exempt from all state taxes under federal law (38 U.S.C. §
             5301).
           </p>
         </div>

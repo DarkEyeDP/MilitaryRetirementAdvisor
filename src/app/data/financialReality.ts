@@ -43,6 +43,59 @@ export interface FinancialInputs {
   disabilityRating: string; // '10'–'100', 'none', or ''
 }
 
+export type AgeGroup = 'under6' | '6to12' | '13to18' | 'adult' | 'senior';
+
+export interface HouseholdMember {
+  id: string;
+  ageGroup: AgeGroup;
+}
+
+export const AGE_GROUP_LABELS: Record<AgeGroup, string> = {
+  under6: 'Child (under 6)',
+  '6to12': 'Child (6–12)',
+  '13to18': 'Teen (13–18)',
+  adult: 'Adult (19–64)',
+  senior: 'Senior (65+)',
+};
+
+// USDA moderate-cost food plan monthly estimates (2026)
+export const GROCERY_MONTHLY_PER_PERSON: Record<AgeGroup, number> = {
+  under6: 220,
+  '6to12': 295,
+  '13to18': 345,
+  adult: 365,
+  senior: 315,
+};
+
+export interface CustomLineItem {
+  id: string;
+  label: string;
+  amount: number; // monthly $
+}
+
+export interface UserCostProfile {
+  // Override state estimates — null means "use state average"
+  propertyTaxOverride: number | null;
+  homeInsuranceOverride: number | null;
+  autoInsuranceOverride: number | null;
+  utilitiesOverride: number | null;
+  // Groceries
+  householdMembers: HouseholdMember[];
+  groceryOverride: number | null; // null = auto-calculated from household
+  // Custom monthly expenses
+  customLineItems: CustomLineItem[];
+}
+
+export const DEFAULT_USER_COST_PROFILE: UserCostProfile = {
+  propertyTaxOverride: null,
+  homeInsuranceOverride: null,
+  autoInsuranceOverride: null,
+  utilitiesOverride: null,
+  householdMembers: [],
+  groceryOverride: null,
+  customLineItems: [],
+};
+
 export interface FinancialBreakdown {
   // Income
   monthlyPension: number;
@@ -56,6 +109,8 @@ export interface FinancialBreakdown {
   homeInsuranceMonthly: number;
   autoInsuranceMonthly: number;
   utilitiesMonthly: number;
+  groceryMonthly: number;
+  customExpensesMonthly: number;
 
   // Totals
   totalTrackedExpenses: number;
@@ -69,7 +124,8 @@ export interface FinancialBreakdown {
 
 export function calculateFinancialReality(
   state: StateData,
-  inputs: FinancialInputs
+  inputs: FinancialInputs,
+  profile: UserCostProfile = DEFAULT_USER_COST_PROFILE
 ): FinancialBreakdown {
   const fin = stateFinancialData[state.id];
 
@@ -85,6 +141,8 @@ export function calculateFinancialReality(
       homeInsuranceMonthly: 0,
       autoInsuranceMonthly: 0,
       utilitiesMonthly: 0,
+      groceryMonthly: 0,
+      customExpensesMonthly: 0,
       totalTrackedExpenses: 0,
       monthlyRemaining: 0,
       hasFinancialData: false,
@@ -105,15 +163,39 @@ export function calculateFinancialReality(
   }
   // VA disability is always exempt — zero state tax regardless
 
-  // Property tax (monthly equivalent, assumes homeowner)
-  const propertyTaxMonthly = fin.medianAnnualPropertyTax / 12;
+  // Property tax — use override if set, otherwise state average
+  const propertyTaxMonthly = profile.propertyTaxOverride !== null
+    ? profile.propertyTaxOverride
+    : fin.medianAnnualPropertyTax / 12;
 
   // Sales tax on estimated taxable spending (~35% of total income)
   const salesTaxOnSpending = totalMonthlyIncome * 0.35 * (fin.salesTaxCombined / 100);
 
-  const homeInsuranceMonthly = fin.avgHomeInsuranceMonthly;
-  const autoInsuranceMonthly = fin.avgAutoInsuranceMonthly;
-  const utilitiesMonthly = fin.avgMonthlyUtilities;
+  const homeInsuranceMonthly = profile.homeInsuranceOverride !== null
+    ? profile.homeInsuranceOverride
+    : fin.avgHomeInsuranceMonthly;
+
+  const autoInsuranceMonthly = profile.autoInsuranceOverride !== null
+    ? profile.autoInsuranceOverride
+    : fin.avgAutoInsuranceMonthly;
+
+  const utilitiesMonthly = profile.utilitiesOverride !== null
+    ? profile.utilitiesOverride
+    : fin.avgMonthlyUtilities;
+
+  // Groceries — use override or calculate from household members
+  const groceryMonthly = profile.groceryOverride !== null
+    ? profile.groceryOverride
+    : profile.householdMembers.reduce(
+        (sum, m) => sum + GROCERY_MONTHLY_PER_PERSON[m.ageGroup],
+        0
+      );
+
+  // Custom line items
+  const customExpensesMonthly = profile.customLineItems.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
 
   const totalTrackedExpenses =
     stateTaxOnPension +
@@ -121,7 +203,9 @@ export function calculateFinancialReality(
     salesTaxOnSpending +
     homeInsuranceMonthly +
     autoInsuranceMonthly +
-    utilitiesMonthly;
+    utilitiesMonthly +
+    groceryMonthly +
+    customExpensesMonthly;
 
   return {
     monthlyPension,
@@ -133,6 +217,8 @@ export function calculateFinancialReality(
     homeInsuranceMonthly,
     autoInsuranceMonthly,
     utilitiesMonthly,
+    groceryMonthly,
+    customExpensesMonthly,
     totalTrackedExpenses,
     monthlyRemaining: totalMonthlyIncome - totalTrackedExpenses,
     hasFinancialData: true,
@@ -144,12 +230,13 @@ export function calculateFinancialReality(
 /** Compute financial reality for an array of states and return sorted results. */
 export function computeAllRealities(
   states: StateData[],
-  inputs: FinancialInputs
+  inputs: FinancialInputs,
+  profile: UserCostProfile = DEFAULT_USER_COST_PROFILE
 ): Array<{ state: StateData; breakdown: FinancialBreakdown }> {
   return states
     .map((state) => ({
       state,
-      breakdown: calculateFinancialReality(state, inputs),
+      breakdown: calculateFinancialReality(state, inputs, profile),
     }))
     .filter((r) => r.breakdown.hasFinancialData);
 }

@@ -1,8 +1,10 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore } from '../data/stateData';
-import { FinancialInputs } from '../data/financialReality';
+import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE } from '../data/financialReality';
+import { stateFinancialData } from '../data/financialData';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
+import BudgetCustomizerPanel from '../components/BudgetCustomizerPanel';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -67,6 +69,22 @@ export default function Dashboard() {
   const [showComparison, setShowComparison] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showBudgetPanel, setShowBudgetPanel] = useState(false);
+  const [userCostProfile, setUserCostProfile] = useState<UserCostProfile>(() => {
+    try {
+      const saved = localStorage.getItem('budget-profile');
+      return saved ? JSON.parse(saved) : DEFAULT_USER_COST_PROFILE;
+    } catch {
+      return DEFAULT_USER_COST_PROFILE;
+    }
+  });
+
+  const handleProfileChange = (profile: UserCostProfile) => {
+    setUserCostProfile(profile);
+    try {
+      localStorage.setItem('budget-profile', JSON.stringify(profile));
+    } catch { /* storage unavailable */ }
+  };
 
   const [filters, setFilters] = useState({
     noIncomeTax: false,
@@ -172,6 +190,10 @@ export default function Dashboard() {
     return favorites.map((id) => statesData.find((s) => s.id === id)!).filter(Boolean);
   }, [favorites]);
 
+  const topStateAvg = sortedStates.length > 0
+    ? stateFinancialData[sortedStates[0].id] ?? null
+    : null;
+
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const hasCustomWeights = weights.taxes !== 40 || weights.cost !== 30 || weights.benefits !== 30;
 
@@ -227,7 +249,13 @@ export default function Dashboard() {
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             {/* Financial Reality Banner */}
-            <FinancialRealityBanner states={sortedStates} inputs={financialInputs} />
+            <FinancialRealityBanner
+              states={sortedStates}
+              inputs={financialInputs}
+              profile={userCostProfile}
+              stateAvg={topStateAvg}
+              onCustomize={() => setShowBudgetPanel(true)}
+            />
 
             {/* Results Summary */}
             <div className="bg-white rounded-lg border border-slate-200 p-6 mb-6">
@@ -456,6 +484,19 @@ export default function Dashboard() {
         onRemove={removeFavorite}
         customScores={customScores}
       />
+
+      {/* Budget Customizer Panel */}
+      <AnimatePresence>
+        {showBudgetPanel && (
+          <BudgetCustomizerPanel
+            open={showBudgetPanel}
+            onClose={() => setShowBudgetPanel(false)}
+            profile={userCostProfile}
+            onChange={handleProfileChange}
+            stateAvgs={topStateAvg}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Last Updated Footer */}
       <footer className="border-t bg-white mt-12">
