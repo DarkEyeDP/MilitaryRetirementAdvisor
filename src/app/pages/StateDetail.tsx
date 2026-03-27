@@ -67,6 +67,12 @@ export default function StateDetail() {
   const taxBadge = getTaxBadge(state.militaryPensionTax);
   const TaxIcon = taxBadge.icon;
 
+  const formatVeteranPop = (n: number) => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+    if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
+    return n.toString();
+  };
+
   const allFacilities = vaFacilityLocations[state.id] ?? [];
   const vamcs = allFacilities.filter((f) => f.type !== 'clinic');
   const clinics = allFacilities.filter((f) => f.type === 'clinic');
@@ -125,51 +131,43 @@ export default function StateDetail() {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600">State Income Tax</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {state.stateIncomeTax === 0 ? (
-                <div className="text-2xl font-bold text-green-600">None</div>
-              ) : (
-                <div className="text-2xl font-bold">{state.stateIncomeTax}%</div>
-              )}
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">State Income Tax</div>
+            {state.stateIncomeTax === 0 ? (
+              <div className="text-2xl font-bold text-green-600">None</div>
+            ) : (
+              <div className="text-2xl font-bold">{state.stateIncomeTax}%</div>
+            )}
+          </div>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600">Cost of Living</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{state.costOfLivingIndex}</div>
-              <p className="text-xs text-slate-500 mt-1">US Average = 100</p>
-            </CardContent>
-          </Card>
+          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Cost of Living</div>
+            <div className="text-2xl font-bold">{state.costOfLivingIndex}</div>
+            <div className="text-xs text-slate-400">100 = US avg</div>
+          </div>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600">VA Facilities</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{state.vaFacilities}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-600">
-                Veteran Population
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {(state.veteranPopulation / 1000).toFixed(0)}k
+          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">VA Facilities</div>
+            <div className="flex items-baseline gap-3">
+              <div>
+                <span className="text-2xl font-bold">{vamcs.length}</span>
+                <span className="text-xs text-slate-400 ml-1">VAMCs</span>
               </div>
-            </CardContent>
-          </Card>
+              {clinics.length > 0 && (
+                <div>
+                  <span className="text-2xl font-bold text-green-600">{clinics.length}</span>
+                  <span className="text-xs text-slate-400 ml-1">Clinics</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Veteran Population</div>
+            <div className="text-2xl font-bold">{formatVeteranPop(state.veteranPopulation)}</div>
+            <div className="text-xs text-slate-400">veterans</div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -470,7 +468,7 @@ export default function StateDetail() {
                   <div>
                     <div className="font-medium text-sm">Total Veterans</div>
                     <div className="text-2xl font-bold">
-                      {state.veteranPopulation.toLocaleString()}
+                      {formatVeteranPop(state.veteranPopulation)}
                     </div>
                   </div>
                 </div>

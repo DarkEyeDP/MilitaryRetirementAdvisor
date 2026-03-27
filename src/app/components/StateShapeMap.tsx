@@ -109,7 +109,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
   };
 
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+    <div className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm" style={{ isolation: 'isolate' }}>
       <MapContainer
         center={[39.5, -98.35]}
         zoom={5}

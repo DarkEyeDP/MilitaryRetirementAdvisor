@@ -4,6 +4,7 @@ import { statesData, calculateCustomScore } from '../data/stateData';
 import { FinancialInputs } from '../data/financialReality';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Sheet, SheetContent } from '../components/ui/sheet';
 import { Badge } from '../components/ui/badge';
@@ -15,6 +16,8 @@ import {
   Scale,
   Filter,
   ArrowLeft,
+  Search,
+  X,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import FilterPanel from '../components/FilterPanel';
@@ -39,6 +42,7 @@ export default function Dashboard() {
   };
 
   const [view, setView] = useState<'table' | 'cards' | 'map'>('cards');
+  const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('comparison-favorites');
@@ -113,15 +117,27 @@ export default function Dashboard() {
     });
   };
 
+  const searchTerms = useMemo(() => {
+    return searchQuery
+      .split(/[\s,]+/)
+      .map((t) => t.trim().toLowerCase())
+      .filter(Boolean);
+  }, [searchQuery]);
+
   const filteredStates = useMemo(() => {
     return statesData.filter((state) => {
       if (filters.noIncomeTax && state.stateIncomeTax > 0) return false;
       if (filters.taxFreeMilitary && state.militaryPensionTax !== 'No') return false;
       if (filters.lowCostOfLiving && state.costOfLivingIndex >= 95) return false;
       if (filters.highVABenefits && state.veteranBenefitsScore <= 85) return false;
+      if (searchTerms.length > 0) {
+        const name = state.name.toLowerCase();
+        const abbr = state.abbreviation.toLowerCase();
+        return searchTerms.some((term) => name.includes(term) || abbr === term);
+      }
       return true;
     });
-  }, [filters]);
+  }, [filters, searchTerms]);
 
   const customScores = useMemo(() => {
     const scores: Record<string, number> = {};
@@ -259,6 +275,25 @@ export default function Dashboard() {
                     <div className="text-sm text-slate-500 mb-1">Top Ranked</div>
                     <div className="text-2xl font-bold text-blue-600">{sortedStates[0].name}</div>
                   </div>
+                )}
+              </div>
+
+              {/* Search */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search states by name or abbreviation — separate multiple with spaces or commas"
+                  className="pl-9 pr-9"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 )}
               </div>
 
