@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import StateDetail from './pages/StateDetail';
+import ComparisonPage from './pages/ComparisonPage';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -19,6 +20,7 @@ export const router = createBrowserRouter([
       { path: '/', Component: Landing },
       { path: '/dashboard', Component: Dashboard },
       { path: '/state/:stateId', Component: StateDetail },
+      { path: '/compare', Component: ComparisonPage },
     ],
   },
 ]);

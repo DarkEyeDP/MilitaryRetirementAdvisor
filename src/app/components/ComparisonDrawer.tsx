@@ -2,7 +2,7 @@ import { StateData } from '../data/stateData';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { X } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface ComparisonDrawerProps {
@@ -32,6 +32,15 @@ export default function ComparisonDrawer({
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
+            {states.length >= 1 && (
+              <Button
+                className="w-full"
+                onClick={() => { onClose(); navigate('/compare'); }}
+              >
+                <ExternalLink className="w-4 h-4 mr-2" />
+                Open Full Comparison Page
+              </Button>
+            )}
             {states.length < 2 && (
               <div className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
                 Add 1–2 more states to see a side-by-side comparison.

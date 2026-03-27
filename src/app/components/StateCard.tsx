@@ -2,7 +2,8 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { StateData } from '../data/stateData';
-import { GitCompare, TrendingUp, DollarSign, Home, Star } from 'lucide-react';
+import { vaFacilityLocations } from '../data/vaFacilityLocations';
+import { GitCompare, TrendingUp, DollarSign, Home, Star, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface StateCardProps {
@@ -20,6 +21,9 @@ export default function StateCard({
 }: StateCardProps) {
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
+  const facilities = vaFacilityLocations[state.id] ?? [];
+  const vamcCount = facilities.filter((f) => f.type !== 'clinic').length;
+  const clinicCount = facilities.filter((f) => f.type === 'clinic').length;
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600 bg-green-50';
@@ -42,8 +46,8 @@ export default function StateCard({
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-xl mb-2">{state.name}</CardTitle>
-            <div className="flex items-center gap-2 flex-wrap">
+            <CardTitle className="text-xl mb-1.5">{state.name}</CardTitle>
+            <div className="flex items-center gap-2 flex-wrap mb-2">
               <Badge className={getTaxBadgeColor(state.militaryPensionTax)}>
                 {state.militaryPensionTax === 'No'
                   ? 'Tax Free'
@@ -53,22 +57,37 @@ export default function StateCard({
               </Badge>
               {state.stateIncomeTax === 0 && <Badge variant="outline">No Income Tax</Badge>}
             </div>
+            <div className="flex items-center gap-1.5 text-xs text-slate-500">
+              <Building2 className="w-3.5 h-3.5 text-slate-400" />
+              <span><span className="font-medium text-slate-700">{vamcCount}</span> VAMC{vamcCount !== 1 ? 's' : ''}</span>
+              <span className="text-slate-300">·</span>
+              <span><span className="font-medium text-slate-700">{clinicCount}</span> Clinic{clinicCount !== 1 ? 's' : ''}</span>
+            </div>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <div className={`text-3xl font-bold ${getScoreColor(displayScore).split(' ')[0]}`}>
+          <div className="flex flex-col items-end gap-1.5">
+            <div className="text-xs text-slate-400 font-medium uppercase tracking-wide">Score</div>
+            <div className={`text-3xl font-bold leading-none ${getScoreColor(displayScore).split(' ')[0]}`}>
               {displayScore}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleFavorite(state.id);
-              }}
-              className="h-8 w-8 p-0"
-            >
-              <GitCompare className={`w-4 h-4 ${isFavorite ? 'text-blue-600' : 'text-slate-400'}`} />
-            </Button>
+            <div className="relative group/tooltip mt-0.5">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleFavorite(state.id);
+                }}
+                className="h-8 w-8 p-0"
+              >
+                <GitCompare className={`w-4 h-4 ${isFavorite ? 'text-blue-600' : 'text-slate-400'}`} />
+              </Button>
+              <div className="absolute right-0 top-full mt-1.5 w-52 bg-slate-900 text-white text-xs rounded-lg px-3 py-2 leading-relaxed opacity-0 group-hover/tooltip:opacity-100 transition-opacity duration-150 pointer-events-none z-50">
+                {isFavorite
+                  ? `Remove ${state.name} from your side-by-side comparison.`
+                  : `Add ${state.name} to your side-by-side comparison. Up to 3 states at a time.`}
+                <div className="absolute right-2.5 -top-1 w-2 h-2 bg-slate-900 rotate-45" />
+              </div>
+            </div>
           </div>
         </div>
       </CardHeader>

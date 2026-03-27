@@ -322,16 +322,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
                       {fmt$(breakdown.totalTrackedExpenses)}
                     </td>
                     <td className="text-right py-2">
-                      <span
-                        className={cn(
-                          'font-bold',
-                          breakdown.monthlyRemaining > avgRemaining
-                            ? 'text-green-600'
-                            : breakdown.monthlyRemaining < avgRemaining
-                              ? 'text-red-500'
-                              : 'text-slate-600'
-                        )}
-                      >
+                      <span className="font-bold text-green-600">
                         {fmt$(breakdown.monthlyRemaining)}
                       </span>
                     </td>

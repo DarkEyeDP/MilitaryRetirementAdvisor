@@ -86,11 +86,37 @@ export default function Dashboard() {
     } catch { /* storage unavailable */ }
   };
 
+  const [excludedStates, setExcludedStates] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('excluded-states');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const handleExcludeState = (stateId: string) => {
+    setExcludedStates((prev) => {
+      const next = prev.includes(stateId) ? prev : [...prev, stateId];
+      localStorage.setItem('excluded-states', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const handleIncludeState = (stateId: string) => {
+    setExcludedStates((prev) => {
+      const next = prev.filter((id) => id !== stateId);
+      localStorage.setItem('excluded-states', JSON.stringify(next));
+      return next;
+    });
+  };
+
   const [filters, setFilters] = useState({
     noIncomeTax: false,
     taxFreeMilitary: false,
     lowCostOfLiving: false,
     highVABenefits: false,
+    partialTaxMilitary: false,
   });
 
   const [weights, setWeights] = useState({
@@ -113,12 +139,15 @@ export default function Dashboard() {
       taxFreeMilitary: false,
       lowCostOfLiving: false,
       highVABenefits: false,
+      partialTaxMilitary: false,
     });
     setWeights({
       taxes: 40,
       cost: 30,
       benefits: 30,
     });
+    setExcludedStates([]);
+    localStorage.removeItem('excluded-states');
   };
 
   const toggleFavorite = (stateId: string) => {
@@ -157,10 +186,17 @@ export default function Dashboard() {
 
   const filteredStates = useMemo(() => {
     return statesData.filter((state) => {
-      if (filters.noIncomeTax && state.stateIncomeTax > 0) return false;
-      if (filters.taxFreeMilitary && state.militaryPensionTax !== 'No') return false;
-      if (filters.lowCostOfLiving && state.costOfLivingIndex >= 95) return false;
-      if (filters.highVABenefits && state.veteranBenefitsScore <= 85) return false;
+      if (excludedStates.includes(state.id)) return false;
+      // OR logic — state must match at least one checked preference
+      const activePrefs = [
+        filters.noIncomeTax && state.stateIncomeTax === 0,
+        filters.taxFreeMilitary && state.militaryPensionTax === 'No',
+        filters.partialTaxMilitary && state.militaryPensionTax === 'Partial',
+        filters.lowCostOfLiving && state.costOfLivingIndex < 95,
+        filters.highVABenefits && state.veteranBenefitsScore > 85,
+      ];
+      const anyChecked = filters.noIncomeTax || filters.taxFreeMilitary || filters.partialTaxMilitary || filters.lowCostOfLiving || filters.highVABenefits;
+      if (anyChecked && !activePrefs.some(Boolean)) return false;
       if (searchTerms.length > 0) {
         const name = state.name.toLowerCase();
         const abbr = state.abbreviation.toLowerCase();
@@ -168,7 +204,7 @@ export default function Dashboard() {
       }
       return true;
     });
-  }, [filters, searchTerms]);
+  }, [filters, searchTerms, excludedStates]);
 
   const customScores = useMemo(() => {
     const scores: Record<string, number> = {};
@@ -196,6 +232,7 @@ export default function Dashboard() {
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const hasCustomWeights = weights.taxes !== 40 || weights.cost !== 30 || weights.benefits !== 30;
+  const totalActiveCount = activeFiltersCount + excludedStates.length;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -235,8 +272,8 @@ export default function Dashboard() {
               >
                 <Filter className="w-4 h-4" />
                 <span className="hidden sm:inline">Filters</span>
-                {(activeFiltersCount > 0 || hasCustomWeights) && (
-                  <Badge variant="secondary">{activeFiltersCount}</Badge>
+                {(totalActiveCount > 0 || hasCustomWeights) && (
+                  <Badge variant="secondary">{totalActiveCount}</Badge>
                 )}
               </Button>
             </div>
@@ -434,7 +471,7 @@ export default function Dashboard() {
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 className="hidden lg:block w-80 flex-shrink-0"
               >
-                <div className="sticky top-24">
+                <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
                   <FilterPanel
                     filters={filters}
                     weights={weights}
@@ -442,8 +479,11 @@ export default function Dashboard() {
                     onWeightChange={handleWeightChange}
                     onReset={handleReset}
                     onClose={() => setSidebarOpen(false)}
+                    excludedStates={excludedStates}
+                    onExcludeState={handleExcludeState}
+                    onIncludeState={handleIncludeState}
                   />
-                  {(activeFiltersCount > 0 || hasCustomWeights) && (
+                  {(totalActiveCount > 0 || hasCustomWeights) && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-blue-900">Custom Settings Active</span>
@@ -452,7 +492,8 @@ export default function Dashboard() {
                         </Button>
                       </div>
                       {hasCustomWeights && <p className="text-xs text-blue-700">Custom priority weights applied</p>}
-                      {activeFiltersCount > 0 && <p className="text-xs text-blue-700">{activeFiltersCount} filter(s) active</p>}
+                      {activeFiltersCount > 0 && <p className="text-xs text-blue-700">{activeFiltersCount} filter{activeFiltersCount !== 1 ? 's' : ''} active</p>}
+                      {excludedStates.length > 0 && <p className="text-xs text-blue-700">{excludedStates.length} state{excludedStates.length !== 1 ? 's' : ''} excluded</p>}
                     </div>
                   )}
                 </div>
@@ -472,6 +513,9 @@ export default function Dashboard() {
             onWeightChange={handleWeightChange}
             onReset={handleReset}
             onClose={() => setShowFilters(false)}
+            excludedStates={excludedStates}
+            onExcludeState={handleExcludeState}
+            onIncludeState={handleIncludeState}
           />
         </SheetContent>
       </Sheet>
