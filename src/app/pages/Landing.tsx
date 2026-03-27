@@ -12,11 +12,30 @@ import {
 } from '../components/ui/select';
 import { Shield, TrendingDown, Heart, MapPin } from 'lucide-react';
 
+const LS_KEY = 'landing-preferences';
+
+function loadPrefs() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePrefs(patch: Record<string, unknown>) {
+  try {
+    const current = loadPrefs();
+    localStorage.setItem(LS_KEY, JSON.stringify({ ...current, ...patch }));
+  } catch { /* storage unavailable */ }
+}
+
 export default function Landing() {
   const navigate = useNavigate();
-  const [retirementIncome, setRetirementIncome] = useState(60000);
-  const [disabilityRating, setDisabilityRating] = useState('');
-  const [preferredRegion, setPreferredRegion] = useState('');
+  const prefs = loadPrefs();
+  const [retirementIncome, setRetirementIncome] = useState<number>(prefs.retirementIncome ?? 60000);
+  const [disabilityRating, setDisabilityRating] = useState<string>(prefs.disabilityRating ?? '');
+  const [preferredRegion, setPreferredRegion] = useState<string>(prefs.preferredRegion ?? '');
 
   const handleCompare = () => {
     navigate('/dashboard', {
@@ -106,7 +125,7 @@ export default function Landing() {
                 max={150000}
                 step={5000}
                 value={[retirementIncome]}
-                onValueChange={(value) => setRetirementIncome(value[0])}
+                onValueChange={(value) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-slate-500">
@@ -118,7 +137,7 @@ export default function Landing() {
             {/* Disability Rating */}
             <div className="space-y-2">
               <Label htmlFor="disability">VA Disability Rating (Optional)</Label>
-              <Select value={disabilityRating} onValueChange={setDisabilityRating}>
+              <Select value={disabilityRating} onValueChange={(v) => { setDisabilityRating(v); savePrefs({ disabilityRating: v }); }}>
                 <SelectTrigger id="disability">
                   <SelectValue placeholder="Select if applicable" />
                 </SelectTrigger>
@@ -141,7 +160,7 @@ export default function Landing() {
             {/* Preferred Region */}
             <div className="space-y-2">
               <Label htmlFor="region">Preferred Region (Optional)</Label>
-              <Select value={preferredRegion} onValueChange={setPreferredRegion}>
+              <Select value={preferredRegion} onValueChange={(v) => { setPreferredRegion(v); savePrefs({ preferredRegion: v }); }}>
                 <SelectTrigger id="region">
                   <SelectValue placeholder="Any region" />
                 </SelectTrigger>

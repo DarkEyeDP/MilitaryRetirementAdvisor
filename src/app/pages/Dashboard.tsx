@@ -1,15 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore } from '../data/stateData';
 import { FinancialInputs } from '../data/financialReality';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
+import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Sheet, SheetContent } from '../components/ui/sheet';
 import { Badge } from '../components/ui/badge';
 import {
-  Shield,
   Table as TableIcon,
   LayoutGrid,
   Map,
@@ -25,6 +24,24 @@ import StateCard from '../components/StateCard';
 import StateTable from '../components/StateTable';
 import MapView from '../components/MapView';
 import ComparisonDrawer from '../components/ComparisonDrawer';
+
+function UsaIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 40 26"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Simplified but recognizable continental US outline */}
+      <path d="M3,13 L3,7 L8,5 L18,4 L24,5 L27,4 L32,6 L37,9 L36,12 L37,15 L35,18 L33,22 L31,20 L29,16 L27,17 L22,18 L13,18 L8,16 L5,14 Z" />
+    </svg>
+  );
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -43,6 +60,16 @@ export default function Dashboard() {
 
   const [view, setView] = useState<'table' | 'cards' | 'map'>('cards');
   const [searchQuery, setSearchQuery] = useState('');
+  const savedScrollY = useRef(0);
+
+  const handleViewChange = (newView: 'table' | 'cards' | 'map') => {
+    savedScrollY.current = window.scrollY;
+    setView(newView);
+  };
+
+  useEffect(() => {
+    window.scrollTo({ top: savedScrollY.current, behavior: 'instant' });
+  }, [view]);
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('comparison-favorites');
@@ -174,7 +201,7 @@ export default function Dashboard() {
                 Back
               </Button>
               <div className="flex items-center gap-2">
-                <Shield className="w-6 h-6 text-blue-600" />
+                <UsaIcon className="w-7 h-5 text-blue-600" />
                 <h1 className="font-semibold text-lg">State Comparison Results</h1>
               </div>
             </div>
@@ -211,47 +238,6 @@ export default function Dashboard() {
 
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex gap-6">
-          {/* Filters Sidebar - Desktop */}
-          {sidebarOpen && (
-            <aside className="hidden lg:block w-80 flex-shrink-0">
-              <div className="sticky top-24">
-                <FilterPanel
-                  filters={filters}
-                  weights={weights}
-                  onFilterChange={handleFilterChange}
-                  onWeightChange={handleWeightChange}
-                  onReset={handleReset}
-                  onClose={() => setSidebarOpen(false)}
-                />
-
-                {/* Active Filters Summary */}
-                {(activeFiltersCount > 0 || hasCustomWeights) && (
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-blue-900">
-                        Custom Settings Active
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleReset}
-                        className="h-6 text-xs"
-                      >
-                        Clear
-                      </Button>
-                    </div>
-                    {hasCustomWeights && (
-                      <p className="text-xs text-blue-700">Custom priority weights applied</p>
-                    )}
-                    {activeFiltersCount > 0 && (
-                      <p className="text-xs text-blue-700">{activeFiltersCount} filter(s) active</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </aside>
-          )}
-
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             {/* Financial Reality Banner */}
@@ -285,7 +271,7 @@ export default function Dashboard() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search states by name or abbreviation — separate multiple with spaces or commas"
-                  className="pl-9 pr-9"
+                  className="pl-9 pr-9 h-10 bg-white border border-slate-300 rounded-lg shadow-sm placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
                 />
                 {searchQuery && (
                   <button
@@ -298,49 +284,90 @@ export default function Dashboard() {
               </div>
 
               {/* View Toggle */}
-              <Tabs value={view} onValueChange={(v) => setView(v as 'table' | 'cards' | 'map')}>
-                <TabsList className="grid w-full max-w-md grid-cols-3">
-                  <TabsTrigger value="cards" className="gap-2">
-                    <LayoutGrid className="w-4 h-4" />
-                    <span className="hidden sm:inline">Cards</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="table" className="gap-2">
-                    <TableIcon className="w-4 h-4" />
-                    <span className="hidden sm:inline">Table</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="map" className="gap-2">
-                    <Map className="w-4 h-4" />
-                    <span className="hidden sm:inline">Map</span>
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex bg-slate-100 rounded-lg p-1 max-w-xs">
+                {(
+                  [
+                    { value: 'cards', icon: <LayoutGrid className="w-4 h-4" />, label: 'Cards' },
+                    { value: 'table', icon: <TableIcon className="w-4 h-4" />, label: 'Table' },
+                    { value: 'map',   icon: <Map className="w-4 h-4" />,       label: 'Map'   },
+                  ] as const
+                ).map(({ value, icon, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => handleViewChange(value)}
+                    className={`relative flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm font-medium rounded-md transition-colors z-10 ${
+                      view === value ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    {view === value && (
+                      <motion.div
+                        layoutId="view-tab-pill"
+                        className="absolute inset-0 bg-white rounded-md shadow-sm"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-1.5">
+                      {icon}
+                      <span className="hidden sm:inline">{label}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Views */}
-            {view === 'cards' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {sortedStates.map((state) => (
-                  <StateCard
-                    key={state.id}
-                    state={state}
-                    customScore={customScores[state.id]}
-                    isFavorite={favorites.includes(state.id)}
+            <AnimatePresence mode="wait">
+              {view === 'cards' && (
+                <motion.div
+                  key="cards"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {sortedStates.map((state) => (
+                      <StateCard
+                        key={state.id}
+                        state={state}
+                        customScore={customScores[state.id]}
+                        isFavorite={favorites.includes(state.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+
+              {view === 'table' && (
+                <motion.div
+                  key="table"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <StateTable
+                    states={sortedStates}
+                    favorites={favorites}
                     onToggleFavorite={toggleFavorite}
+                    customScores={customScores}
                   />
-                ))}
-              </div>
-            )}
+                </motion.div>
+              )}
 
-            {view === 'table' && (
-              <StateTable
-                states={sortedStates}
-                favorites={favorites}
-                onToggleFavorite={toggleFavorite}
-                customScores={customScores}
-              />
-            )}
-
-            {view === 'map' && <MapView states={sortedStates} customScores={customScores} />}
+              {view === 'map' && (
+                <motion.div
+                  key="map"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <MapView states={sortedStates} customScores={customScores} />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* No Results */}
             {filteredStates.length === 0 && (
@@ -352,12 +379,49 @@ export default function Dashboard() {
               </div>
             )}
           </main>
+
+          {/* Filters Sidebar - Desktop (right side) */}
+          <AnimatePresence>
+            {sidebarOpen && (
+              <motion.aside
+                key="filters-sidebar"
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 40 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                className="hidden lg:block w-80 flex-shrink-0"
+              >
+                <div className="sticky top-24">
+                  <FilterPanel
+                    filters={filters}
+                    weights={weights}
+                    onFilterChange={handleFilterChange}
+                    onWeightChange={handleWeightChange}
+                    onReset={handleReset}
+                    onClose={() => setSidebarOpen(false)}
+                  />
+                  {(activeFiltersCount > 0 || hasCustomWeights) && (
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-blue-900">Custom Settings Active</span>
+                        <Button variant="ghost" size="sm" onClick={handleReset} className="h-6 text-xs">
+                          Clear
+                        </Button>
+                      </div>
+                      {hasCustomWeights && <p className="text-xs text-blue-700">Custom priority weights applied</p>}
+                      {activeFiltersCount > 0 && <p className="text-xs text-blue-700">{activeFiltersCount} filter(s) active</p>}
+                    </div>
+                  )}
+                </div>
+              </motion.aside>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
       {/* Mobile Filter Sheet */}
       <Sheet open={showFilters} onOpenChange={setShowFilters}>
-        <SheetContent side="left" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
           <FilterPanel
             filters={filters}
             weights={weights}

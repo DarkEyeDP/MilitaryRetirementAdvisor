@@ -31,12 +31,12 @@ export default function ComparisonDrawer({
           <SheetTitle>Compare States ({states.length}/3)</SheetTitle>
         </SheetHeader>
 
-        {states.length < 2 ? (
-          <div className="flex items-center justify-center h-64 text-slate-500">
-            Add at least 2 states to compare
-          </div>
-        ) : (
-          <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6">
+            {states.length < 2 && (
+              <div className="text-sm text-slate-500 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3">
+                Add 1–2 more states to see a side-by-side comparison.
+              </div>
+            )}
             {/* Comparison Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -177,8 +177,7 @@ export default function ComparisonDrawer({
                 </Button>
               ))}
             </div>
-          </div>
-        )}
+        </div>
       </SheetContent>
     </Sheet>
   );
