@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   Search,
   X,
+  Globe,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import FilterPanel from '../components/FilterPanel';
@@ -25,23 +26,6 @@ import StateTable from '../components/StateTable';
 import MapView from '../components/MapView';
 import ComparisonDrawer from '../components/ComparisonDrawer';
 
-function UsaIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 40 26"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-      strokeLinecap="round"
-      className={className}
-      aria-hidden="true"
-    >
-      {/* Simplified but recognizable continental US outline */}
-      <path d="M3,13 L3,7 L8,5 L18,4 L24,5 L27,4 L32,6 L37,9 L36,12 L37,15 L35,18 L33,22 L31,20 L29,16 L27,17 L22,18 L13,18 L8,16 L5,14 Z" />
-    </svg>
-  );
-}
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -201,7 +185,7 @@ export default function Dashboard() {
                 Back
               </Button>
               <div className="flex items-center gap-2">
-                <UsaIcon className="w-7 h-5 text-blue-600" />
+                <Globe className="w-6 h-6 text-blue-600" />
                 <h1 className="font-semibold text-lg">State Comparison Results</h1>
               </div>
             </div>

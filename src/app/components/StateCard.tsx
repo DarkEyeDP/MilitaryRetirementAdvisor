@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { StateData } from '../data/stateData';
-import { Bookmark, BookmarkCheck, TrendingUp, DollarSign, Home, Star } from 'lucide-react';
+import { GitCompare, TrendingUp, DollarSign, Home, Star } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface StateCardProps {
@@ -35,7 +35,10 @@ export default function StateCard({
   };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+    <Card
+      className="hover:shadow-lg transition-shadow cursor-pointer group"
+      onClick={() => navigate(`/state/${state.id}`)}
+    >
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -64,16 +67,12 @@ export default function StateCard({
               }}
               className="h-8 w-8 p-0"
             >
-              {isFavorite ? (
-                <BookmarkCheck className="w-4 h-4 text-blue-600" />
-              ) : (
-                <Bookmark className="w-4 h-4 text-slate-400" />
-              )}
+              <GitCompare className={`w-4 h-4 ${isFavorite ? 'text-blue-600' : 'text-slate-400'}`} />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent onClick={() => navigate(`/state/${state.id}`)}>
+      <CardContent>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center gap-2">
@@ -120,12 +119,6 @@ export default function StateCard({
             </ul>
           </div>
 
-          <Button
-            variant="outline"
-            className="w-full group-hover:bg-blue-50 group-hover:border-blue-200 transition-colors"
-          >
-            View Details
-          </Button>
         </div>
       </CardContent>
     </Card>
