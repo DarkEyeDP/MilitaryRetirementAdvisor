@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { StateData } from '../data/stateData';
+import { StateData, scoreTier } from '../data/stateData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
-import { GitCompare, TrendingUp, DollarSign, Home, Star, Building2 } from 'lucide-react';
+import { GitCompare, TrendingUp, DollarSign, Home, Star, Building2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 interface StateCardProps {
@@ -38,6 +38,8 @@ export default function StateCard({
     return 'bg-red-100 text-red-700';
   };
 
+  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
+
   return (
     <Card
       className="hover:shadow-lg transition-shadow cursor-pointer group"
@@ -46,7 +48,15 @@ export default function StateCard({
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <CardTitle className="text-xl mb-1.5">{state.name}</CardTitle>
+            <div className="flex items-center gap-2 mb-1.5">
+              <img
+                src={flagUrl}
+                alt={`${state.name} state flag`}
+                className="h-5 w-auto shadow-sm border border-slate-200/60 flex-shrink-0"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              />
+              <CardTitle className="text-xl">{state.name}</CardTitle>
+            </div>
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <Badge className={getTaxBadgeColor(state.militaryPensionTax)}>
                 {state.militaryPensionTax === 'No'
@@ -69,6 +79,9 @@ export default function StateCard({
             <div className={`text-3xl font-bold leading-none ${getScoreColor(displayScore).split(' ')[0]}`}>
               {displayScore}
             </div>
+            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${scoreTier(displayScore).className}`}>
+              {scoreTier(displayScore).label}
+            </span>
             <div className="relative group/tooltip mt-0.5">
               <Button
                 variant="ghost"
@@ -136,6 +149,13 @@ export default function StateCard({
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="flex items-center justify-end pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <span className="text-xs text-blue-500 font-medium flex items-center gap-1">
+              View details
+              <ArrowRight className="w-3.5 h-3.5 translate-x-0 group-hover:translate-x-0.5 transition-transform duration-200" />
+            </span>
           </div>
 
         </div>

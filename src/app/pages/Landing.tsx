@@ -88,41 +88,8 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* Benefits Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-              <TrendingDown className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Tax Analysis</h3>
-            <p className="text-slate-600">
-              Compare state income taxes, property taxes, and military pension exemptions across all
-              50 states.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-              <Heart className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Veteran Benefits</h3>
-            <p className="text-slate-600">
-              See VA facilities, veteran populations, and state-specific benefits available to you.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-              <MapPin className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Cost of Living</h3>
-            <p className="text-slate-600">
-              Understand how far your retirement income will go in each state with detailed cost
-              comparisons.
-            </p>
-          </div>
-        </div>
-
         {/* Input Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto border border-slate-200">
+        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto border border-slate-200 mb-12">
           <h3 className="text-2xl font-semibold mb-6">Get Your Personalized Comparison</h3>
 
           <div className="space-y-6">
@@ -130,9 +97,10 @@ export default function Landing() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label htmlFor="income">Annual Retirement Income</Label>
-                <span className="font-semibold text-blue-600">
-                  ${retirementIncome.toLocaleString()}
-                </span>
+                <div className="text-right">
+                  <span className="font-semibold text-blue-600">${retirementIncome.toLocaleString()}</span>
+                  <span className="text-xs text-slate-400 ml-1.5">${Math.round(retirementIncome / 12).toLocaleString()}/mo</span>
+                </div>
               </div>
               <Slider
                 id="income"
@@ -206,6 +174,39 @@ export default function Landing() {
                 'Compare States'
               )}
             </Button>
+          </div>
+        </div>
+
+        {/* Benefits Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+              <TrendingDown className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Tax Analysis</h3>
+            <p className="text-slate-600">
+              Compare state income taxes, property taxes, and military pension exemptions across all
+              50 states.
+            </p>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+              <Heart className="w-6 h-6 text-green-600" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Veteran Benefits</h3>
+            <p className="text-slate-600">
+              See VA facilities, veteran populations, and state-specific benefits available to you.
+            </p>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
+            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+              <MapPin className="w-6 h-6 text-purple-600" />
+            </div>
+            <h3 className="font-semibold text-lg mb-2">Cost of Living</h3>
+            <p className="text-slate-600">
+              Understand how far your retirement income will go in each state with detailed cost
+              comparisons.
+            </p>
           </div>
         </div>
 

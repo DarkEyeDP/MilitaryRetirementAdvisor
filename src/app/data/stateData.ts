@@ -1404,18 +1404,52 @@ export const statesData: StateData[] = [
   },
 ];
 
+export const DEFAULT_SCORE_WEIGHTS = { taxes: 40, cost: 30, benefits: 30 };
+
+/**
+ * Score tiers used across the UI for consistent labeling.
+ * Elite 95–100 | Strong 85–94 | Moderate 70–84 | Weak <70
+ */
+export function scoreTier(score: number): { label: string; className: string } {
+  if (score >= 95) return { label: 'Elite',    className: 'bg-emerald-100 text-emerald-700' };
+  if (score >= 85) return { label: 'Strong',   className: 'bg-blue-100 text-blue-700' };
+  if (score >= 70) return { label: 'Moderate', className: 'bg-yellow-100 text-yellow-700' };
+  return              { label: 'Weak',     className: 'bg-slate-100 text-slate-500' };
+}
+
+/**
+ * Calculates a weighted retirement score for a state (0–100).
+ *
+ * Tax Friendliness (0–100):
+ *   Pension tax exemption  — No: 50 pts | Partial: 28 pts | Taxed: 0 pts
+ *   State income tax rate  — 0 % → 32 pts, scales to 0 at ~13.3 %
+ *   Property tax level     — Low: 18 pts | Medium: 10 pts | High: 0 pts
+ *
+ * Cost of Living (0–100):
+ *   COL index ≤ 82 → 100 | COL index ≥ 160 → 0  (linear, hard-clamped)
+ *
+ * Veteran Benefits (0–100):
+ *   State veteran benefits score (already 0–100)
+ */
 export const calculateCustomScore = (
   state: StateData,
   weights: { taxes: number; cost: number; benefits: number }
 ): number => {
-  const taxScore =
-    state.militaryPensionTax === 'No' ? 100 : state.militaryPensionTax === 'Partial' ? 60 : 20;
-  const costScore = Math.max(0, 200 - state.costOfLivingIndex);
+  // Tax Score — composite of three distinct tax factors
+  const pensionPts   = state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0;
+  const incomePts    = Math.max(0, Math.round(32 - state.stateIncomeTax * 2.4));
+  const propertyPts  = state.propertyTaxLevel === 'Low' ? 18 : state.propertyTaxLevel === 'Medium' ? 10 : 0;
+  const taxScore     = pensionPts + incomePts + propertyPts; // 0–100
+
+  // Cost Score — data range is COL 82–184; map so ≤82 → 100 and ≥160 → 0
+  const costScore    = Math.min(100, Math.max(0, Math.round((160 - state.costOfLivingIndex) / 78 * 100)));
+
+  // Benefits Score — direct from data
   const benefitsScore = state.veteranBenefitsScore;
 
-  const weightedScore =
-    (taxScore * weights.taxes + costScore * weights.cost + benefitsScore * weights.benefits) /
-    (weights.taxes + weights.cost + weights.benefits);
+  const total = weights.taxes + weights.cost + weights.benefits;
+  if (total === 0) return 0;
 
-  return Math.round(weightedScore);
+  const weighted = (taxScore * weights.taxes + costScore * weights.cost + benefitsScore * weights.benefits) / total;
+  return Math.min(100, Math.max(0, Math.round(weighted)));
 };

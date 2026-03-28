@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { statesData } from '../data/stateData';
+import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
+import { stateVeteranPerks } from '../data/veteranPerksData';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -22,14 +24,31 @@ import {
   ChevronDown,
   ChevronUp,
   MapPin,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Car,
+  Medal,
 } from 'lucide-react';
 import StateShapeMap from '../components/StateShapeMap';
 
 export default function StateDetail() {
   const { stateId } = useParams();
   const navigate = useNavigate();
-  const [facilitiesExpanded, setFacilitiesExpanded] = useState(false);
   const state = statesData.find((s) => s.id === stateId);
+  const computedScore = state ? calculateCustomScore(state, DEFAULT_SCORE_WEIGHTS) : 0;
+
+  // Score component breakdowns (matching calculateCustomScore internals)
+  const taxScoreComponents = state ? (() => {
+    const pensionPts  = state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0;
+    const incomePts   = Math.max(0, Math.round(32 - state.stateIncomeTax * 2.4));
+    const propertyPts = state.propertyTaxLevel === 'Low' ? 18 : state.propertyTaxLevel === 'Medium' ? 10 : 0;
+    return { total: pensionPts + incomePts + propertyPts, pensionPts, incomePts, propertyPts };
+  })() : null;
+  const costScore    = state ? Math.min(100, Math.max(0, Math.round((160 - state.costOfLivingIndex) / 78 * 100))) : 0;
+
+  const housing = state ? stateHousingData[state.id] : null;
+  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
 
   if (!state) {
     return (
@@ -77,6 +96,9 @@ export default function StateDetail() {
   const vamcs = allFacilities.filter((f) => f.type !== 'clinic');
   const clinics = allFacilities.filter((f) => f.type === 'clinic');
 
+  // Shared height for the map+directory row — grows with facility count
+  const facilityPanelHeight = allFacilities.length > 20 ? 560 : allFacilities.length > 10 ? 460 : 380;
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -98,77 +120,139 @@ export default function StateDetail() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-8 text-white mb-6">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl font-bold">{state.name}</h1>
-                <Badge className={taxBadge.color}>
-                  <TaxIcon className="w-3 h-3 mr-1" />
+        {/* State Header */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-5 mb-6">
+          <div className="flex items-start justify-between gap-6">
+
+            {/* Left: identity + inline stats */}
+            <div className="min-w-0">
+              <div className="flex items-center gap-2.5 flex-wrap mb-1">
+                <span className="text-sm font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md tracking-wide">
+                  {state.abbreviation}
+                </span>
+                <img
+                  src={flagUrl}
+                  alt={`${state.name} state flag`}
+                  className="h-6 w-auto shadow-sm border border-slate-200/60"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+                <h1 className="text-3xl font-bold text-slate-900">{state.name}</h1>
+                <Badge className={`${taxBadge.color} flex items-center gap-1`}>
+                  <TaxIcon className="w-3 h-3" />
                   {taxBadge.text}
                 </Badge>
               </div>
-              <p className="text-blue-100 text-lg">Retirement Friendliness Analysis for Veterans</p>
-            </div>
-            <div className={`text-right ${getScoreBg(state.retirementScore)} rounded-xl p-4`}>
-              <div className="text-sm text-slate-600 mb-1">Overall Score</div>
-              <div className={`text-5xl font-bold ${getScoreColor(state.retirementScore)}`}>
-                {state.retirementScore}
+              <p className="text-sm text-slate-400 mb-4">Military retirement profile · 2026 data</p>
+
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
+                <div className="flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+                  {state.stateIncomeTax === 0
+                    ? <span className="text-green-600 font-medium">No income tax</span>
+                    : <span>{state.stateIncomeTax}% income tax</span>}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Home className="w-3.5 h-3.5 text-slate-400" />
+                  <span>COL index {state.costOfLivingIndex}</span>
+                  <span className="text-slate-400 text-xs">(US avg = 100)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{formatVeteranPop(state.veteranPopulation)} veterans</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{vamcs.length} VAMC{vamcs.length !== 1 ? 's' : ''} · {clinics.length} clinic{clinics.length !== 1 ? 's' : ''}</span>
+                </div>
               </div>
-              <div className="text-xs text-slate-600 mt-1">out of 100</div>
+            </div>
+
+            {/* Right: score card */}
+            <div className="flex-shrink-0 text-center border border-slate-200 rounded-xl px-6 py-4 bg-slate-50 min-w-[110px]">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Score</div>
+              <div className={`text-5xl font-bold leading-none ${getScoreColor(computedScore)}`}>
+                {computedScore}
+              </div>
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-block ${scoreTier(computedScore).className}`}>
+                {scoreTier(computedScore).label}
+              </span>
             </div>
           </div>
         </div>
 
-        {/* State Map + VA Facilities */}
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold text-slate-800 mb-3 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-blue-600" />
-            VA Medical Centers in {state.name}
-          </h2>
-          <StateShapeMap stateId={state.id} stateName={state.name} />
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">State Income Tax</div>
-            {state.stateIncomeTax === 0 ? (
-              <div className="text-2xl font-bold text-green-600">None</div>
-            ) : (
-              <div className="text-2xl font-bold">{state.stateIncomeTax}%</div>
-            )}
+        {/* Map + VA Facilities list side by side */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Map with overlaid title */}
+          <div className="relative">
+            <div className="absolute top-3 right-3 z-[400] flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm border border-slate-200/80">
+              <Building2 className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-xs font-semibold text-slate-700">VA Facilities Map</span>
+            </div>
+            <StateShapeMap stateId={state.id} stateName={state.name} height={facilityPanelHeight} />
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Cost of Living</div>
-            <div className="text-2xl font-bold">{state.costOfLivingIndex}</div>
-            <div className="text-xs text-slate-400">100 = US avg</div>
-          </div>
+          {/* VA Facilities list */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col h-full">
+            <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3 flex-shrink-0">
+              <MapPin className="w-4 h-4 text-blue-600" />
+              Facility Directory
+              <span className="ml-auto text-xs font-normal text-slate-400">Tap to open in Maps</span>
+            </h2>
 
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">VA Facilities</div>
-            <div className="flex items-baseline gap-3">
-              <div>
-                <span className="text-2xl font-bold">{vamcs.length}</span>
-                <span className="text-xs text-slate-400 ml-1">VAMCs</span>
-              </div>
+            <div className="flex-1 overflow-y-auto space-y-4">
+              {vamcs.length > 0 && (
+                <div>
+                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
+                    Medical Centers ({vamcs.length})
+                  </div>
+                  <ul className={vamcs.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                    {vamcs.map((f, i) => (
+                      <li key={i}>
+                        <a
+                          href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline py-0.5"
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
+                          <span>{f.name}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               {clinics.length > 0 && (
                 <div>
-                  <span className="text-2xl font-bold text-green-600">{clinics.length}</span>
-                  <span className="text-xs text-slate-400 ml-1">Clinics</span>
+                  <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">
+                    Clinics ({clinics.length})
+                  </div>
+                  <ul className={clinics.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                    {clinics.map((f, i) => (
+                      <li key={i}>
+                        <a
+                          href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-start gap-2 text-sm text-green-600 hover:text-green-800 hover:underline py-0.5"
+                        >
+                          <MapPin className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                          <span>{f.name}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+              )}
+
+              {allFacilities.length === 0 && (
+                <p className="text-sm text-slate-400 italic">No facility data available.</p>
               )}
             </div>
           </div>
-
-          <div className="bg-white rounded-xl border border-slate-200 px-4 py-3">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Veteran Population</div>
-            <div className="text-2xl font-bold">{formatVeteranPop(state.veteranPopulation)}</div>
-            <div className="text-xs text-slate-400">veterans</div>
-          </div>
         </div>
+
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
@@ -178,9 +262,9 @@ export default function StateDetail() {
               <CardHeader>
                 <CardTitle>
                   Why {state.name}{' '}
-                  {state.retirementScore >= 85
+                  {computedScore >= 85
                     ? 'is Great'
-                    : state.retirementScore >= 75
+                    : computedScore >= 70
                       ? 'Could Work'
                       : 'May Challenge'}{' '}
                   for Your Retirement
@@ -323,6 +407,139 @@ export default function StateDetail() {
                 </ul>
               </CardContent>
             </Card>
+
+            {/* Housing Market */}
+            {housing && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Home className="w-5 h-5 text-blue-600" />
+                    Housing Market
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {/* Three key stats */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Median Home</div>
+                      <div className="text-xl font-bold text-slate-800">${(state.avgHomeCost / 1000).toFixed(0)}k</div>
+                      <div className={`text-xs mt-1 font-medium ${state.avgHomeCost < 300_000 ? 'text-green-600' : state.avgHomeCost < 500_000 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {state.avgHomeCost < 300_000 ? 'Below avg' : state.avgHomeCost < 500_000 ? 'Near avg' : 'Above avg'}
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Median Rent</div>
+                      <div className="text-xl font-bold text-slate-800">${housing.medianRent.toLocaleString()}<span className="text-xs text-slate-400 font-normal">/mo</span></div>
+                      <div className={`text-xs mt-1 font-medium ${housing.medianRent < NATIONAL_HOUSING.medianRent ? 'text-green-600' : housing.medianRent < NATIONAL_HOUSING.medianRent * 1.3 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {housing.medianRent < NATIONAL_HOUSING.medianRent
+                          ? `$${(NATIONAL_HOUSING.medianRent - housing.medianRent).toLocaleString()} below US avg`
+                          : `$${(housing.medianRent - NATIONAL_HOUSING.medianRent).toLocaleString()} above US avg`}
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Price Trend</div>
+                      <div className={`text-xl font-bold flex items-center justify-center gap-1 ${housing.housingPriceTrend > 0 ? 'text-slate-800' : housing.housingPriceTrend < 0 ? 'text-red-600' : 'text-slate-500'}`}>
+                        {housing.housingPriceTrend > 0
+                          ? <TrendingUp className="w-4 h-4 text-emerald-500" />
+                          : housing.housingPriceTrend < 0
+                          ? <TrendingDown className="w-4 h-4 text-red-500" />
+                          : <Minus className="w-4 h-4 text-slate-400" />}
+                        {housing.housingPriceTrend > 0 ? '+' : ''}{housing.housingPriceTrend}%
+                      </div>
+                      <div className="text-xs text-slate-400 mt-1">year over year</div>
+                    </div>
+                  </div>
+
+                  {/* Context row */}
+                  <div className="rounded-lg border border-slate-200 divide-y divide-slate-100 text-sm">
+                    <div className="flex justify-between items-center px-4 py-2.5">
+                      <span className="text-slate-600">Rent vs. US median ($1,163/mo)</span>
+                      <span className={`font-semibold ${housing.medianRent <= NATIONAL_HOUSING.medianRent ? 'text-green-600' : 'text-red-600'}`}>
+                        {housing.medianRent <= NATIONAL_HOUSING.medianRent ? '✓ Below' : '↑ Above'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center px-4 py-2.5">
+                      <span className="text-slate-600">Home price momentum</span>
+                      <div className="text-right">
+                        <span className={`font-semibold block ${
+                          housing.housingPriceTrend >= 5 ? 'text-amber-600'
+                          : housing.housingPriceTrend >= 2 ? 'text-blue-600'
+                          : housing.housingPriceTrend < 0 ? 'text-red-600'
+                          : 'text-slate-600'}`}>
+                          {housing.housingPriceTrend >= 5 ? 'Fast-rising'
+                            : housing.housingPriceTrend >= 2 ? 'Steady growth'
+                            : housing.housingPriceTrend < 0 ? 'Declining'
+                            : 'Flat'}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {housing.housingPriceTrend > 0 ? '+' : ''}{housing.housingPriceTrend}% · {housing.housingPriceTrend >= 0 ? '+' : ''}${Math.round(state.avgHomeCost * housing.housingPriceTrend / 100).toLocaleString()}/yr
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center px-4 py-2.5">
+                      <span className="text-slate-600">Buy vs. rent breakeven</span>
+                      <span className="text-slate-500 font-medium">
+                        ~{Math.round(state.avgHomeCost / (housing.medianRent * 12))} yrs
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-400">
+                    Data: Zillow Research &amp; Census Bureau ACS 2023–2024. Trends are year-over-year estimates.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            {/* Veteran Perks — License/Registration & Medal Benefits */}
+            {stateVeteranPerks[state.id] && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Car className="w-5 h-5 text-blue-600" />
+                    License, Registration &amp; Military Honor Benefits
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {stateVeteranPerks[state.id].vehicleRegistrationBenefits.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
+                        <Car className="w-4 h-4 text-slate-400" />
+                        Driver's License &amp; Vehicle Registration
+                      </h4>
+                      <ul className="space-y-2">
+                        {stateVeteranPerks[state.id].vehicleRegistrationBenefits.map((benefit, idx) => (
+                          <li key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg text-sm">
+                            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {stateVeteranPerks[state.id].medalBenefits.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
+                        <Medal className="w-4 h-4 text-slate-400" />
+                        Military Medal &amp; Honor Benefits
+                      </h4>
+                      <ul className="space-y-2">
+                        {stateVeteranPerks[state.id].medalBenefits.map((benefit, idx) => (
+                          <li key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg text-sm">
+                            <CheckCircle2 className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <p className="text-xs text-slate-400">
+                    Verify current eligibility requirements with your state DMV and official veteran services office.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -331,165 +548,52 @@ export default function StateDetail() {
             <Card>
               <CardHeader>
                 <CardTitle>Score Breakdown</CardTitle>
+                <p className="text-xs text-slate-400 mt-0.5">Default weights: taxes 40%, cost 30%, benefits 30%</p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <div className="flex justify-between mb-2 text-sm">
-                    <span>Tax Friendliness</span>
-                    <span className="font-semibold">
-                      {state.militaryPensionTax === 'No'
-                        ? '100'
-                        : state.militaryPensionTax === 'Partial'
-                          ? '60'
-                          : '20'}
-                      /100
-                    </span>
+                {taxScoreComponents && (
+                  <div>
+                    <div className="flex justify-between mb-1.5 text-sm">
+                      <span>Tax Friendliness</span>
+                      <span className="font-semibold">{taxScoreComponents.total}/100</span>
+                    </div>
+                    <Progress value={taxScoreComponents.total} className="h-2 mb-2" />
+                    <div className="text-xs text-slate-400 space-y-0.5 pl-1">
+                      <div className="flex justify-between">
+                        <span>Pension tax exemption</span>
+                        <span className="font-medium text-slate-600">+{taxScoreComponents.pensionPts}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Income tax rate ({state.stateIncomeTax === 0 ? 'none' : `${state.stateIncomeTax}%`})</span>
+                        <span className="font-medium text-slate-600">+{taxScoreComponents.incomePts}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Property tax ({state.propertyTaxLevel})</span>
+                        <span className="font-medium text-slate-600">+{taxScoreComponents.propertyPts}</span>
+                      </div>
+                    </div>
                   </div>
-                  <Progress
-                    value={
-                      state.militaryPensionTax === 'No'
-                        ? 100
-                        : state.militaryPensionTax === 'Partial'
-                          ? 60
-                          : 20
-                    }
-                    className="h-2"
-                  />
-                </div>
+                )}
                 <div>
-                  <div className="flex justify-between mb-2 text-sm">
+                  <div className="flex justify-between mb-1.5 text-sm">
                     <span>Cost of Living</span>
-                    <span className="font-semibold">
-                      {Math.max(0, 200 - state.costOfLivingIndex)}/100
-                    </span>
+                    <span className="font-semibold">{costScore}/100</span>
                   </div>
-                  <Progress value={Math.max(0, 200 - state.costOfLivingIndex)} className="h-2" />
+                  <Progress value={costScore} className="h-2 mb-2" />
+                  <div className="text-xs text-slate-400 pl-1">
+                    Index: {state.costOfLivingIndex} (100 = US average)
+                  </div>
                 </div>
                 <div>
-                  <div className="flex justify-between mb-2 text-sm">
+                  <div className="flex justify-between mb-1.5 text-sm">
                     <span>Veteran Benefits</span>
                     <span className="font-semibold">{state.veteranBenefitsScore}/100</span>
                   </div>
                   <Progress value={state.veteranBenefitsScore} className="h-2" />
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Facts */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Facts</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div
-                  className="flex items-start gap-3 cursor-pointer group"
-                  onClick={() => setFacilitiesExpanded((v) => !v)}
-                >
-                  <Building2 className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium text-sm">VA Facilities</div>
-                      {facilitiesExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
-                      )}
-                    </div>
-                    <div className="flex items-end gap-3 mt-0.5">
-                      <div>
-                        <span className="text-2xl font-bold">{state.vaFacilities}</span>
-                        <span className="text-xs text-slate-500 ml-1">Medical Centers</span>
-                      </div>
-                      {clinics.length > 0 && (
-                        <div>
-                          <span className="text-2xl font-bold text-green-600">{clinics.length}</span>
-                          <span className="text-xs text-slate-500 ml-1">Clinics</span>
-                        </div>
-                      )}
-                    </div>
-                    {facilitiesExpanded && allFacilities.length > 0 && (
-                      <div className="mt-3 space-y-3">
-                        <p className="text-xs text-slate-400 italic">
-                          Tap any location to open in Google Maps
-                        </p>
-                        {vamcs.length > 0 && (
-                          <div>
-                            <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1.5">
-                              Medical Centers
-                            </div>
-                            <ul className="space-y-1">
-                              {vamcs.map((f, i) => (
-                                <li key={i}>
-                                  <a
-                                    href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="flex items-start gap-1.5 text-xs text-blue-600 hover:text-blue-800 hover:underline"
-                                  >
-                                    <MapPin className="w-3 h-3 text-blue-500 flex-shrink-0 mt-0.5" />
-                                    <span>{f.name}</span>
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                        {clinics.length > 0 && (
-                          <div>
-                            <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1.5">
-                              Clinics
-                            </div>
-                            <ul className="space-y-1">
-                              {clinics.map((f, i) => (
-                                <li key={i}>
-                                  <a
-                                    href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="flex items-start gap-1.5 text-xs text-green-600 hover:text-green-800 hover:underline"
-                                  >
-                                    <MapPin className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" />
-                                    <span>{f.name}</span>
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <Separator />
-                <div className="flex items-start gap-3">
-                  <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-sm">Total Veterans</div>
-                    <div className="text-2xl font-bold">
-                      {formatVeteranPop(state.veteranPopulation)}
-                    </div>
-                  </div>
-                </div>
-                <Separator />
-                <div className="flex items-start gap-3">
-                  <Home className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-sm">Average Home Price</div>
-                    <div className="text-2xl font-bold">
-                      ${(state.avgHomeCost / 1000).toFixed(0)}k
-                    </div>
-                  </div>
-                </div>
-                <Separator />
-                <div className="flex items-start gap-3">
-                  <DollarSign className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <div className="font-medium text-sm">Cost of Living Index</div>
-                    <div className="text-2xl font-bold">{state.costOfLivingIndex}</div>
-                    <div className="text-xs text-slate-500">100 = National Average</div>
-                  </div>
+                <div className="pt-2 border-t border-slate-100 flex justify-between text-sm font-semibold">
+                  <span>Overall Score</span>
+                  <span className={scoreTier(computedScore).className.split(' ')[0]}>{computedScore}</span>
                 </div>
               </CardContent>
             </Card>

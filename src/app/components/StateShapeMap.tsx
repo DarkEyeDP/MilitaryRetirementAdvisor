@@ -17,6 +17,7 @@ import 'leaflet/dist/leaflet.css';
 interface Props {
   stateId: string;
   stateName: string;
+  height?: number;
 }
 
 // Fit the map view to the GeoJSON bounds after it loads
@@ -48,7 +49,7 @@ const TOPO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 // Simple cache so we only fetch once per session
 let topoCache: Topology | null = null;
 
-export default function StateShapeMap({ stateId, stateName }: Props) {
+export default function StateShapeMap({ stateId, stateName, height = 380 }: Props) {
   const [stateGeojson, setStateGeojson] = useState<GeoJsonObject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -87,7 +88,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
 
   if (loading) {
     return (
-      <div className="w-full h-80 rounded-xl bg-slate-100 flex items-center justify-center">
+      <div className="w-full rounded-xl bg-slate-100 flex items-center justify-center" style={{ height }}>
         <div className="text-slate-500 text-sm">Loading map…</div>
       </div>
     );
@@ -95,7 +96,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
 
   if (error || !stateGeojson) {
     return (
-      <div className="w-full h-80 rounded-xl bg-slate-100 flex items-center justify-center">
+      <div className="w-full rounded-xl bg-slate-100 flex items-center justify-center" style={{ height }}>
         <div className="text-slate-500 text-sm">Map unavailable</div>
       </div>
     );
@@ -113,7 +114,7 @@ export default function StateShapeMap({ stateId, stateName }: Props) {
       <MapContainer
         center={[39.5, -98.35]}
         zoom={5}
-        style={{ height: '380px', width: '100%' }}
+        style={{ height: `${height}px`, width: '100%' }}
         zoomControl={true}
         attributionControl={true}
         scrollWheelZoom={false}

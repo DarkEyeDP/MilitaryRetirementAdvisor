@@ -20,6 +20,7 @@ import {
   Search,
   X,
   Globe,
+  MousePointer2,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import FilterPanel from '../components/FilterPanel';
@@ -105,10 +106,17 @@ export default function Dashboard() {
 
   const handleIncludeState = (stateId: string) => {
     setExcludedStates((prev) => {
-      const next = prev.filter((id) => id !== stateId);
-      localStorage.setItem('excluded-states', JSON.stringify(next));
+      const next = stateId === '__clear_all__' ? [] : prev.filter((id) => id !== stateId);
+      if (next.length === 0) localStorage.removeItem('excluded-states');
+      else localStorage.setItem('excluded-states', JSON.stringify(next));
       return next;
     });
+  };
+
+  const handleExcludeAll = () => {
+    const all = statesData.map((s) => s.id);
+    setExcludedStates(all);
+    localStorage.setItem('excluded-states', JSON.stringify(all));
   };
 
   const [filters, setFilters] = useState({
@@ -205,6 +213,17 @@ export default function Dashboard() {
       return true;
     });
   }, [filters, searchTerms, excludedStates]);
+
+  // Auto-remove comparison favorites when a state is filtered out of view
+  useEffect(() => {
+    const filteredIds = new Set(filteredStates.map((s) => s.id));
+    setFavorites((prev) => {
+      const next = prev.filter((id) => filteredIds.has(id));
+      if (next.length === prev.length) return prev;
+      localStorage.setItem('comparison-favorites', JSON.stringify(next));
+      return next;
+    });
+  }, [filteredStates]);
 
   const customScores = useMemo(() => {
     const scores: Record<string, number> = {};
@@ -307,12 +326,6 @@ export default function Dashboard() {
                       : 'Showing all states ranked by retirement friendliness'}
                   </p>
                 </div>
-                {sortedStates.length > 0 && (
-                  <div className="text-right">
-                    <div className="text-sm text-slate-500 mb-1">Top Ranked</div>
-                    <div className="text-2xl font-bold text-blue-600">{sortedStates[0].name}</div>
-                  </div>
-                )}
               </div>
 
               {/* Search */}
@@ -394,6 +407,14 @@ export default function Dashboard() {
                 ))}
               </div>
             </div>
+
+            {/* Card view hint */}
+            {view === 'cards' && (
+              <p className="text-xs text-slate-400 mb-3 flex items-center gap-1.5">
+                <MousePointer2 className="w-3.5 h-3.5" />
+                Click any card for detailed state information, tax breakdowns, VA facilities, and more
+              </p>
+            )}
 
             {/* Views */}
             <AnimatePresence mode="wait">
@@ -482,6 +503,7 @@ export default function Dashboard() {
                     excludedStates={excludedStates}
                     onExcludeState={handleExcludeState}
                     onIncludeState={handleIncludeState}
+                    onExcludeAll={handleExcludeAll}
                   />
                   {(totalActiveCount > 0 || hasCustomWeights) && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -526,6 +548,8 @@ export default function Dashboard() {
         open={showComparison}
         onClose={() => setShowComparison(false)}
         onRemove={removeFavorite}
+        onAdd={toggleFavorite}
+        availableStates={sortedStates}
         customScores={customScores}
       />
 

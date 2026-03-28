@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router';
 import { ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
-import { statesData } from '../data/stateData';
+import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
 import {
   calculateFinancialReality,
   fmt$,
@@ -308,14 +308,14 @@ export default function ComparisonPage() {
               label="Overall Score"
               even={false}
               values={states.map((s) => {
-                const score = s.retirementScore;
-                const cls =
-                  score >= 90
-                    ? 'bg-green-100 text-green-700'
-                    : score >= 80
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-yellow-100 text-yellow-700';
-                return <Badge className={cls}>{score}</Badge>;
+                const score = calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS);
+                const tier = scoreTier(score);
+                return (
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg font-bold text-slate-800">{score}</span>
+                    <Badge className={tier.className}>{tier.label}</Badge>
+                  </div>
+                );
               })}
             />
             <TableRow

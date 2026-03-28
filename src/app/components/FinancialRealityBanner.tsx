@@ -52,7 +52,8 @@ function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdow
   const hasCustom = breakdown.groceryMonthly > 0 || breakdown.customExpensesMonthly > 0;
 
   return (
-    <div className="absolute z-50 top-full mt-2 left-0 w-72 bg-white border border-slate-200 rounded-lg shadow-xl p-4 text-sm">
+    <div className="absolute z-50 top-full left-0 w-72 pt-2">
+    <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-4 text-sm">
       <p className="font-semibold text-slate-800 mb-3">Monthly Cost Breakdown</p>
       <div className="space-y-2">
         {items.map((item) => (
@@ -86,6 +87,7 @@ function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdow
           ? 'Includes your customized expenses. State averages used for non-overridden items.'
           : 'Estimates based on state averages. Does not include food, healthcare, or personal spending.'}
       </p>
+    </div>
     </div>
   );
 }
@@ -215,7 +217,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
         <div className="px-5 py-4">
           <div className="flex items-center gap-1.5 mb-1">
             <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            <p className="text-slate-400 text-xs uppercase tracking-wide">Best State</p>
+            <p className="text-slate-400 text-xs uppercase tracking-wide">Lowest Cost State</p>
           </div>
           <p className="text-xl font-bold text-slate-900 leading-tight">{best.state.name}</p>
           <p className="text-green-600 font-semibold text-sm mt-1">
