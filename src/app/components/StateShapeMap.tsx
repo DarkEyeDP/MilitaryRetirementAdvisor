@@ -7,12 +7,24 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Marker, Popup, useMap } from 'react-leaflet';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import type { GeoJsonObject, Feature } from 'geojson';
 import { vaFacilityLocations, stateFipsMap } from '../data/vaFacilityLocations';
+import { spaceATerminals } from '../data/spaceATerminals';
 import 'leaflet/dist/leaflet.css';
+
+const SPACE_A_COLOR = '#7c3aed'; // violet
+
+const planeIcon = L.divIcon({
+  html: `<div style="background:${SPACE_A_COLOR};color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);line-height:1">✈</div>`,
+  className: '',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -14],
+});
 
 interface Props {
   stateId: string;
@@ -26,16 +38,10 @@ function FitBounds({ geojson }: { geojson: GeoJsonObject | null }) {
   useEffect(() => {
     if (!geojson) return;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-      const L = (window as any).L ?? map;
-      // Use Leaflet's geoJSON to get bounds
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const layer = (window as any).L?.geoJSON(geojson);
-      if (layer) {
-        const bounds = layer.getBounds();
-        if (bounds.isValid()) {
-          map.fitBounds(bounds, { padding: [20, 20] });
-        }
+      const layer = L.geoJSON(geojson);
+      const bounds = layer.getBounds();
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [20, 20] });
       }
     } catch {
       // bounds fit is best-effort
@@ -172,6 +178,34 @@ export default function StateShapeMap({ stateId, stateName, height = 380 }: Prop
           );
         })}
 
+        {/* Space-A terminal markers — all CONUS terminals shown on every state map */}
+        {spaceATerminals.map((terminal) => (
+          <Marker key={terminal.id} position={[terminal.lat, terminal.lon]} icon={planeIcon}>
+            <Popup>
+              <div className="text-sm leading-snug max-w-[240px] space-y-1">
+                <div className="font-semibold">{terminal.name}</div>
+                <div className="text-xs text-violet-700 font-medium">AMC Space-A Terminal</div>
+                {terminal.phone && (
+                  <a
+                    href={`tel:${terminal.phone.replace(/\D/g, '')}`}
+                    className="text-xs text-blue-600 hover:underline block"
+                  >
+                    {terminal.phone}
+                  </a>
+                )}
+                <a
+                  href={terminal.amcUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 hover:underline block"
+                >
+                  AMC Terminal Info →
+                </a>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
         <FitBounds geojson={stateGeojson} />
       </MapContainer>
 
@@ -187,11 +221,15 @@ export default function StateShapeMap({ stateId, stateName, height = 380 }: Prop
             <span>VA Clinic ({facilities.filter((f) => f.type === 'clinic').length})</span>
           </div>
           <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[9px]" style={{ backgroundColor: SPACE_A_COLOR }}>✈</div>
+            <span>Space-A Terminal ({spaceATerminals.length})</span>
+          </div>
+          <div className="flex items-center gap-1.5">
             <div className="w-6 h-3 rounded-sm bg-blue-100 border border-blue-700 opacity-70" />
             <span>{stateName} boundary</span>
           </div>
         </div>
-        <span className="text-xs text-slate-400">Click markers for facility information</span>
+        <span className="text-xs text-slate-400">Click markers for details</span>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } fr
 import type { StateData } from '../data/stateData';
 import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
+import { getSpaceATerminalsByProximity } from '../data/spaceATerminals';
 import { stateVeteranPerks } from '../data/veteranPerksData';
 import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
@@ -752,6 +753,31 @@ export default function StateDetail() {
                       <span>{benefit}</span>
                     </li>
                   ))}
+                  {(() => {
+                    const { inState, bordering } = getSpaceATerminalsByProximity(state.id);
+                    return (
+                      <>
+                        {inState.map((t) => (
+                          <li key={t.id} className="flex items-start gap-3 p-3 bg-violet-50 rounded-lg">
+                            <CheckCircle2 className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
+                            <span>
+                              <span className="font-medium">Space-A Travel:</span> {t.name} ({t.base}) is located in-state —{' '}
+                              <a href={t.amcUrl} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline underline-offset-2">AMC Terminal Info</a>
+                            </span>
+                          </li>
+                        ))}
+                        {bordering.map((t) => (
+                          <li key={t.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                            <CheckCircle2 className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+                            <span className="text-slate-700">
+                              <span className="font-medium">Space-A (nearby):</span> {t.base}, {t.stateAbbr} — bordering state terminal{' '}
+                              <a href={t.amcUrl} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline underline-offset-2">AMC Info</a>
+                            </span>
+                          </li>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </ul>
               </CardContent>
             </Card>

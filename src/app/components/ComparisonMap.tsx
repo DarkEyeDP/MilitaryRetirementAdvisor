@@ -6,12 +6,24 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Pane, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Marker, Popup, Pane, useMap } from 'react-leaflet';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import type { GeoJsonObject, Feature, FeatureCollection } from 'geojson';
 import { vaFacilityLocations, stateFipsMap } from '../data/vaFacilityLocations';
+import { spaceATerminals } from '../data/spaceATerminals';
 import 'leaflet/dist/leaflet.css';
+
+const SPACE_A_COLOR = '#7c3aed';
+
+const planeIcon = L.divIcon({
+  html: `<div style="background:${SPACE_A_COLOR};color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);line-height:1">✈</div>`,
+  className: '',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -14],
+});
 
 interface Props {
   stateIds: string[]; // up to 3 state IDs
@@ -36,10 +48,7 @@ function FitBoundsMulti({ geojsons }: { geojsons: GeoJsonObject[] }) {
   useEffect(() => {
     if (geojsons.length === 0) return;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const L = (window as any).L;
-      if (!L) return;
-      let combinedBounds: ReturnType<typeof L.latLngBounds> | null = null;
+      let combinedBounds: L.LatLngBounds | null = null;
       for (const gj of geojsons) {
         const layer = L.geoJSON(gj);
         const bounds = layer.getBounds();
@@ -205,10 +214,38 @@ export default function ComparisonMap({ stateIds }: Props) {
           });
         })}
 
+        {/* Space-A terminal markers — all CONUS terminals */}
+        {spaceATerminals.map((terminal) => (
+          <Marker key={terminal.id} position={[terminal.lat, terminal.lon]} icon={planeIcon}>
+            <Popup>
+              <div className="text-sm leading-snug max-w-[240px] space-y-1">
+                <div className="font-semibold">{terminal.name}</div>
+                <div className="text-xs text-violet-700 font-medium">AMC Space-A Terminal</div>
+                {terminal.phone && (
+                  <a
+                    href={`tel:${terminal.phone.replace(/\D/g, '')}`}
+                    className="text-xs text-blue-600 hover:underline block"
+                  >
+                    {terminal.phone}
+                  </a>
+                )}
+                <a
+                  href={terminal.amcUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-600 hover:underline block"
+                >
+                  AMC Terminal Info →
+                </a>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
         <FitBoundsMulti geojsons={validHighlighted} />
       </MapContainer>
 
-      {/* Legend — matches StateShapeMap style */}
+      {/* Legend */}
       <div className="px-4 py-3 bg-white border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-4 text-xs text-slate-600 flex-wrap">
           <div className="flex items-center gap-1.5">
@@ -218,6 +255,10 @@ export default function ComparisonMap({ stateIds }: Props) {
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: CLINIC_COLOR }} />
             <span>VA Clinic</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[9px]" style={{ backgroundColor: SPACE_A_COLOR }}>✈</div>
+            <span>Space-A Terminal</span>
           </div>
           <div className="w-px h-3 bg-slate-200" />
           {stateIds.map((stateId, idx) => {
