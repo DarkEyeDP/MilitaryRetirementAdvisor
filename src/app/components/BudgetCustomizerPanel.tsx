@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Plus, Trash2, Users } from 'lucide-react';
+import { X, Plus, Trash2, Users, Briefcase } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
@@ -13,6 +13,8 @@ import {
   GROCERY_MONTHLY_PER_PERSON,
   DEFAULT_USER_COST_PROFILE,
   fmt$,
+  type FinancialInputs,
+  type SecondaryIncomeSource,
 } from '../data/financialReality';
 import { StateFinancialData } from '../data/financialData';
 
@@ -21,7 +23,9 @@ interface Props {
   onClose: () => void;
   profile: UserCostProfile;
   onChange: (profile: UserCostProfile) => void;
-  stateAvgs: StateFinancialData | null; // averages for top-ranked state
+  stateAvgs: StateFinancialData | null;
+  financialInputs?: FinancialInputs;
+  onChangeInputs?: (inputs: FinancialInputs) => void;
 }
 
 function SectionHeader({ children }: { children: React.ReactNode }) {
@@ -38,6 +42,8 @@ export default function BudgetCustomizerPanel({
   profile,
   onChange,
   stateAvgs,
+  financialInputs,
+  onChangeInputs,
 }: Props) {
   const update = useCallback(
     (patch: Partial<UserCostProfile>) => onChange({ ...profile, ...patch }),
@@ -104,6 +110,43 @@ export default function BudgetCustomizerPanel({
     (sum, item) => sum + (item.amount || 0),
     0
   );
+
+  // ── Secondary income ──────────────────────────────────────────────────────
+
+  const secondaryIncome: SecondaryIncomeSource[] = financialInputs?.secondaryIncome ?? [];
+  const hasSpouseIncome = secondaryIncome.some((s) => s.label === 'Spouse income');
+
+  const addSecondarySource = (label: string) => {
+    if (!financialInputs || !onChangeInputs) return;
+    onChangeInputs({
+      ...financialInputs,
+      secondaryIncome: [...secondaryIncome, { id: crypto.randomUUID(), label, annualAmount: 30000 }],
+    });
+  };
+
+  const updateSecondaryAmount = (id: string, annualAmount: number) => {
+    if (!financialInputs || !onChangeInputs) return;
+    onChangeInputs({
+      ...financialInputs,
+      secondaryIncome: secondaryIncome.map((s) => s.id === id ? { ...s, annualAmount } : s),
+    });
+  };
+
+  const updateSecondaryLabel = (id: string, label: string) => {
+    if (!financialInputs || !onChangeInputs) return;
+    onChangeInputs({
+      ...financialInputs,
+      secondaryIncome: secondaryIncome.map((s) => s.id === id ? { ...s, label } : s),
+    });
+  };
+
+  const removeSecondarySource = (id: string) => {
+    if (!financialInputs || !onChangeInputs) return;
+    onChangeInputs({
+      ...financialInputs,
+      secondaryIncome: secondaryIncome.filter((s) => s.id !== id),
+    });
+  };
 
   const totalCustomMonthly =
     (profile.propertyTaxOverride ?? 0) +
@@ -201,7 +244,81 @@ export default function BudgetCustomizerPanel({
 
             {/* Scrollable body */}
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-6">
-              {/* Section 1: Monthly Expenses */}
+              {/* Section 0: Additional Income */}
+              {onChangeInputs && (
+                <section>
+                  <SectionHeader>Additional Income</SectionHeader>
+                  <p className="text-xs text-slate-400 mb-3">Taxed at full state rate — no military exemptions</p>
+
+                  <div className="space-y-2 mb-3">
+                    {secondaryIncome.map((src) => (
+                      <div key={src.id} className="flex items-center gap-2 py-2 border-b border-slate-100">
+                        <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <Input
+                          type="text"
+                          value={src.label}
+                          onChange={(e) => updateSecondaryLabel(src.id, e.target.value)}
+                          className="flex-1 h-8 text-sm"
+                          placeholder="Income label"
+                        />
+                        <div className="relative flex items-center w-28 shrink-0">
+                          <span className="absolute left-2 text-xs text-slate-400">$</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={1000}
+                            value={src.annualAmount > 0 ? String(src.annualAmount) : ''}
+                            onChange={(e) => updateSecondaryAmount(src.id, Math.max(0, parseFloat(e.target.value) || 0))}
+                            className="h-8 text-sm text-right pl-5"
+                            placeholder="Annual"
+                          />
+                        </div>
+                        <span className="text-xs text-slate-400 shrink-0">/yr</span>
+                        <button
+                          onClick={() => removeSecondarySource(src.id)}
+                          className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  {secondaryIncome.length === 0 && (
+                    <p className="text-xs text-slate-400 mb-3">No additional income sources added.</p>
+                  )}
+
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      onClick={() => addSecondarySource('Part-time work')}
+                      className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md px-2.5 py-1.5 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />Part-time work
+                    </button>
+                    <button
+                      onClick={() => addSecondarySource('Spouse income')}
+                      disabled={hasSpouseIncome}
+                      className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md px-2.5 py-1.5 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <Plus className="w-3 h-3" />Spouse income
+                    </button>
+                    <button
+                      onClick={() => addSecondarySource('Rental income')}
+                      className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md px-2.5 py-1.5 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />Rental income
+                    </button>
+                    <button
+                      onClick={() => addSecondarySource('Other income')}
+                      className="flex items-center gap-1 text-xs font-medium text-slate-600 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1.5 transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />Other
+                    </button>
+                  </div>
+                </section>
+              )}
+
+            {/* Section 1: Monthly Expenses */}
               <section>
                 <SectionHeader>Monthly Expenses</SectionHeader>
                 <div className="space-y-0">

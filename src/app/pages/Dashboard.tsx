@@ -44,18 +44,26 @@ export default function Dashboard() {
     preferredRegion?: string;
     currentStateId?: string;
     familyMembers?: Array<{ id: string; role: string; ageGroup: import('../data/financialReality').AgeGroup }>;
+    secondaryIncome?: import('../data/financialReality').SecondaryIncomeSource[];
   } | null;
   const [financialInputs, setFinancialInputs] = useState<FinancialInputs>({
     retirementIncome: locationState?.retirementIncome ?? 60000,
     disabilityRating: locationState?.disabilityRating
       ?? localStorage.getItem('origin-disability-rating')
       ?? 'none',
+    secondaryIncome: locationState?.secondaryIncome ?? (() => {
+      try {
+        const stored = localStorage.getItem('origin-secondary-income');
+        return stored ? JSON.parse(stored) : [];
+      } catch { return []; }
+    })(),
   });
 
   const handleChangeInputs = (updated: FinancialInputs) => {
     setFinancialInputs(updated);
     localStorage.setItem('origin-retirement-income', String(updated.retirementIncome));
     localStorage.setItem('origin-disability-rating', updated.disabilityRating || 'none');
+    localStorage.setItem('origin-secondary-income', JSON.stringify(updated.secondaryIncome ?? []));
   };
 
   // currentStateId: prefer router state from landing, fall back to localStorage (survives refresh)
@@ -696,6 +704,8 @@ export default function Dashboard() {
             profile={userCostProfile}
             onChange={handleProfileChange}
             stateAvgs={topStateAvg}
+            financialInputs={financialInputs}
+            onChangeInputs={handleChangeInputs}
           />
         )}
       </AnimatePresence>

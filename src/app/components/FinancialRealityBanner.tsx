@@ -41,6 +41,7 @@ interface LineItem {
 function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdown; profile: UserCostProfile }) {
   const items: (LineItem & { overridden?: boolean })[] = [
     { label: 'State tax on pension', value: fmt$(breakdown.stateTaxOnPension) },
+    ...(breakdown.stateTaxOnSecondaryIncome > 0 ? [{ label: 'State tax on other income', value: fmt$(breakdown.stateTaxOnSecondaryIncome) }] : []),
     { label: 'Property tax (monthly)', value: fmt$(breakdown.propertyTaxMonthly), overridden: profile.propertyTaxOverride !== null },
     {
       label: 'Sales tax on spending',
@@ -245,6 +246,12 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
               </button>
             )
           )}
+          {(inputs.secondaryIncome ?? []).map((src) => (
+            <span key={src.id} className="flex items-baseline gap-1">
+              <span>+</span>
+              <span className="text-slate-900 font-medium whitespace-nowrap">{fmt$(src.annualAmount / 12)}/mo {src.label.toLowerCase()}</span>
+            </span>
+          ))}
           <span>across</span>
           <span className="text-slate-900 font-medium">{results.length} states</span>
         </p>

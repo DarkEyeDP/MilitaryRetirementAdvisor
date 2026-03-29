@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Popup, Pane, useMap } from 'react-leaflet';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import type { GeoJsonObject, Feature, FeatureCollection } from 'geojson';
@@ -83,9 +83,8 @@ export default function ComparisonMap({ stateIds }: Props) {
         const highlighted = stateIds.map((stateId) => {
           const fips = stateFipsMap[stateId];
           if (!fips) return null;
-          const unpaddedFips = String(parseInt(fips, 10));
           const stateFeature: Feature | undefined = statesCollection.features.find(
-            (f: Feature) => String(f.id) === unpaddedFips
+            (f: Feature) => String(f.id) === fips
           );
           return stateFeature ?? null;
         });
@@ -138,23 +137,25 @@ export default function ComparisonMap({ stateIds }: Props) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
 
-        {/* Highlighted state boundaries */}
-        {highlightedGeojsons.map((gj, idx) => {
-          if (!gj) return null;
-          return (
-            <GeoJSON
-              key={stateIds[idx]}
-              ref={(el) => { geoJsonRefs.current[idx] = el; }}
-              data={gj}
-              style={{
-                color: STATE_BORDER_COLORS[idx],
-                weight: 2.5,
-                fillColor: STATE_FILL_COLORS[idx],
-                fillOpacity: 0.35,
-              }}
-            />
-          );
-        })}
+        {/* Highlighted state boundaries — rendered in a lower pane so markers appear on top */}
+        <Pane name="state-boundaries" style={{ zIndex: 300 }}>
+          {highlightedGeojsons.map((gj, idx) => {
+            if (!gj) return null;
+            return (
+              <GeoJSON
+                key={stateIds[idx]}
+                ref={(el) => { geoJsonRefs.current[idx] = el; }}
+                data={gj}
+                style={{
+                  color: STATE_BORDER_COLORS[idx],
+                  weight: 2.5,
+                  fillColor: STATE_FILL_COLORS[idx],
+                  fillOpacity: 0.35,
+                }}
+              />
+            );
+          })}
+        </Pane>
 
         {/* VA facility markers — blue=VAMC, green=clinic (same as state detail page) */}
         {stateIds.map((stateId) => {

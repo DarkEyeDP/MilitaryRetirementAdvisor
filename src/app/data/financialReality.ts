@@ -38,9 +38,16 @@ export const VA_DISABILITY_MONTHLY: Record<string, number> = {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+export interface SecondaryIncomeSource {
+  id: string;
+  label: string;  // e.g. "Part-time work", "Spouse income"
+  annualAmount: number;
+}
+
 export interface FinancialInputs {
-  retirementIncome: number; // annual military pension ($)
-  disabilityRating: string; // '10'–'100', 'none', or ''
+  retirementIncome: number;        // annual military pension ($)
+  disabilityRating: string;        // '10'–'100', 'none', or ''
+  secondaryIncome?: SecondaryIncomeSource[]; // taxed at full state rate
 }
 
 export type AgeGroup = 'under6' | '6to12' | '13to18' | 'adult' | 'senior';
@@ -100,10 +107,12 @@ export interface FinancialBreakdown {
   // Income
   monthlyPension: number;
   monthlyDisabilityPay: number;
-  totalMonthlyIncome: number;
+  monthlySecondaryIncome: number; // sum of all secondary sources before tax
+  totalMonthlyIncome: number;     // all income combined (gross)
 
   // Expense line items
   stateTaxOnPension: number;
+  stateTaxOnSecondaryIncome: number; // secondary income taxed at full state rate
   propertyTaxMonthly: number;
   salesTaxOnSpending: number;
   homeInsuranceMonthly: number;
@@ -117,7 +126,7 @@ export interface FinancialBreakdown {
   monthlyRemaining: number;
 
   // Meta
-  hasFinancialData: boolean; // false if state not in financialData.ts yet
+  hasFinancialData: boolean;
 }
 
 // ─── Calculator ──────────────────────────────────────────────────────────────
@@ -129,13 +138,18 @@ export function calculateFinancialReality(
 ): FinancialBreakdown {
   const fin = stateFinancialData[state.id];
 
+  const monthlySecondaryIncome =
+    (inputs.secondaryIncome ?? []).reduce((sum, s) => sum + s.annualAmount, 0) / 12;
+
   if (!fin) {
     // State not yet in financial data — return zeroed breakdown
     return {
       monthlyPension: 0,
       monthlyDisabilityPay: 0,
-      totalMonthlyIncome: 0,
+      monthlySecondaryIncome,
+      totalMonthlyIncome: monthlySecondaryIncome,
       stateTaxOnPension: 0,
+      stateTaxOnSecondaryIncome: 0,
       propertyTaxMonthly: 0,
       salesTaxOnSpending: 0,
       homeInsuranceMonthly: 0,
@@ -144,23 +158,26 @@ export function calculateFinancialReality(
       groceryMonthly: 0,
       customExpensesMonthly: 0,
       totalTrackedExpenses: 0,
-      monthlyRemaining: 0,
+      monthlyRemaining: monthlySecondaryIncome,
       hasFinancialData: false,
     };
   }
 
   const monthlyPension = inputs.retirementIncome / 12;
   const monthlyDisabilityPay = VA_DISABILITY_MONTHLY[inputs.disabilityRating] ?? 0;
-  const totalMonthlyIncome = monthlyPension + monthlyDisabilityPay;
+  const totalMonthlyIncome = monthlyPension + monthlyDisabilityPay + monthlySecondaryIncome;
 
   // State income tax on military pension
   let stateTaxOnPension = 0;
   if (state.militaryPensionTax === 'Yes') {
     stateTaxOnPension = monthlyPension * (state.stateIncomeTax / 100);
   } else if (state.militaryPensionTax === 'Partial') {
-    // Simplified: ~50% of pension is taxable. Actual varies by state.
     stateTaxOnPension = monthlyPension * 0.5 * (state.stateIncomeTax / 100);
   }
+
+  // Secondary income taxed at full state rate — no military exemptions
+  const stateTaxOnSecondaryIncome = monthlySecondaryIncome * (state.stateIncomeTax / 100);
+
   // VA disability is always exempt — zero state tax regardless
 
   // Property tax — use override if set, otherwise state average
@@ -199,6 +216,7 @@ export function calculateFinancialReality(
 
   const totalTrackedExpenses =
     stateTaxOnPension +
+    stateTaxOnSecondaryIncome +
     propertyTaxMonthly +
     salesTaxOnSpending +
     homeInsuranceMonthly +
@@ -210,8 +228,10 @@ export function calculateFinancialReality(
   return {
     monthlyPension,
     monthlyDisabilityPay,
+    monthlySecondaryIncome,
     totalMonthlyIncome,
     stateTaxOnPension,
+    stateTaxOnSecondaryIncome,
     propertyTaxMonthly,
     salesTaxOnSpending,
     homeInsuranceMonthly,

@@ -160,6 +160,10 @@ export default function ComparisonPage() {
       localStorage.getItem('origin-disability-rating') ||
       JSON.parse(localStorage.getItem('landing-preferences') ?? '{}').disabilityRating ||
       'none',
+    secondaryIncome: (() => {
+      try { return JSON.parse(localStorage.getItem('origin-secondary-income') || '[]'); }
+      catch { return []; }
+    })(),
   };
 
   const userCostProfile: UserCostProfile =
@@ -296,9 +300,15 @@ export default function ComparisonPage() {
             {financialInputs.disabilityRating !== 'none' && financialInputs.disabilityRating !== '' && (
               <Row n={n} label="VA Disability / mo" values={breakdowns.map((b) => <span className="text-blue-700 font-semibold">{fmt$(b.monthlyDisabilityPay)}</span>)} />
             )}
+            {(financialInputs.secondaryIncome ?? []).map((src) => (
+              <Row key={src.id} n={n} label={`${src.label} / mo`} values={breakdowns.map(() => fmt$(src.annualAmount / 12))} />
+            ))}
             <Row n={n} label={annual ? 'Total Annual Income' : 'Total Monthly Income'} bold values={breakdowns.map((b) => <span className="text-slate-900">{fmtVal(b.totalMonthlyIncome)}</span>)} bestIdx={bestIdx(breakdowns.map(b => b.totalMonthlyIncome), 'max')} />
             {/* Tax */}
             <Row n={n} label="Pension Tax" divider values={breakdowns.map((b) => b.stateTaxOnPension === 0 ? <span className="text-green-600 font-semibold">Exempt</span> : <span className="text-red-600 font-semibold">-{fmtVal(b.stateTaxOnPension)}</span>)} bestIdx={bestIdx(breakdowns.map(b => b.stateTaxOnPension), 'min')} />
+            {breakdowns.some((b) => b.stateTaxOnSecondaryIncome > 0) && (
+              <Row n={n} label="Tax on Other Income" values={breakdowns.map((b) => b.stateTaxOnSecondaryIncome === 0 ? <span className="text-green-600 font-semibold">None</span> : <span className="text-red-600 font-semibold">-{fmtVal(b.stateTaxOnSecondaryIncome)}</span>)} bestIdx={bestIdx(breakdowns.map(b => b.stateTaxOnSecondaryIncome), 'min')} />
+            )}
             {/* Expenses */}
             <Row n={n} label="Property Tax" divider values={breakdowns.map((b) => fmtVal(b.propertyTaxMonthly))} bestIdx={bestIdx(breakdowns.map(b => b.propertyTaxMonthly), 'min')} />
             <Row n={n} label="Sales Tax on Spending" values={breakdowns.map((b) => fmtVal(b.salesTaxOnSpending))} bestIdx={bestIdx(breakdowns.map(b => b.salesTaxOnSpending), 'min')} />

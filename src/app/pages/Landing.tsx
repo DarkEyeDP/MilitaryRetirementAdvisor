@@ -10,9 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Shield, TrendingDown, Heart, MapPin, Plus, X } from 'lucide-react';
+import { Shield, TrendingDown, Heart, MapPin, Plus, X, Briefcase } from 'lucide-react';
 import { statesData } from '../data/stateData';
-import type { AgeGroup } from '../data/financialReality';
+import type { AgeGroup, SecondaryIncomeSource } from '../data/financialReality';
 import { AGE_GROUP_LABELS } from '../data/financialReality';
 
 const LS_KEY = 'landing-preferences';
@@ -79,6 +79,24 @@ export default function Landing() {
   const [currentStateId, setCurrentStateId] = useState<string>(prefs.currentStateId ?? '');
   const [familyMembers, setFamilyMembers] = useState<LandingMember[]>(prefs.familyMembers ?? []);
   const [preferredRegion, setPreferredRegion] = useState<string>(prefs.preferredRegion ?? '');
+  const [secondaryIncome, setSecondaryIncome] = useState<SecondaryIncomeSource[]>(prefs.secondaryIncome ?? []);
+
+  const addSecondarySource = (label: string) => {
+    const next = [...secondaryIncome, { id: nextId(), label, annualAmount: 30000 }];
+    setSecondaryIncome(next);
+    savePrefs({ secondaryIncome: next });
+  };
+  const updateSecondaryAmount = (id: string, annualAmount: number) => {
+    const next = secondaryIncome.map((s) => s.id === id ? { ...s, annualAmount } : s);
+    setSecondaryIncome(next);
+    savePrefs({ secondaryIncome: next });
+  };
+  const removeSecondarySource = (id: string) => {
+    const next = secondaryIncome.filter((s) => s.id !== id);
+    setSecondaryIncome(next);
+    savePrefs({ secondaryIncome: next });
+  };
+  const hasSpouseIncome = secondaryIncome.some((s) => s.label === 'Spouse income');
 
   const [isLoading, setIsLoading] = useState(false);
   const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states…', 'Ranking your results…'];
@@ -137,8 +155,9 @@ export default function Landing() {
       }
       localStorage.setItem('origin-disability-rating', disabilityRating || 'none');
       localStorage.setItem('origin-family-members', JSON.stringify(familyMembers));
+      localStorage.setItem('origin-secondary-income', JSON.stringify(secondaryIncome));
       navigate('/dashboard', {
-        state: { retirementIncome, disabilityRating, preferredRegion, currentStateId, familyMembers },
+        state: { retirementIncome, disabilityRating, preferredRegion, currentStateId, familyMembers, secondaryIncome },
       });
     }, 1200);
   };
@@ -276,6 +295,63 @@ export default function Landing() {
           {hasSchoolKids && (
             <p className="text-xs text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
               School-age children detected — education benefits will be weighted higher in your rankings.
+            </p>
+          )}
+        </div>
+
+        <div className="border-t border-slate-100" />
+
+        {/* Secondary Income */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Additional Income</p>
+            {secondaryIncome.length > 0 && (
+              <span className="text-xs text-slate-400">{secondaryIncome.length} source{secondaryIncome.length !== 1 ? 's' : ''}</span>
+            )}
+          </div>
+
+          {secondaryIncome.length > 0 && (
+            <div className="space-y-1.5">
+              {secondaryIncome.map((src) => (
+                <div key={src.id} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100">
+                  <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="text-xs font-medium text-slate-600 shrink-0 w-24 truncate">{src.label}</span>
+                  <div className="flex items-center gap-1 flex-1 min-w-0">
+                    <span className="text-xs text-slate-400">$</span>
+                    <input
+                      type="number"
+                      min={1000}
+                      max={500000}
+                      step={1000}
+                      value={src.annualAmount}
+                      onChange={(e) => updateSecondaryAmount(src.id, Number(e.target.value))}
+                      className="w-full text-xs font-semibold text-slate-800 bg-transparent border-b border-slate-200 focus:border-blue-400 focus:outline-none"
+                    />
+                    <span className="text-xs text-slate-400 shrink-0">/yr</span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => removeSecondarySource(src.id)} className="h-5 w-5 p-0 text-slate-300 hover:text-red-500 shrink-0">
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => addSecondarySource('Part-time work')} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Part-time work
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addSecondarySource('Spouse income')} disabled={hasSpouseIncome} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Spouse income
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addSecondarySource('Rental income')} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Rental income
+            </Button>
+          </div>
+
+          {secondaryIncome.length > 0 && (
+            <p className="text-xs text-slate-400 bg-slate-50 rounded-lg px-3 py-2">
+              Additional income is taxed at the full state income tax rate — no military exemptions apply.
             </p>
           )}
         </div>
