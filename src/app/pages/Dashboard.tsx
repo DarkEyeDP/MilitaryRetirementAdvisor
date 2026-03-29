@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore } from '../data/stateData';
-import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE } from '../data/financialReality';
+import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, fmt$ } from '../data/financialReality';
 import { stateFinancialData } from '../data/financialData';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
 import BudgetCustomizerPanel from '../components/BudgetCustomizerPanel';
@@ -21,7 +21,10 @@ import {
   X,
   Globe,
   MousePointer2,
+  DollarSign,
 } from 'lucide-react';
+
+const DISABILITY_RATINGS = ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'];
 import { toast } from 'sonner';
 import FilterPanel from '../components/FilterPanel';
 import StateCard from '../components/StateCard';
@@ -39,11 +42,63 @@ export default function Dashboard() {
     retirementIncome?: number;
     disabilityRating?: string;
     preferredRegion?: string;
+    currentStateId?: string;
+    familyMembers?: Array<{ id: string; role: string; ageGroup: import('../data/financialReality').AgeGroup }>;
   } | null;
-  const financialInputs: FinancialInputs = {
+  const [financialInputs, setFinancialInputs] = useState<FinancialInputs>({
     retirementIncome: locationState?.retirementIncome ?? 60000,
-    disabilityRating: locationState?.disabilityRating ?? 'none',
+    disabilityRating: locationState?.disabilityRating
+      ?? localStorage.getItem('origin-disability-rating')
+      ?? 'none',
+  });
+
+  const handleChangeInputs = (updated: FinancialInputs) => {
+    setFinancialInputs(updated);
+    localStorage.setItem('origin-retirement-income', String(updated.retirementIncome));
+    localStorage.setItem('origin-disability-rating', updated.disabilityRating || 'none');
   };
+
+  // currentStateId: prefer router state from landing, fall back to localStorage (survives refresh)
+  const currentStateId: string | null = (() => {
+    const fromNav = locationState?.currentStateId;
+    if (fromNav && fromNav !== 'none' && fromNav !== '') return fromNav;
+    return localStorage.getItem('origin-state-id') ?? null;
+  })();
+  const originStateName = currentStateId ? statesData.find((s) => s.id === currentStateId)?.name ?? null : null;
+  const landingFamilyMembers = locationState?.familyMembers ?? (() => {
+    try {
+      const stored = localStorage.getItem('origin-family-members');
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  })();
+
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [headerEditingIncome, setHeaderEditingIncome] = useState(false);
+  const [headerIncomeValue, setHeaderIncomeValue] = useState('');
+
+  useEffect(() => {
+    const handleScroll = () => setHeaderScrolled(window.scrollY > 160);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const startHeaderEditIncome = () => {
+    setHeaderIncomeValue(String(Math.round(financialInputs.retirementIncome / 12)));
+    setHeaderEditingIncome(true);
+  };
+
+  const saveHeaderIncome = () => {
+    const monthly = parseFloat(headerIncomeValue);
+    if (!isNaN(monthly) && monthly > 0) {
+      handleChangeInputs({ ...financialInputs, retirementIncome: Math.round(monthly) * 12 });
+    }
+    setHeaderEditingIncome(false);
+  };
+
+  const hasHeaderDisability =
+    financialInputs.disabilityRating &&
+    financialInputs.disabilityRating !== 'none' &&
+    financialInputs.disabilityRating !== '';
 
   const [view, setView] = useState<'table' | 'cards' | 'map'>('cards');
   const [searchQuery, setSearchQuery] = useState('');
@@ -74,7 +129,15 @@ export default function Dashboard() {
   const [userCostProfile, setUserCostProfile] = useState<UserCostProfile>(() => {
     try {
       const saved = localStorage.getItem('budget-profile');
-      return saved ? JSON.parse(saved) : DEFAULT_USER_COST_PROFILE;
+      const base: UserCostProfile = saved ? JSON.parse(saved) : DEFAULT_USER_COST_PROFILE;
+      // Pre-populate household members from landing form (overrides saved if provided)
+      if (landingFamilyMembers.length > 0) {
+        return {
+          ...base,
+          householdMembers: landingFamilyMembers.map((m) => ({ id: m.id, ageGroup: m.ageGroup })),
+        };
+      }
+      return base;
     } catch {
       return DEFAULT_USER_COST_PROFILE;
     }
@@ -127,10 +190,11 @@ export default function Dashboard() {
     partialTaxMilitary: false,
   });
 
-  const [weights, setWeights] = useState({
-    taxes: 40,
-    cost: 30,
-    benefits: 30,
+  const hasSchoolKids = landingFamilyMembers.some((m) => ['6to12', '13to18'].includes(m.ageGroup));
+  const [weights, setWeights] = useState(() => {
+    // Boost benefits weight if user has school-age children — education benefits matter more
+    if (hasSchoolKids) return { taxes: 35, cost: 30, benefits: 35 };
+    return { taxes: 40, cost: 30, benefits: 30 };
   });
 
   const handleFilterChange = (key: string, value: boolean) => {
@@ -267,7 +331,73 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <Globe className="w-6 h-6 text-blue-600" />
                 <h1 className="font-semibold text-lg">State Comparison Results</h1>
+                {originStateName && (
+                  <span className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full font-medium">
+                    COL &amp; Taxes vs {originStateName}
+                  </span>
+                )}
               </div>
+              <AnimatePresence>
+                {headerScrolled && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -8 }}
+                    transition={{ duration: 0.18 }}
+                    className="hidden lg:flex items-center gap-2 pl-4 ml-1 border-l border-slate-200 text-sm"
+                  >
+                    <DollarSign className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    {headerEditingIncome ? (
+                      <span className="inline-flex items-baseline gap-px">
+                        <span className="font-semibold text-slate-900">$</span>
+                        <input
+                          autoFocus
+                          type="number"
+                          min={500}
+                          max={20000}
+                          step={100}
+                          value={headerIncomeValue}
+                          onChange={(e) => setHeaderIncomeValue(e.target.value)}
+                          onBlur={saveHeaderIncome}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveHeaderIncome();
+                            if (e.key === 'Escape') setHeaderEditingIncome(false);
+                          }}
+                          className="w-20 text-sm font-semibold text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
+                        />
+                        <span className="font-semibold text-slate-900">/mo pension</span>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={startHeaderEditIncome}
+                        className="font-semibold text-slate-900 hover:text-blue-600 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
+                      >
+                        {fmt$(financialInputs.retirementIncome / 12)}/mo pension
+                      </button>
+                    )}
+                    {hasHeaderDisability && (
+                      <>
+                        <span className="text-slate-400">+</span>
+                        <span className="font-semibold text-slate-900 whitespace-nowrap">VA disability ({<select
+                          value={financialInputs.disabilityRating}
+                          onChange={(e) => handleChangeInputs({ ...financialInputs, disabilityRating: e.target.value || 'none' })}
+                          className="text-sm font-semibold text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
+                          style={{ width: `${financialInputs.disabilityRating?.length ?? 2}ch`, padding: 0 }}
+                        >{DISABILITY_RATINGS.map((r) => <option key={r} value={r}>{r}</option>)}</select>}%)
+                        </span>
+                      </>
+                    )}
+                    {!hasHeaderDisability && (
+                      <button
+                        onClick={() => handleChangeInputs({ ...financialInputs, disabilityRating: '50' })}
+                        className="text-xs text-blue-500 hover:text-blue-700 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
+                      >
+                        + Add VA disability
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             <div className="flex items-center gap-2">
@@ -311,6 +441,7 @@ export default function Dashboard() {
               profile={userCostProfile}
               stateAvg={topStateAvg}
               onCustomize={() => setShowBudgetPanel(true)}
+              onChangeInputs={handleChangeInputs}
             />
 
             {/* Results Summary */}
@@ -434,6 +565,9 @@ export default function Dashboard() {
                         customScore={customScores[state.id]}
                         isFavorite={favorites.includes(state.id)}
                         onToggleFavorite={toggleFavorite}
+                        resultIds={sortedStates.map((s) => s.id)}
+                        currentStateId={currentStateId ?? undefined}
+                        retirementIncome={financialInputs.retirementIncome}
                       />
                     ))}
                   </div>

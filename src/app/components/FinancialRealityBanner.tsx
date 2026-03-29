@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   ChevronDown,
@@ -10,6 +10,8 @@ import {
   Info,
   SlidersHorizontal,
 } from 'lucide-react';
+
+const DISABILITY_RATINGS = ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'];
 import { StateData } from '../data/stateData';
 import {
   FinancialInputs,
@@ -27,6 +29,7 @@ interface Props {
   profile: UserCostProfile;
   stateAvg: StateFinancialData | null;
   onCustomize: () => void;
+  onChangeInputs?: (inputs: FinancialInputs) => void;
 }
 
 interface LineItem {
@@ -92,9 +95,29 @@ function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdow
   );
 }
 
-export default function FinancialRealityBanner({ states, inputs, profile, stateAvg, onCustomize }: Props) {
+export default function FinancialRealityBanner({ states, inputs, profile, stateAvg, onCustomize, onChangeInputs }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  const [editingIncome, setEditingIncome] = useState(false);
+  const [incomeInputValue, setIncomeInputValue] = useState('');
+  const incomeInputRef = useRef<HTMLInputElement>(null);
+
+  const startEditIncome = () => {
+    setIncomeInputValue(String(Math.round(inputs.retirementIncome / 12)));
+    setEditingIncome(true);
+  };
+
+  const saveIncome = () => {
+    const monthly = parseFloat(incomeInputValue);
+    if (!isNaN(monthly) && monthly > 0) {
+      onChangeInputs?.({ ...inputs, retirementIncome: Math.round(monthly) * 12 });
+    }
+    setEditingIncome(false);
+  };
+
+  const handleDisabilityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChangeInputs?.({ ...inputs, disabilityRating: e.target.value || 'none' });
+  };
 
   const results = useMemo(
     () => computeAllRealities(states, inputs, profile),
@@ -133,7 +156,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
       {/* Header row */}
       <div className="px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <DollarSign className="w-4 h-4 text-blue-600" />
             <span className="text-blue-700 text-sm font-semibold tracking-wide uppercase">
               Your Financial Reality
@@ -159,19 +182,71 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
             </button>
           </div>
         </div>
-        <p className="text-slate-500 text-sm">
-          Based on <span className="text-slate-900 font-medium">{fmt$(monthlyPension)}/mo pension</span>
-          {hasDisability && (
+        <p className="text-slate-500 text-sm flex flex-wrap items-baseline gap-x-1">
+          <span>Based on</span>
+          {editingIncome ? (
+            <span className="inline-flex items-baseline gap-px">
+              <span className="text-slate-900 font-medium">$</span>
+              <input
+                ref={incomeInputRef}
+                autoFocus
+                type="number"
+                min={500}
+                max={20000}
+                step={100}
+                value={incomeInputValue}
+                onChange={(e) => setIncomeInputValue(e.target.value)}
+                onBlur={saveIncome}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveIncome();
+                  if (e.key === 'Escape') setEditingIncome(false);
+                }}
+                className="w-20 text-sm font-medium text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
+              />
+              <span className="text-slate-900 font-medium">/mo pension</span>
+              <span className="text-xs text-slate-400 ml-1">(Enter to save)</span>
+            </span>
+          ) : (
+            <button
+              onClick={onChangeInputs ? startEditIncome : undefined}
+              className={onChangeInputs ? 'text-slate-900 font-medium hover:text-blue-600 hover:underline underline-offset-2 transition-colors' : 'text-slate-900 font-medium'}
+            >
+              {fmt$(monthlyPension)}/mo pension
+            </button>
+          )}
+          {hasDisability ? (
             <>
-              {' '}
-              +{' '}
-              <span className="text-slate-900 font-medium">
-                {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability (
-                {inputs.disabilityRating}%)
+              <span>+</span>
+              <span className="text-slate-900 font-medium whitespace-nowrap">
+                {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability ({onChangeInputs ? (<select
+                    value={inputs.disabilityRating}
+                    onChange={handleDisabilityChange}
+                    className="text-sm font-medium text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer transition-colors appearance-none"
+                    style={{ width: `${inputs.disabilityRating?.length ?? 2}ch`, padding: 0 }}
+                  >{DISABILITY_RATINGS.map((r) => (<option key={r} value={r}>{r}</option>))}</select>) : inputs.disabilityRating}%)
               </span>
+              {onChangeInputs && (
+                <button
+                  onClick={() => handleDisabilityChange({ target: { value: 'none' } } as React.ChangeEvent<HTMLSelectElement>)}
+                  className="text-xs text-slate-400 hover:text-red-500 transition-colors"
+                  title="Remove disability rating"
+                >
+                  ✕
+                </button>
+              )}
             </>
-          )}{' '}
-          across <span className="text-slate-900 font-medium">{results.length} states</span>
+          ) : (
+            onChangeInputs && (
+              <button
+                onClick={() => onChangeInputs({ ...inputs, disabilityRating: '50' })}
+                className="text-xs text-blue-500 hover:text-blue-700 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
+              >
+                + Add VA disability
+              </button>
+            )
+          )}
+          <span>across</span>
+          <span className="text-slate-900 font-medium">{results.length} states</span>
         </p>
       </div>
 

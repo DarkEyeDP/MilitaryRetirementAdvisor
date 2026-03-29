@@ -8,6 +8,10 @@ import ComparisonPage from './pages/ComparisonPage';
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
+    if (sessionStorage.getItem('preserveScroll') === '1') {
+      sessionStorage.removeItem('preserveScroll');
+      return;
+    }
     window.scrollTo(0, 0);
   }, [pathname]);
   return <Outlet />;

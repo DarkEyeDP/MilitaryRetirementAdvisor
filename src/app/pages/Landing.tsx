@@ -10,7 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Shield, TrendingDown, Heart, MapPin } from 'lucide-react';
+import { Shield, TrendingDown, Heart, MapPin, Plus, X } from 'lucide-react';
+import { statesData } from '../data/stateData';
+import type { AgeGroup } from '../data/financialReality';
+import { AGE_GROUP_LABELS } from '../data/financialReality';
 
 const LS_KEY = 'landing-preferences';
 
@@ -30,17 +33,86 @@ function savePrefs(patch: Record<string, unknown>) {
   } catch { /* storage unavailable */ }
 }
 
+export type MemberRole = 'spouse' | 'child' | 'parent';
+
+export interface LandingMember {
+  id: string;
+  role: MemberRole;
+  ageGroup: AgeGroup;
+}
+
+const ROLE_LABELS: Record<MemberRole, string> = {
+  spouse: 'Spouse',
+  child: 'Child',
+  parent: 'Dependent Parent',
+};
+
+const ROLE_AGE_OPTIONS: Record<MemberRole, AgeGroup[]> = {
+  spouse: ['adult', 'senior'],
+  child: ['under6', '6to12', '13to18', 'adult'],
+  parent: ['adult', 'senior'],
+};
+
+const ROLE_DEFAULT_AGE: Record<MemberRole, AgeGroup> = {
+  spouse: 'adult',
+  child: '6to12',
+  parent: 'senior',
+};
+
+const ROLE_COLORS: Record<MemberRole, string> = {
+  spouse: 'bg-blue-100 text-blue-700',
+  child: 'bg-green-100 text-green-700',
+  parent: 'bg-purple-100 text-purple-700',
+};
+
+const statesSorted = [...statesData].sort((a, b) => a.name.localeCompare(b.name));
+
+let _idCounter = 0;
+const nextId = () => `m_${++_idCounter}_${Date.now()}`;
+
 export default function Landing() {
   const navigate = useNavigate();
   const prefs = loadPrefs();
+
   const [retirementIncome, setRetirementIncome] = useState<number>(prefs.retirementIncome ?? 60000);
   const [disabilityRating, setDisabilityRating] = useState<string>(prefs.disabilityRating ?? '');
+  const [currentStateId, setCurrentStateId] = useState<string>(prefs.currentStateId ?? '');
+  const [familyMembers, setFamilyMembers] = useState<LandingMember[]>(prefs.familyMembers ?? []);
   const [preferredRegion, setPreferredRegion] = useState<string>(prefs.preferredRegion ?? '');
 
   const [isLoading, setIsLoading] = useState(false);
   const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states…', 'Ranking your results…'];
   const [loadingMsg, setLoadingMsg] = useState(loadingMessages[0]);
   const msgIndex = useRef(0);
+
+  const hasSpouse = familyMembers.some((m) => m.role === 'spouse');
+  const currentStateName = statesData.find((s) => s.id === currentStateId)?.name;
+  const hasSchoolKids = familyMembers.some((m) => ['6to12', '13to18'].includes(m.ageGroup));
+
+  const addMember = (role: MemberRole) => {
+    const member: LandingMember = { id: nextId(), role, ageGroup: ROLE_DEFAULT_AGE[role] };
+    setFamilyMembers((prev) => {
+      const next = [...prev, member];
+      savePrefs({ familyMembers: next });
+      return next;
+    });
+  };
+
+  const removeMember = (id: string) => {
+    setFamilyMembers((prev) => {
+      const next = prev.filter((m) => m.id !== id);
+      savePrefs({ familyMembers: next });
+      return next;
+    });
+  };
+
+  const updateMemberAge = (id: string, ageGroup: AgeGroup) => {
+    setFamilyMembers((prev) => {
+      const next = prev.map((m) => (m.id === id ? { ...m, ageGroup } : m));
+      savePrefs({ familyMembers: next });
+      return next;
+    });
+  };
 
   const handleCompare = () => {
     setIsLoading(true);
@@ -56,11 +128,193 @@ export default function Landing() {
 
     setTimeout(() => {
       clearInterval(interval);
+      if (currentStateId) {
+        localStorage.setItem('origin-state-id', currentStateId);
+        localStorage.setItem('origin-retirement-income', String(retirementIncome));
+      } else {
+        localStorage.removeItem('origin-state-id');
+        localStorage.removeItem('origin-retirement-income');
+      }
+      localStorage.setItem('origin-disability-rating', disabilityRating || 'none');
+      localStorage.setItem('origin-family-members', JSON.stringify(familyMembers));
       navigate('/dashboard', {
-        state: { retirementIncome, disabilityRating, preferredRegion },
+        state: { retirementIncome, disabilityRating, preferredRegion, currentStateId, familyMembers },
       });
     }, 1200);
   };
+
+  const form = (
+    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+      <h3 className="text-xl font-semibold mb-5">Get Your Personalized Comparison</h3>
+
+      <div className="space-y-4">
+
+        {/* Income */}
+        <div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Your Finances</p>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="income" className="text-sm">Annual Retirement Income</Label>
+              <div className="text-right">
+                <span className="font-semibold text-blue-600 text-sm">${retirementIncome.toLocaleString()}</span>
+                <span className="text-xs text-slate-400 ml-1.5">${Math.round(retirementIncome / 12).toLocaleString()}/mo</span>
+              </div>
+            </div>
+            <Slider
+              id="income"
+              min={20000}
+              max={150000}
+              step={5000}
+              value={[retirementIncome]}
+              onValueChange={(value) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
+              className="w-full"
+            />
+            <div className="flex justify-between text-xs text-slate-400">
+              <span>$20,000</span>
+              <span>$150,000</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Disability + Current State — side by side */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="disability" className="text-xs">
+              VA Disability <span className="text-slate-400 font-normal">(Optional)</span>
+            </Label>
+            <Select value={disabilityRating} onValueChange={(v) => { setDisabilityRating(v); savePrefs({ disabilityRating: v }); }}>
+              <SelectTrigger id="disability" className="h-9 text-sm"><SelectValue placeholder="Select rating" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                {['10','20','30','40','50','60','70','80','90','100'].map((r) => (
+                  <SelectItem key={r} value={r}>{r}%</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="currentState" className="text-xs">
+              Current State <span className="text-slate-400 font-normal">(Optional)</span>
+            </Label>
+            <Select
+              value={currentStateId}
+              onValueChange={(v) => { setCurrentStateId(v === 'none' ? '' : v); savePrefs({ currentStateId: v === 'none' ? '' : v }); }}
+            >
+              <SelectTrigger id="currentState" className="h-9 text-sm"><SelectValue placeholder="Where you live" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Not specified</SelectItem>
+                {statesSorted.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {currentStateName && (
+          <p className="text-xs text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
+            We'll show your estimated annual tax savings for each state vs. staying in {currentStateName}.
+          </p>
+        )}
+
+        <div className="border-t border-slate-100" />
+
+        {/* Family */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Family</p>
+            {familyMembers.length > 0 && (
+              <span className="text-xs text-slate-400">{familyMembers.length} member{familyMembers.length !== 1 ? 's' : ''}</span>
+            )}
+          </div>
+
+          {familyMembers.length > 0 && (
+            <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto">
+              {familyMembers.map((member) => (
+                <div key={member.id} className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded-lg border border-slate-100 min-w-0">
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${ROLE_COLORS[member.role]}`}>
+                    {ROLE_LABELS[member.role]}
+                  </span>
+                  <Select
+                    value={member.ageGroup}
+                    onValueChange={(v) => updateMemberAge(member.id, v as AgeGroup)}
+                  >
+                    <SelectTrigger className="h-6 flex-1 text-xs border-0 bg-transparent p-0 min-w-0">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ROLE_AGE_OPTIONS[member.role].map((ag) => (
+                        <SelectItem key={ag} value={ag}>{AGE_GROUP_LABELS[ag]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeMember(member.id)}
+                    className="h-6 w-6 p-0 text-slate-300 hover:text-red-500 shrink-0"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="outline" size="sm" onClick={() => addMember('spouse')} disabled={hasSpouse} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Spouse
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addMember('child')} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Child
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => addMember('parent')} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Dependent Parent
+            </Button>
+          </div>
+
+          {hasSchoolKids && (
+            <p className="text-xs text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
+              School-age children detected — education benefits will be weighted higher in your rankings.
+            </p>
+          )}
+        </div>
+
+        <div className="border-t border-slate-100" />
+
+        {/* Region + Submit — side by side */}
+        <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+          <div className="space-y-1.5">
+            <Label htmlFor="region" className="text-xs">
+              Preferred Region <span className="text-slate-400 font-normal">(Optional)</span>
+            </Label>
+            <Select value={preferredRegion} onValueChange={(v) => { setPreferredRegion(v); savePrefs({ preferredRegion: v }); }}>
+              <SelectTrigger id="region" className="h-9 text-sm"><SelectValue placeholder="Any region" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="any">Any Region</SelectItem>
+                <SelectItem value="northeast">Northeast</SelectItem>
+                <SelectItem value="southeast">Southeast</SelectItem>
+                <SelectItem value="midwest">Midwest</SelectItem>
+                <SelectItem value="southwest">Southwest</SelectItem>
+                <SelectItem value="west">West</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Button onClick={handleCompare} disabled={isLoading} className="h-9 px-6 shrink-0">
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                {loadingMsg}
+              </span>
+            ) : (
+              'Compare States'
+            )}
+          </Button>
+        </div>
+
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
@@ -74,162 +328,119 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl lg:text-6xl font-bold text-slate-900 mb-4">
-            Choose Where Your
-            <br />
-            Retirement Works for You
-          </h2>
-          <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-            Compare all 50 states based on taxes, benefits, and quality of life. Make an informed
-            decision about where to live after service.
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        {/* Input Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-2xl mx-auto border border-slate-200 mb-12">
-          <h3 className="text-2xl font-semibold mb-6">Get Your Personalized Comparison</h3>
+        {/* Desktop: two-column layout, vertically centered in remaining viewport */}
+        <div className="hidden lg:grid lg:grid-cols-[1fr_480px] lg:gap-14 lg:min-h-[calc(100vh-65px)] lg:items-center lg:py-8">
 
-          <div className="space-y-6">
-            {/* Retirement Income */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="income">Annual Retirement Income</Label>
-                <div className="text-right">
-                  <span className="font-semibold text-blue-600">${retirementIncome.toLocaleString()}</span>
-                  <span className="text-xs text-slate-400 ml-1.5">${Math.round(retirementIncome / 12).toLocaleString()}/mo</span>
+          {/* Left: hero + features + stats */}
+          <div className="space-y-10">
+            <div>
+              <h2 className="text-4xl xl:text-5xl font-bold text-slate-900 leading-tight mb-4">
+                Choose Where Your<br />Retirement Works for You
+              </h2>
+              <p className="text-lg text-slate-500 max-w-lg leading-relaxed">
+                Compare all 50 states based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
+              </p>
+            </div>
+
+            <div>
+              <div className="flex items-start gap-5 py-5 border-t border-slate-200/80">
+                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <TrendingDown className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900 mb-1">Tax Analysis</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states.</p>
                 </div>
               </div>
-              <Slider
-                id="income"
-                min={20000}
-                max={150000}
-                step={5000}
-                value={[retirementIncome]}
-                onValueChange={(value) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
-                className="w-full"
-              />
-              <div className="flex justify-between text-xs text-slate-500">
-                <span>$20,000</span>
-                <span>$150,000</span>
+              <div className="flex items-start gap-5 py-5 border-t border-slate-200/80">
+                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <Heart className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900 mb-1">Veteran Benefits</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">See VA medical centers, veteran populations, education programs, and state-specific perks ranked for your profile.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-5 py-5 border-t border-b border-slate-200/80">
+                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
+                  <MapPin className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900 mb-1">Cost of Living</h3>
+                  <p className="text-sm text-slate-500 leading-relaxed">Understand how far your retirement income goes with COL index, median rent, home prices, and savings vs. your current state.</p>
+                </div>
               </div>
             </div>
 
-            {/* Disability Rating */}
-            <div className="space-y-2">
-              <Label htmlFor="disability">VA Disability Rating (Optional)</Label>
-              <Select value={disabilityRating} onValueChange={(v) => { setDisabilityRating(v); savePrefs({ disabilityRating: v }); }}>
-                <SelectTrigger id="disability">
-                  <SelectValue placeholder="Select if applicable" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="10">10%</SelectItem>
-                  <SelectItem value="20">20%</SelectItem>
-                  <SelectItem value="30">30%</SelectItem>
-                  <SelectItem value="40">40%</SelectItem>
-                  <SelectItem value="50">50%</SelectItem>
-                  <SelectItem value="60">60%</SelectItem>
-                  <SelectItem value="70">70%</SelectItem>
-                  <SelectItem value="80">80%</SelectItem>
-                  <SelectItem value="90">90%</SelectItem>
-                  <SelectItem value="100">100%</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex gap-10 text-sm">
+              <div>
+                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">50</div>
+                <div className="text-slate-500">States Covered</div>
+              </div>
+              <div>
+                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">100+</div>
+                <div className="text-slate-500">Data Points</div>
+              </div>
+              <div>
+                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">2026</div>
+                <div className="text-slate-500">Updated Data</div>
+              </div>
             </div>
+          </div>
 
-            {/* Preferred Region */}
-            <div className="space-y-2">
-              <Label htmlFor="region">Preferred Region (Optional)</Label>
-              <Select value={preferredRegion} onValueChange={(v) => { setPreferredRegion(v); savePrefs({ preferredRegion: v }); }}>
-                <SelectTrigger id="region">
-                  <SelectValue placeholder="Any region" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="any">Any Region</SelectItem>
-                  <SelectItem value="northeast">Northeast</SelectItem>
-                  <SelectItem value="southeast">Southeast</SelectItem>
-                  <SelectItem value="midwest">Midwest</SelectItem>
-                  <SelectItem value="southwest">Southwest</SelectItem>
-                  <SelectItem value="west">West</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Right: form */}
+          {form}
+        </div>
+
+        {/* Mobile: stacked layout */}
+        <div className="lg:hidden py-10 space-y-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-slate-900 mb-3">
+              Choose Where Your<br />Retirement Works for You
+            </h2>
+            <p className="text-slate-600 max-w-lg mx-auto">
+              Compare all 50 states based on taxes, benefits, and quality of life.
+            </p>
+          </div>
+
+          {form}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+              <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
+                <TrendingDown className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="font-semibold mb-1">Tax Analysis</h3>
+              <p className="text-sm text-slate-500">Income, property, and pension exemptions across all 50 states.</p>
             </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+              <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center mb-3">
+                <Heart className="w-5 h-5 text-green-600" />
+              </div>
+              <h3 className="font-semibold mb-1">Veteran Benefits</h3>
+              <p className="text-sm text-slate-500">VA facilities, populations, and state-specific benefits.</p>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+              <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
+                <MapPin className="w-5 h-5 text-purple-600" />
+              </div>
+              <h3 className="font-semibold mb-1">Cost of Living</h3>
+              <p className="text-sm text-slate-500">See how far your retirement income goes in each state.</p>
+            </div>
+          </div>
 
-            {/* CTA Button */}
-            <Button
-              onClick={handleCompare}
-              disabled={isLoading}
-              className="w-full h-12 text-lg"
-              size="lg"
-            >
-              {isLoading ? (
-                <span className="flex items-center gap-3">
-                  <span className="inline-block w-5 h-5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
-                  {loadingMsg}
-                </span>
-              ) : (
-                'Compare States'
-              )}
-            </Button>
+          <div className="text-center pb-4">
+            <p className="text-slate-500 text-sm mb-3">Trusted by thousands of retiring service members</p>
+            <div className="flex justify-center gap-8 text-sm">
+              <div><div className="font-bold text-2xl text-blue-600">50</div><div className="text-slate-500">States Covered</div></div>
+              <div><div className="font-bold text-2xl text-blue-600">100+</div><div className="text-slate-500">Data Points</div></div>
+              <div><div className="font-bold text-2xl text-blue-600">2026</div><div className="text-slate-500">Updated Data</div></div>
+            </div>
           </div>
         </div>
 
-        {/* Benefits Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-              <TrendingDown className="w-6 h-6 text-blue-600" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Tax Analysis</h3>
-            <p className="text-slate-600">
-              Compare state income taxes, property taxes, and military pension exemptions across all
-              50 states.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-              <Heart className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Veteran Benefits</h3>
-            <p className="text-slate-600">
-              See VA facilities, veteran populations, and state-specific benefits available to you.
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-200">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-              <MapPin className="w-6 h-6 text-purple-600" />
-            </div>
-            <h3 className="font-semibold text-lg mb-2">Cost of Living</h3>
-            <p className="text-slate-600">
-              Understand how far your retirement income will go in each state with detailed cost
-              comparisons.
-            </p>
-          </div>
-        </div>
-
-        {/* Footer Stats */}
-        <div className="mt-16 text-center">
-          <p className="text-slate-500 text-sm mb-4">
-            Trusted by thousands of retiring service members
-          </p>
-          <div className="flex justify-center gap-8 text-sm">
-            <div>
-              <div className="font-semibold text-2xl text-blue-600">50</div>
-              <div className="text-slate-600">States Covered</div>
-            </div>
-            <div>
-              <div className="font-semibold text-2xl text-blue-600">100+</div>
-              <div className="text-slate-600">Data Points</div>
-            </div>
-            <div>
-              <div className="font-semibold text-2xl text-blue-600">2026</div>
-              <div className="text-slate-600">Updated Data</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -1,16 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { StateData, scoreTier } from '../data/stateData';
+import { StateData, statesData, scoreTier } from '../data/stateData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
-import { GitCompare, TrendingUp, DollarSign, Home, Star, Building2, ArrowRight } from 'lucide-react';
+import { GitCompare, TrendingUp, TrendingDown, DollarSign, Home, Star, Building2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
+
+function pensionTaxDollars(s: StateData, annualIncome: number): number {
+  if (s.militaryPensionTax === 'No') return 0;
+  const taxable = s.militaryPensionTax === 'Partial' ? annualIncome * 0.5 : annualIncome;
+  return taxable * (s.stateIncomeTax / 100);
+}
 
 interface StateCardProps {
   state: StateData;
   customScore?: number;
   isFavorite: boolean;
   onToggleFavorite: (stateId: string) => void;
+  resultIds?: string[];
+  currentStateId?: string;
+  retirementIncome?: number;
 }
 
 export default function StateCard({
@@ -18,9 +27,21 @@ export default function StateCard({
   customScore,
   isFavorite,
   onToggleFavorite,
+  resultIds,
+  currentStateId,
+  retirementIncome = 60000,
 }: StateCardProps) {
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
+
+  const currentState = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
+  const annualSavings = currentState
+    ? Math.round(pensionTaxDollars(currentState, retirementIncome) - pensionTaxDollars(state, retirementIncome))
+    : null;
+  // COL delta: positive = destination is cheaper, negative = more expensive
+  const colDiffPct = currentState
+    ? Math.round(((currentState.costOfLivingIndex - state.costOfLivingIndex) / currentState.costOfLivingIndex) * 100)
+    : null;
   const facilities = vaFacilityLocations[state.id] ?? [];
   const vamcCount = facilities.filter((f) => f.type !== 'clinic').length;
   const clinicCount = facilities.filter((f) => f.type === 'clinic').length;
@@ -43,7 +64,7 @@ export default function StateCard({
   return (
     <Card
       className="hover:shadow-lg transition-shadow cursor-pointer group"
-      onClick={() => navigate(`/state/${state.id}`)}
+      onClick={() => navigate(`/state/${state.id}`, { state: { resultIds, currentStateId, retirementIncome } })}
     >
       <CardHeader>
         <div className="flex items-start justify-between">
@@ -66,6 +87,26 @@ export default function StateCard({
                     : 'Taxed'}
               </Badge>
               {state.stateIncomeTax === 0 && <Badge variant="outline">No Income Tax</Badge>}
+              {annualSavings !== null && annualSavings > 0 && (
+                <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                  <TrendingDown className="w-3 h-3" />
+                  Save ${annualSavings.toLocaleString()}/yr tax
+                </Badge>
+              )}
+              {annualSavings !== null && annualSavings < 0 && (
+                <Badge className="bg-orange-100 text-orange-700 flex items-center gap-1">
+                  +${Math.abs(annualSavings).toLocaleString()}/yr more tax
+                </Badge>
+              )}
+              {colDiffPct !== null && colDiffPct !== 0 && (
+                <Badge className={colDiffPct > 0
+                  ? 'bg-blue-100 text-blue-700 flex items-center gap-1'
+                  : 'bg-slate-100 text-slate-500 flex items-center gap-1'
+                }>
+                  {colDiffPct > 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                  COL {Math.abs(colDiffPct)}% {colDiffPct > 0 ? 'lower' : 'higher'}
+                </Badge>
+              )}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-slate-500">
               <Building2 className="w-3.5 h-3.5 text-slate-400" />

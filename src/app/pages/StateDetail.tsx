@@ -1,17 +1,21 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import type { StateData } from '../data/stateData';
 import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
 import { stateVeteranPerks } from '../data/veteranPerksData';
+import { stateClimateData } from '../data/climateData';
+import type { RiskLevel } from '../data/climateData';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Progress } from '../components/ui/progress';
 import { Separator } from '../components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import {
   ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
   DollarSign,
   Home,
   Building2,
@@ -21,22 +25,192 @@ import {
   AlertCircle,
   Shield,
   Star,
-  ChevronDown,
-  ChevronUp,
   MapPin,
   TrendingUp,
   TrendingDown,
   Minus,
   Car,
   Medal,
+  GraduationCap,
+  Thermometer,
+  Droplets,
+  CloudRain,
+  Flame,
+  Wind,
+  Snowflake,
+  TriangleAlert,
+  Waves,
+  Mountain,
+  GitCompare,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import StateShapeMap from '../components/StateShapeMap';
+import ComparisonDrawer from '../components/ComparisonDrawer';
+
+function ScoreGauge({
+  score,
+  label,
+  subItems,
+}: {
+  score: number;
+  label: string;
+  subItems: { label: string; value: string }[];
+}) {
+  const cx = 60, cy = 56, r = 48, sw = 11;
+  const arcLen = Math.PI * r;
+  const fullPath = `M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}`;
+
+  // Single RAF loop drives arc, dot, and counter from one animVal float —
+  // guarantees all three are frame-perfectly in sync with no CSS transition lag.
+  const [animVal, setAnimVal] = useState(0);
+  const fromRef = useRef(0);
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = score;
+    let rafId: number;
+    let startTime: number | null = null;
+    const tick = (ts: number) => {
+      if (startTime === null) startTime = ts;
+      const progress = Math.min((ts - startTime) / 700, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = from + (to - from) * eased;
+      fromRef.current = current;
+      setAnimVal(current);
+      if (progress < 1) rafId = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [score]);
+
+  const fillColor =
+    score >= 90 ? '#16a34a'
+    : score >= 80 ? '#2563eb'
+    : score >= 70 ? '#d97706'
+    : '#94a3b8';
+
+  // All three derived from the same animVal
+  const dashoffset = arcLen * (1 - animVal / 100);
+  const tipθ = ((180 - animVal * 1.8) * Math.PI) / 180;
+  const tipX = cx + r * Math.cos(tipθ);
+  const tipY = cy - r * Math.sin(tipθ);
+
+  return (
+    <div className="flex flex-col items-center px-4">
+      <svg viewBox="0 0 120 68" className="w-full max-w-[180px]" aria-label={`${label}: ${score} out of 100`}>
+        {/* Background track */}
+        <path
+          d={fullPath}
+          fill="none"
+          stroke="#e2e8f0"
+          strokeWidth={sw}
+          strokeLinecap="round"
+        />
+        {/* Filled arc */}
+        <path
+          d={fullPath}
+          fill="none"
+          stroke={fillColor}
+          strokeWidth={sw}
+          strokeLinecap="round"
+          strokeDasharray={arcLen}
+          strokeDashoffset={dashoffset}
+        />
+        {/* Tip dot — same animVal, same frame */}
+        {animVal > 2 && (
+          <circle
+            cx={tipX.toFixed(2)}
+            cy={tipY.toFixed(2)}
+            r={3}
+            fill="white"
+          />
+        )}
+        {/* Score number */}
+        <text x={cx} y={48} textAnchor="middle" fontSize="22" fontWeight="700" fill={fillColor}>
+          {Math.round(animVal)}
+        </text>
+        <text x={cx} y={62} textAnchor="middle" fontSize="8.5" fill="#94a3b8">
+          / 100
+        </text>
+      </svg>
+      <p className="text-xs font-semibold text-slate-600 -mt-1 mb-2.5 text-center">{label}</p>
+      <div className="w-full space-y-1.5">
+        {subItems.map((it) => (
+          <div key={it.label} className="flex justify-between text-xs text-slate-400">
+            <span>{it.label}</span>
+            <span className="font-semibold text-slate-600">{it.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function StateDetail() {
   const { stateId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const state = statesData.find((s) => s.id === stateId);
+
+  // Result list for prev/next browsing — passed via router state from Dashboard
+  const locState = location.state as { resultIds?: string[]; currentStateId?: string; retirementIncome?: number } | null;
+  const resultIds: string[] = locState?.resultIds ?? statesData.map((s) => s.id);
+  const currentStateId: string | null = locState?.currentStateId ?? localStorage.getItem('origin-state-id');
+  const retirementIncome: number = locState?.retirementIncome
+    ?? (Number(localStorage.getItem('origin-retirement-income') || '0') || 60000);
+
+  const currentIdx = resultIds.indexOf(stateId ?? '');
+  const prevId = currentIdx > 0 ? resultIds[currentIdx - 1] : null;
+  const nextId = currentIdx < resultIds.length - 1 ? resultIds[currentIdx + 1] : null;
+  const navTo = (id: string) => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    navigate(`/state/${id}`, { state: { resultIds, currentStateId, retirementIncome } });
+  };
+  const navToKeepScroll = (id: string) => {
+    sessionStorage.setItem('preserveScroll', '1');
+    navigate(`/state/${id}`, { state: { resultIds, currentStateId, retirementIncome } });
+  };
+
+  // Tax savings vs current state
+  const originState = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
+  function pensionTaxDollars(s: StateData): number {
+    if (s.militaryPensionTax === 'No') return 0;
+    const taxable = s.militaryPensionTax === 'Partial' ? retirementIncome * 0.5 : retirementIncome;
+    return taxable * (s.stateIncomeTax / 100);
+  }
+  const annualSavings = originState && state
+    ? Math.round(pensionTaxDollars(originState) - pensionTaxDollars(state))
+    : null;
+  const colDiffPct = originState && state
+    ? Math.round(((originState.costOfLivingIndex - state.costOfLivingIndex) / originState.costOfLivingIndex) * 100)
+    : null;
+
+  const prevState = prevId ? statesData.find((s) => s.id === prevId) ?? null : null;
+  const nextState = nextId ? statesData.find((s) => s.id === nextId) ?? null : null;
+  const prevScore = prevState ? calculateCustomScore(prevState, DEFAULT_SCORE_WEIGHTS) : 0;
+  const nextScore = nextState ? calculateCustomScore(nextState, DEFAULT_SCORE_WEIGHTS) : 0;
   const computedScore = state ? calculateCustomScore(state, DEFAULT_SCORE_WEIGHTS) : 0;
+
+  // Animated counter for the hero score
+  const [displayScore, setDisplayScore] = useState(0);
+  const scoreFromRef = useRef(0);
+  useEffect(() => {
+    const from = scoreFromRef.current;
+    const to = computedScore;
+    let rafId: number;
+    let startTime: number | null = null;
+    const tick = (ts: number) => {
+      if (startTime === null) startTime = ts;
+      const progress = Math.min((ts - startTime) / 700, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = Math.round(from + (to - from) * eased);
+      setDisplayScore(current);
+      if (progress < 1) { scoreFromRef.current = current; rafId = requestAnimationFrame(tick); }
+      else { scoreFromRef.current = to; }
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [computedScore]);
 
   // Score component breakdowns (matching calculateCustomScore internals)
   const taxScoreComponents = state ? (() => {
@@ -48,7 +222,78 @@ export default function StateDetail() {
   const costScore    = state ? Math.min(100, Math.max(0, Math.round((160 - state.costOfLivingIndex) / 78 * 100))) : 0;
 
   const housing = state ? stateHousingData[state.id] : null;
-  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
+  const climate = state ? stateClimateData[state.id] : null;
+
+  // Comparison favorites
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('comparison-favorites') || '[]'); }
+    catch { return []; }
+  });
+  const [showComparison, setShowComparison] = useState(false);
+  const isFavorite = state ? favorites.includes(state.id) : false;
+
+  const saveFavorites = (next: string[]) => {
+    setFavorites(next);
+    localStorage.setItem('comparison-favorites', JSON.stringify(next));
+  };
+  const addFavorite = (id: string) => {
+    setFavorites((prev) => {
+      if (prev.includes(id) || prev.length >= 3) return prev;
+      const next = [...prev, id];
+      localStorage.setItem('comparison-favorites', JSON.stringify(next));
+      return next;
+    });
+  };
+  const removeFavorite = (id: string) => {
+    saveFavorites(favorites.filter((f) => f !== id));
+  };
+
+  const toggleFavorite = () => {
+    if (!state) return;
+    if (isFavorite) {
+      saveFavorites(favorites.filter((id) => id !== state.id));
+      toast.success(`${state.name} removed from comparison`);
+    } else if (favorites.length >= 3) {
+      toast.error('You can compare up to 3 states. Remove one first.');
+    } else {
+      saveFavorites([...favorites, state.id]);
+      toast.success(`${state.name} added to comparison`);
+    }
+  };
+
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setHeaderScrolled(window.scrollY > 180);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      const nav = headerScrolled ? navToKeepScroll : navTo;
+      if (e.key === 'ArrowLeft' && prevId) nav(prevId);
+      if (e.key === 'ArrowRight' && nextId) nav(nextId);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [prevId, nextId, headerScrolled]);
+
+  const riskColor = (level: RiskLevel) => {
+    if (level === 'High')     return 'bg-red-100 text-red-700 border border-red-200';
+    if (level === 'Moderate') return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+    if (level === 'Low')      return 'bg-blue-100 text-blue-700 border border-blue-200';
+    return 'bg-slate-100 text-slate-400 border border-slate-200';
+  };
+
+  const climateRisks = climate ? [
+    { label: 'Hurricane',    value: climate.disasterRisk.hurricane,   icon: Wind },
+    { label: 'Wildfire',     value: climate.disasterRisk.wildfire,    icon: Flame },
+    { label: 'Flooding',     value: climate.disasterRisk.flood,       icon: Waves },
+    { label: 'Tornado',      value: climate.disasterRisk.tornado,     icon: TriangleAlert },
+    { label: 'Earthquake',   value: climate.disasterRisk.earthquake,  icon: Mountain },
+    { label: 'Winter Storm', value: climate.disasterRisk.winterStorm, icon: Snowflake },
+  ] : [];
 
   if (!state) {
     return (
@@ -68,13 +313,6 @@ export default function StateDetail() {
     return 'text-slate-600';
   };
 
-  const getScoreBg = (score: number) => {
-    if (score >= 90) return 'bg-green-50';
-    if (score >= 80) return 'bg-blue-50';
-    if (score >= 70) return 'bg-yellow-50';
-    return 'bg-slate-50';
-  };
-
   const getTaxBadge = (tax: string) => {
     if (tax === 'No')
       return { text: 'Tax Free', color: 'bg-green-100 text-green-700', icon: CheckCircle2 };
@@ -85,6 +323,7 @@ export default function StateDetail() {
 
   const taxBadge = getTaxBadge(state.militaryPensionTax);
   const TaxIcon = taxBadge.icon;
+  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
 
   const formatVeteranPop = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
@@ -101,19 +340,73 @@ export default function StateDetail() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Header */}
+      {/* Sticky Header */}
       <header className="border-b bg-white sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => navigate('/dashboard')} className="gap-2">
-                <ArrowLeft className="w-4 h-4" />
-                Back to Results
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14">
+
+            {/* Left: back button */}
+            <Button variant="ghost" onClick={() => navigate('/dashboard')} className="gap-2 shrink-0">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Back to Results</span>
+            </Button>
+
+            {/* Center: state identity — fades in after scroll */}
+            <div className={`flex items-center gap-1.5 transition-all duration-300 ${headerScrolled ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'}`}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => prevId && navToKeepScroll(prevId)}
+                disabled={!prevId}
+                className="h-7 px-1.5 shrink-0 flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+                {prevState && (
+                  <span className="text-[10px] font-semibold leading-none hidden sm:inline">
+                    {prevState.abbreviation} <span className={getScoreColor(prevScore)}>{prevScore}</span>
+                  </span>
+                )}
+              </Button>
+              <div className="flex items-center gap-2">
+                <img
+                  src={flagUrl}
+                  alt=""
+                  className="h-5 w-auto shadow-sm border border-slate-200/60 shrink-0"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+                <span className="font-bold text-slate-900 text-base">{state.name}</span>
+                <Badge className={`${taxBadge.color} flex items-center gap-1 text-xs`}>
+                  <TaxIcon className="w-3 h-3" />
+                  {taxBadge.text}
+                </Badge>
+                <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-slate-200 text-sm text-slate-500">
+                  {state.stateIncomeTax === 0
+                    ? <span className="text-green-600 font-medium">No income tax</span>
+                    : <span>{state.stateIncomeTax}% tax</span>}
+                  <span>COL {state.costOfLivingIndex}</span>
+                  <span className={`font-bold text-base ${getScoreColor(computedScore)}`}>{computedScore}<span className="text-xs font-normal text-slate-400 ml-0.5">/ 100</span></span>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => nextId && navToKeepScroll(nextId)}
+                disabled={!nextId}
+                className="h-7 px-1.5 shrink-0 flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+              >
+                {nextState && (
+                  <span className="text-[10px] font-semibold leading-none hidden sm:inline">
+                    <span className={getScoreColor(nextScore)}>{nextScore}</span> {nextState.abbreviation}
+                  </span>
+                )}
+                <ChevronRight className="w-3.5 h-3.5" />
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Shield className="w-6 h-6 text-blue-600" />
-              <span className="font-semibold hidden sm:inline">Military Retirement Advisor</span>
+
+            {/* Right: app name */}
+            <div className="flex items-center gap-2 shrink-0">
+              <Shield className="w-5 h-5 text-blue-600" />
+              <span className="font-semibold hidden md:inline text-sm">Military Retirement Advisor</span>
             </div>
           </div>
         </div>
@@ -121,8 +414,27 @@ export default function StateDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* State Header */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-5 mb-6">
-          <div className="flex items-start justify-between gap-6">
+        <div className="flex items-stretch gap-2 mb-6">
+          {/* Prev arrow */}
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              onClick={() => prevId && navTo(prevId)}
+              disabled={!prevId}
+              className="h-full min-h-[56px] px-3 rounded-xl border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-30 flex flex-col items-center gap-0.5 w-[64px]"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              {prevState && (
+                <>
+                  <span className="text-[10px] font-bold leading-none tracking-wide">{prevState.abbreviation}</span>
+                  <span className={`text-xs font-bold leading-none ${getScoreColor(prevScore)}`}>{prevScore}</span>
+                </>
+              )}
+            </Button>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm px-6 py-5 flex-1">
+          <div className="flex items-start justify-between gap-6 mb-4">
 
             {/* Left: identity + inline stats */}
             <div className="min-w-0">
@@ -141,6 +453,26 @@ export default function StateDetail() {
                   <TaxIcon className="w-3 h-3" />
                   {taxBadge.text}
                 </Badge>
+                {annualSavings !== null && annualSavings > 0 && (
+                  <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
+                    <TrendingDown className="w-3 h-3" />
+                    Save ${annualSavings.toLocaleString()}/yr tax vs {originState!.abbreviation}
+                  </Badge>
+                )}
+                {annualSavings !== null && annualSavings < 0 && (
+                  <Badge className="bg-orange-100 text-orange-700 flex items-center gap-1">
+                    +${Math.abs(annualSavings).toLocaleString()}/yr more tax than {originState!.abbreviation}
+                  </Badge>
+                )}
+                {colDiffPct !== null && colDiffPct !== 0 && (
+                  <Badge className={colDiffPct > 0
+                    ? 'bg-blue-100 text-blue-700 flex items-center gap-1'
+                    : 'bg-slate-100 text-slate-500 flex items-center gap-1'
+                  }>
+                    {colDiffPct > 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+                    COL {Math.abs(colDiffPct)}% {colDiffPct > 0 ? 'lower' : 'higher'} than {originState!.abbreviation}
+                  </Badge>
+                )}
               </div>
               <p className="text-sm text-slate-400 mb-4">Military retirement profile · 2026 data</p>
 
@@ -167,28 +499,131 @@ export default function StateDetail() {
               </div>
             </div>
 
-            {/* Right: score card */}
-            <div className="flex-shrink-0 text-center border border-slate-200 rounded-xl px-6 py-4 bg-slate-50 min-w-[110px]">
+            {/* Right: score + compare */}
+            <div className="flex-shrink-0 text-center min-w-[90px]">
               <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Score</div>
-              <div className={`text-5xl font-bold leading-none ${getScoreColor(computedScore)}`}>
-                {computedScore}
+              <div className={`text-5xl font-bold leading-none tabular-nums ${getScoreColor(computedScore)}`}>
+                {displayScore}
               </div>
               <span className={`text-xs font-semibold px-2 py-0.5 rounded-full mt-2 inline-block ${scoreTier(computedScore).className}`}>
                 {scoreTier(computedScore).label}
               </span>
+              <button
+                onClick={toggleFavorite}
+                className={`mt-3 flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors w-full justify-center ${
+                  isFavorite
+                    ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                    : 'bg-white text-slate-500 border-slate-200 hover:border-blue-400 hover:text-blue-600'
+                }`}
+              >
+                <GitCompare className="w-3.5 h-3.5" />
+                {isFavorite ? 'In Comparison' : 'Compare'}
+              </button>
+              {favorites.length > 0 && (
+                <button
+                  onClick={() => setShowComparison(true)}
+                  className="mt-1.5 text-xs text-blue-600 hover:text-blue-800 font-medium w-full text-center"
+                >
+                  View comparison ({favorites.length})
+                </button>
+              )}
             </div>
           </div>
-        </div>
+
+          {/* Score Breakdown — Gauge Charts */}
+          <div className="border-t border-slate-100 pt-5">
+            <div className="grid grid-cols-3 divide-x divide-slate-100">
+              {taxScoreComponents && (() => {
+                const pensionTax = Math.round(pensionTaxDollars(state));
+                const incomeTax  = Math.round(retirementIncome * state.stateIncomeTax / 100);
+                return (
+                  <ScoreGauge
+                    score={taxScoreComponents.total}
+                    label="Tax Friendliness"
+                    subItems={[
+                      {
+                        label: 'Pension tax/yr',
+                        value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr`,
+                      },
+                      {
+                        label: 'Income tax/yr',
+                        value: incomeTax === 0 ? 'None' : `$${incomeTax.toLocaleString()}/yr`,
+                      },
+                      { label: 'Property tax', value: state.propertyTaxLevel },
+                      { label: 'Sales tax', value: state.salesTax === 0 ? 'None' : `${state.salesTax}%` },
+                    ]}
+                  />
+                );
+              })()}
+              <ScoreGauge
+                score={costScore}
+                label="Cost of Living"
+                subItems={[
+                  { label: 'COL index', value: `${state.costOfLivingIndex} (avg = 100)` },
+                  {
+                    label: 'vs national avg',
+                    value: state.costOfLivingIndex <= 100
+                      ? `${100 - state.costOfLivingIndex}% below avg`
+                      : `${state.costOfLivingIndex - 100}% above avg`,
+                  },
+                  { label: 'Avg home price', value: `$${(state.avgHomeCost / 1000).toFixed(0)}k` },
+                  {
+                    label: 'Median rent/mo',
+                    value: housing ? `$${housing.medianRent.toLocaleString()}` : '—',
+                  },
+                ]}
+              />
+              {(() => {
+                const perks = stateVeteranPerks[state.id];
+                const eduCount = perks
+                  ? perks.educationBenefits.retiree.length + perks.educationBenefits.family.length
+                  : 0;
+                const regCount = perks ? perks.vehicleRegistrationBenefits.length : 0;
+                return (
+                  <ScoreGauge
+                    score={state.veteranBenefitsScore}
+                    label="Veteran Benefits"
+                    subItems={[
+                      { label: 'VA facilities', value: `${vamcs.length} VAMC · ${clinics.length} clinic` },
+                      { label: 'Veterans in state', value: formatVeteranPop(state.veteranPopulation) },
+                      { label: 'Education programs', value: eduCount > 0 ? `${eduCount} programs` : 'None listed' },
+                      { label: 'Reg. & license perks', value: regCount > 0 ? `${regCount} benefits` : 'None listed' },
+                    ]}
+                  />
+                );
+              })()}
+            </div>
+          </div>
+          </div>{/* end hero card flex-1 */}
+
+          {/* Next arrow */}
+          <div className="flex items-center">
+            <Button
+              variant="outline"
+              onClick={() => nextId && navTo(nextId)}
+              disabled={!nextId}
+              className="h-full min-h-[56px] px-3 rounded-xl border-slate-200 text-slate-500 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50 disabled:opacity-30 flex flex-col items-center gap-0.5 w-[64px]"
+            >
+              <ChevronRight className="w-4 h-4" />
+              {nextState && (
+                <>
+                  <span className="text-[10px] font-bold leading-none tracking-wide">{nextState.abbreviation}</span>
+                  <span className={`text-xs font-bold leading-none ${getScoreColor(nextScore)}`}>{nextScore}</span>
+                </>
+              )}
+            </Button>
+          </div>
+        </div>{/* end hero flex wrapper */}
 
         {/* Map + VA Facilities list side by side */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           {/* Map with overlaid title */}
-          <div className="relative">
+          <div className="relative isolate">
             <div className="absolute top-3 right-3 z-[400] flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm border border-slate-200/80">
               <Building2 className="w-3.5 h-3.5 text-blue-600" />
               <span className="text-xs font-semibold text-slate-700">VA Facilities Map</span>
             </div>
-            <StateShapeMap stateId={state.id} stateName={state.name} height={facilityPanelHeight} />
+            <StateShapeMap key={state.id} stateId={state.id} stateName={state.name} height={facilityPanelHeight} />
           </div>
 
           {/* VA Facilities list */}
@@ -254,9 +689,7 @@ export default function StateDetail() {
         </div>
 
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6">
             {/* Summary Card */}
             <Card>
               <CardHeader>
@@ -300,91 +733,6 @@ export default function StateDetail() {
                     ))}
                   </ul>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Detailed Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Detailed Tax Breakdown</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="income">
-                  <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="income">Income Tax</TabsTrigger>
-                    <TabsTrigger value="property">Property Tax</TabsTrigger>
-                    <TabsTrigger value="sales">Sales Tax</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="income" className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">State Income Tax Rate</span>
-                        <span className="font-semibold">
-                          {state.stateIncomeTax === 0 ? 'None' : `${state.stateIncomeTax}%`}
-                        </span>
-                      </div>
-                      <Progress value={state.stateIncomeTax * 10} className="h-2" />
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <h5 className="font-semibold mb-2">Military Retirement Income</h5>
-                      <p className="text-sm text-slate-600 mb-2">
-                        {state.militaryPensionTax === 'No'
-                          ? 'Your military retirement income is fully exempt from state income tax.'
-                          : state.militaryPensionTax === 'Partial'
-                            ? 'A portion of your military retirement income may be exempt from state income tax. Check current exemption limits.'
-                            : 'Military retirement income is subject to state income tax.'}
-                      </p>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="property" className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">Property Tax Level</span>
-                        <Badge
-                          variant={
-                            state.propertyTaxLevel === 'Low'
-                              ? 'default'
-                              : state.propertyTaxLevel === 'Medium'
-                                ? 'secondary'
-                                : 'destructive'
-                          }
-                        >
-                          {state.propertyTaxLevel}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-4">
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm">Average Home Cost</span>
-                        <span className="font-semibold">${state.avgHomeCost.toLocaleString()}</span>
-                      </div>
-                      <p className="text-xs text-slate-600 mt-2">
-                        Property tax exemptions and credits may be available for disabled veterans.
-                        Check local county assessor for details.
-                      </p>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="sales" className="space-y-4">
-                    <div>
-                      <div className="flex justify-between mb-2">
-                        <span className="font-medium">State Sales Tax Rate</span>
-                        <span className="font-semibold">
-                          {state.salesTax === 0 ? 'None' : `${state.salesTax}%`}
-                        </span>
-                      </div>
-                      <Progress value={state.salesTax * 10} className="h-2" />
-                    </div>
-                    <div className="bg-slate-50 rounded-lg p-4 text-sm text-slate-600">
-                      <p>
-                        Local sales taxes may apply in addition to state rates. Total combined rates
-                        vary by county and city.
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
               </CardContent>
             </Card>
 
@@ -534,87 +882,114 @@ export default function StateDetail() {
                       </ul>
                     </div>
                   )}
+                  {stateVeteranPerks[state.id].educationBenefits.retiree.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
+                        <GraduationCap className="w-4 h-4 text-slate-400" />
+                        Education Benefits — Retiree
+                      </h4>
+                      <ul className="space-y-2">
+                        {stateVeteranPerks[state.id].educationBenefits.retiree.map((benefit, idx) => (
+                          <li key={idx} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg text-sm">
+                            <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {stateVeteranPerks[state.id].educationBenefits.family.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
+                        <GraduationCap className="w-4 h-4 text-slate-400" />
+                        Education Benefits — Spouse &amp; Dependents
+                      </h4>
+                      <ul className="space-y-2">
+                        {stateVeteranPerks[state.id].educationBenefits.family.map((benefit, idx) => (
+                          <li key={idx} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg text-sm">
+                            <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <p className="text-xs text-slate-400">
                     Verify current eligibility requirements with your state DMV and official veteran services office.
                   </p>
                 </CardContent>
               </Card>
             )}
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Score Breakdown */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Score Breakdown</CardTitle>
-                <p className="text-xs text-slate-400 mt-0.5">Default weights: taxes 40%, cost 30%, benefits 30%</p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {taxScoreComponents && (
+            {/* Climate & Natural Disaster Risk */}
+            {climate && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Thermometer className="w-5 h-5 text-orange-500" />
+                    Climate &amp; Natural Disaster Risk
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Temperature & Conditions */}
                   <div>
-                    <div className="flex justify-between mb-1.5 text-sm">
-                      <span>Tax Friendliness</span>
-                      <span className="font-semibold">{taxScoreComponents.total}/100</span>
+                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Typical Climate Conditions</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <div className="p-3 bg-orange-50 rounded-lg text-center">
+                        <div className="text-2xl font-bold text-orange-600">{climate.avgSummerHighF}°F</div>
+                        <div className="text-xs text-slate-500 mt-1">Summer High (July avg)</div>
+                      </div>
+                      <div className="p-3 bg-blue-50 rounded-lg text-center">
+                        <div className="text-2xl font-bold text-blue-600">{climate.avgWinterLowF}°F</div>
+                        <div className="text-xs text-slate-500 mt-1">Winter Low (Jan avg)</div>
+                      </div>
+                      <div className="p-3 bg-slate-50 rounded-lg text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <Droplets className="w-4 h-4 text-sky-500" />
+                          <span className="text-xl font-bold text-sky-600">{climate.humidity}</span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">Humidity</div>
+                      </div>
+                      <div className="p-3 bg-sky-50 rounded-lg text-center">
+                        <div className="flex items-center justify-center gap-1">
+                          <CloudRain className="w-4 h-4 text-sky-600" />
+                          <span className="text-2xl font-bold text-sky-700">{climate.annualRainfallInches}"</span>
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">Annual Rainfall</div>
+                      </div>
+                      <div className="p-3 bg-red-50 rounded-lg text-center">
+                        <div className="text-2xl font-bold text-red-500">{climate.extremeHeatDays}</div>
+                        <div className="text-xs text-slate-500 mt-1">Days &gt;95°F / yr</div>
+                      </div>
+                      <div className="p-3 bg-indigo-50 rounded-lg text-center">
+                        <div className="text-2xl font-bold text-indigo-600">{climate.extremeColdDays}</div>
+                        <div className="text-xs text-slate-500 mt-1">Days &lt;20°F / yr</div>
+                      </div>
                     </div>
-                    <Progress value={taxScoreComponents.total} className="h-2 mb-2" />
-                    <div className="text-xs text-slate-400 space-y-0.5 pl-1">
-                      <div className="flex justify-between">
-                        <span>Pension tax exemption</span>
-                        <span className="font-medium text-slate-600">+{taxScoreComponents.pensionPts}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Income tax rate ({state.stateIncomeTax === 0 ? 'none' : `${state.stateIncomeTax}%`})</span>
-                        <span className="font-medium text-slate-600">+{taxScoreComponents.incomePts}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Property tax ({state.propertyTaxLevel})</span>
-                        <span className="font-medium text-slate-600">+{taxScoreComponents.propertyPts}</span>
-                      </div>
-                    </div>
                   </div>
-                )}
-                <div>
-                  <div className="flex justify-between mb-1.5 text-sm">
-                    <span>Cost of Living</span>
-                    <span className="font-semibold">{costScore}/100</span>
-                  </div>
-                  <Progress value={costScore} className="h-2 mb-2" />
-                  <div className="text-xs text-slate-400 pl-1">
-                    Index: {state.costOfLivingIndex} (100 = US average)
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1.5 text-sm">
-                    <span>Veteran Benefits</span>
-                    <span className="font-semibold">{state.veteranBenefitsScore}/100</span>
-                  </div>
-                  <Progress value={state.veteranBenefitsScore} className="h-2" />
-                </div>
-                <div className="pt-2 border-t border-slate-100 flex justify-between text-sm font-semibold">
-                  <span>Overall Score</span>
-                  <span className={scoreTier(computedScore).className.split(' ')[0]}>{computedScore}</span>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* CTA */}
-            <Card className="bg-gradient-to-br from-blue-600 to-blue-700 text-white">
-              <CardContent className="pt-6">
-                <h3 className="font-semibold text-lg mb-2">Ready to Compare?</h3>
-                <p className="text-blue-100 text-sm mb-4">
-                  Add more states to your comparison to make the best decision.
-                </p>
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => navigate('/dashboard')}
-                >
-                  Compare More States
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                  {/* Disaster Risk Grid */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-700 mb-3">Natural Disaster Risk</h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {climateRisks.map(({ label, value, icon: Icon }) => (
+                        <div key={label} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium ${riskColor(value)}`}>
+                          <Icon className="w-4 h-4 flex-shrink-0" />
+                          <div>
+                            <div className="text-xs opacity-70 leading-none mb-0.5">{label}</div>
+                            <div className="font-semibold leading-none">{value}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-400">
+                    Climate normals from NOAA (1991–2020). Disaster risk based on FEMA National Risk Index and historical frequency data. Individual risk varies by location within state.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
         </div>
       </div>
 
@@ -630,6 +1005,15 @@ export default function StateDetail() {
           </div>
         </div>
       </footer>
+
+      <ComparisonDrawer
+        states={statesData.filter((s) => favorites.includes(s.id))}
+        open={showComparison}
+        onClose={() => setShowComparison(false)}
+        onRemove={removeFavorite}
+        onAdd={addFavorite}
+        availableStates={statesData}
+      />
     </div>
   );
 }
