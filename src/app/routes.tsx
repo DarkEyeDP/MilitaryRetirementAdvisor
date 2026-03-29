@@ -1,4 +1,4 @@
-import { createBrowserRouter, Outlet, useLocation } from 'react-router';
+import { createHashRouter, Outlet, useLocation } from 'react-router';
 import { useEffect } from 'react';
 import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
@@ -17,7 +17,7 @@ function ScrollToTop() {
   return <Outlet />;
 }
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     Component: ScrollToTop,
     children: [
