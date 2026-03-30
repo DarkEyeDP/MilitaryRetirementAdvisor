@@ -3,7 +3,7 @@ import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { Button } from './ui/button';
-import { X, Search } from 'lucide-react';
+import { X, Plus, ChevronDown } from 'lucide-react';
 import { statesData } from '../data/stateData';
 
 interface FilterPanelProps {
@@ -41,30 +41,15 @@ export default function FilterPanel({
   onIncludeState,
   onExcludeAll,
 }: FilterPanelProps) {
-  const [stateSearch, setStateSearch] = useState('');
-  const [pendingIncludes, setPendingIncludes] = useState<string[]>([]);
+  const [showAllStates, setShowAllStates] = useState(false);
 
-  const allExcluded = excludedStates.length === statesData.length;
+  const includedStateObjects = statesData
+    .filter((s) => !excludedStates.includes(s.id))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const excludedStateObjects = statesData
+    .filter((s) => excludedStates.includes(s.id))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
-  const searchResults = stateSearch.trim().length > 0
-    ? statesData.filter((s) =>
-        allExcluded
-          ? excludedStates.includes(s.id) && !pendingIncludes.includes(s.id)
-          : !excludedStates.includes(s.id),
-      ).filter((s) =>
-        s.name.toLowerCase().includes(stateSearch.toLowerCase()) ||
-        s.abbreviation.toLowerCase().includes(stateSearch.toLowerCase())
-      ).slice(0, 6)
-    : [];
-
-  const excludedStateObjects = statesData.filter((s) => excludedStates.includes(s.id)).sort((a, b) => a.name.localeCompare(b.name));
-  const pendingObjects = statesData.filter((s) => pendingIncludes.includes(s.id));
-
-  const handleConfirmIncludes = () => {
-    pendingIncludes.forEach((id) => onIncludeState(id));
-    setPendingIncludes([]);
-    setStateSearch('');
-  };
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -185,9 +170,9 @@ export default function FilterPanel({
       <div className="space-y-3 pt-4 border-t border-slate-200">
         <div className="flex items-center justify-between">
           <h4 className="font-medium text-sm text-slate-700">Exclude States</h4>
-          {!allExcluded && (
+          {includedStateObjects.length > 0 && (
             <button
-              onClick={() => { onExcludeAll(); setStateSearch(''); setPendingIncludes([]); }}
+              onClick={() => { onExcludeAll(); setShowAllStates(false); }}
               className="text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 rounded-md px-2 py-1 transition-colors"
             >
               Exclude all
@@ -195,78 +180,74 @@ export default function FilterPanel({
           )}
         </div>
         <p className="text-xs text-slate-400">
-          {allExcluded
-            ? 'All states excluded. Search and select the states you want to see, then tap Done.'
-            : 'Removed from all results and financial calculations.'}
+          Excluded states are removed from all results and financial calculations.
         </p>
 
-        {/* Search input */}
-        <div className="relative">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
-          <input
-            type="text"
-            value={stateSearch}
-            onChange={(e) => setStateSearch(e.target.value)}
-            placeholder={allExcluded ? 'Search states to add back…' : 'Search states to exclude…'}
-            className="w-full pl-8 pr-3 py-2 text-sm border border-slate-300 rounded-md bg-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400"
-          />
-        </div>
+        {/* Show all states toggle */}
+        {includedStateObjects.length > 0 && (
+          <button
+            onClick={() => setShowAllStates((v) => !v)}
+            className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-800 font-medium transition-colors"
+          >
+            <ChevronDown
+              className={`w-3.5 h-3.5 transition-transform duration-200 ${showAllStates ? 'rotate-180' : ''}`}
+            />
+            {showAllStates ? 'Hide' : 'Show all states'} ({includedStateObjects.length} included)
+          </button>
+        )}
 
-        {/* Search dropdown */}
-        {searchResults.length > 0 && (
-          <div className="border border-slate-200 rounded-md overflow-hidden shadow-sm">
-            {searchResults.map((state) => (
-              <button
+        {/* Included states — green pills */}
+        {showAllStates && includedStateObjects.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+            {includedStateObjects.map((state) => (
+              <span
                 key={state.id}
-                onClick={() => {
-                  if (allExcluded) {
-                    setPendingIncludes((prev) => prev.includes(state.id) ? prev : [...prev, state.id]);
-                  } else {
-                    onExcludeState(state.id);
-                  }
-                  setStateSearch('');
-                }}
-                className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center justify-between border-b border-slate-100 last:border-0"
+                className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-md px-2 py-1"
               >
-                <span>{state.name}</span>
-                <span className={`text-xs ${allExcluded ? 'text-blue-600 font-medium' : 'text-slate-400'}`}>
-                  {allExcluded ? '+ select' : state.abbreviation}
-                </span>
-              </button>
+                {state.abbreviation}
+                <button
+                  onClick={() => onExcludeState(state.id)}
+                  className="hover:text-green-900 ml-0.5"
+                  aria-label={`Exclude ${state.name}`}
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
             ))}
           </div>
         )}
 
-        {/* Pending includes — staged states waiting for Done */}
-        {allExcluded && pendingObjects.length > 0 && (
-          <div className="space-y-2">
-            <div className="flex flex-wrap gap-1.5">
-              {pendingObjects.map((state) => (
-                <span
-                  key={state.id}
-                  className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-md px-2 py-1"
-                >
-                  {state.name}
-                  <button
-                    onClick={() => setPendingIncludes((prev) => prev.filter((id) => id !== state.id))}
-                    className="hover:text-blue-900 ml-0.5"
+        {/* Divider + excluded section */}
+        {excludedStateObjects.length > 0 && (
+          <>
+            {showAllStates && <div className="border-t border-slate-200" />}
+            <div className="space-y-1.5">
+              <p className="text-xs text-slate-500 font-medium">
+                Excluded ({excludedStateObjects.length})
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {excludedStateObjects.map((state) => (
+                  <span
+                    key={state.id}
+                    className="inline-flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 rounded-md px-2 py-1"
                   >
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
+                    {state.abbreviation}
+                    <button
+                      onClick={() => onIncludeState(state.id)}
+                      className="hover:text-red-900 ml-0.5"
+                      aria-label={`Re-include ${state.name}`}
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
             </div>
-            <button
-              onClick={handleConfirmIncludes}
-              className="w-full py-2 text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
-            >
-              Done — Show {pendingObjects.length} State{pendingObjects.length !== 1 ? 's' : ''}
-            </button>
-          </div>
+          </>
         )}
 
-        {/* All-excluded summary when nothing pending */}
-        {allExcluded && pendingObjects.length === 0 && (
+        {/* All excluded — show reset option */}
+        {includedStateObjects.length === 0 && (
           <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-md px-3 py-2">
             <span className="text-xs text-red-700 font-medium">All 50 states excluded</span>
             <button
@@ -277,31 +258,9 @@ export default function FilterPanel({
             </button>
           </div>
         )}
-
-        {/* Normal excluded chips */}
-        {!allExcluded && excludedStateObjects.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {excludedStateObjects.map((state) => (
-              <span
-                key={state.id}
-                className="inline-flex items-center gap-1 text-xs bg-red-50 text-red-700 border border-red-200 rounded-md px-2 py-1"
-              >
-                {state.abbreviation}
-                <button
-                  onClick={() => onIncludeState(state.id)}
-                  className="hover:text-red-900 ml-0.5"
-                  aria-label={`Remove ${state.name} from exclusions`}
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
       <Button variant="outline" onClick={onReset} className="w-full">
-
         Reset All
       </Button>
     </div>

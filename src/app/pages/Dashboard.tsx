@@ -522,8 +522,8 @@ export default function Dashboard() {
               </div>
 
               {/* View Toggle + Score Methodology button */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex bg-slate-100 rounded-lg p-1 max-w-xs">
+              <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="flex bg-slate-100 rounded-lg p-1 max-w-xs w-full">
                   {(
                     [
                       { value: 'cards', icon: <LayoutGrid className="w-4 h-4" />, label: 'Cards' },
@@ -534,7 +534,7 @@ export default function Dashboard() {
                     <button
                       key={value}
                       onClick={() => handleViewChange(value)}
-                      className={`relative flex-1 flex items-center justify-center gap-1.5 py-1.5 text-sm font-medium rounded-md transition-colors z-10 ${
+                      className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors z-10 ${
                         view === value ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
                       }`}
                     >
@@ -555,65 +555,98 @@ export default function Dashboard() {
 
                 <button
                   onClick={() => setShowMethodology((v) => !v)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors"
+                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors whitespace-nowrap flex-shrink-0"
                 >
-                  <Info className="w-3.5 h-3.5" />
+                  <Info className="w-3.5 h-3.5 flex-shrink-0" />
                   <span className="hidden sm:inline">How scores are calculated</span>
                   <span className="sm:hidden">Scoring</span>
-                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${showMethodology ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${showMethodology ? 'rotate-180' : ''}`} />
                 </button>
               </div>
 
               {/* Inline Score Methodology Panel */}
-              {showMethodology && (
-                <div className="mt-2 mb-1 rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-3 text-xs text-slate-600">
-                  <p className="text-slate-500">Each state earns 0–100 across three components weighted by your priority sliders.</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="bg-white rounded-lg p-3 space-y-1.5 border border-slate-100">
-                      <div className="font-semibold text-slate-700 flex items-center justify-between">
-                        <span>Tax Friendliness</span>
-                        <span className="text-blue-600 font-bold">{weights.taxes}%</span>
-                      </div>
-                      <div className="space-y-1 text-slate-500">
-                        <div className="flex justify-between"><span>Pension not taxed</span><span className="font-medium text-slate-700">+50 pts</span></div>
-                        <div className="flex justify-between"><span>Pension partially exempt</span><span className="font-medium text-slate-700">+28 pts</span></div>
-                        <div className="flex justify-between"><span>Income tax rate (0–13%)</span><span className="font-medium text-slate-700">up to +32</span></div>
-                        <div className="flex justify-between"><span>Property tax (Low/Med/High)</span><span className="font-medium text-slate-700">+18/+10/0</span></div>
-                      </div>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 space-y-1.5 border border-slate-100">
-                      <div className="font-semibold text-slate-700 flex items-center justify-between">
-                        <span>Cost of Living</span>
-                        <span className="text-blue-600 font-bold">{weights.cost}%</span>
-                      </div>
-                      <p className="text-slate-500">Scaled against national baseline. Score rises for states below average, drops sharply above it.</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-3 space-y-1.5 border border-slate-100">
-                      <div className="font-semibold text-slate-700 flex items-center justify-between">
-                        <span>Veteran Benefits</span>
-                        <span className="text-blue-600 font-bold">{weights.benefits}%</span>
-                      </div>
-                      <p className="text-slate-500">VA facility quality, veteran services, and veteran-focused programs rated 0–100.</p>
-                    </div>
-                  </div>
-                  <div className="rounded-lg border border-slate-200 overflow-hidden bg-white">
-                    <div className="px-3 py-1.5 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Score Tiers</div>
-                    <div className="grid grid-cols-4 divide-x divide-slate-100">
+              <AnimatePresence>
+                {showMethodology && (
+                  <motion.div
+                    key="methodology"
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className="mt-2 mb-1 rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4 text-sm text-slate-600 overflow-hidden"
+                  >
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.08, duration: 0.15 }}
+                      className="text-slate-500"
+                    >
+                      Each state earns 0–100 across three components weighted by your priority sliders.
+                    </motion.p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {[
-                        { label: 'Elite',    range: '95–100',   cls: 'bg-emerald-100 text-emerald-700' },
-                        { label: 'Strong',   range: '85–94',    cls: 'bg-blue-100 text-blue-700' },
-                        { label: 'Moderate', range: '70–84',    cls: 'bg-yellow-100 text-yellow-700' },
-                        { label: 'Weak',     range: 'Below 70', cls: 'bg-slate-100 text-slate-500' },
-                      ].map(({ label, range, cls }) => (
-                        <div key={label} className="flex flex-col items-center gap-1 px-2 py-2">
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cls}`}>{label}</span>
-                          <span className="text-slate-500">{range}</span>
-                        </div>
+                        {
+                          title: 'Tax Friendliness',
+                          weight: weights.taxes,
+                          content: (
+                            <div className="space-y-1.5 text-slate-500">
+                              <div className="flex justify-between"><span>Pension not taxed</span><span className="font-medium text-slate-700">+50 pts</span></div>
+                              <div className="flex justify-between"><span>Pension partially exempt</span><span className="font-medium text-slate-700">+28 pts</span></div>
+                              <div className="flex justify-between"><span>Income tax rate (0–13%)</span><span className="font-medium text-slate-700">up to +32</span></div>
+                              <div className="flex justify-between"><span>Property tax (Low/Med/High)</span><span className="font-medium text-slate-700">+18/+10/0</span></div>
+                            </div>
+                          ),
+                        },
+                        {
+                          title: 'Cost of Living',
+                          weight: weights.cost,
+                          content: <p className="text-slate-500 leading-relaxed">Scaled against national baseline. Score rises for states below average, drops sharply above it.</p>,
+                        },
+                        {
+                          title: 'Veteran Benefits',
+                          weight: weights.benefits,
+                          content: <p className="text-slate-500 leading-relaxed">VA facility quality, veteran services, and veteran-focused programs rated 0–100.</p>,
+                        },
+                      ].map(({ title, weight, content }, i) => (
+                        <motion.div
+                          key={title}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.1 + i * 0.06, duration: 0.18, ease: 'easeOut' }}
+                          className="bg-white rounded-lg p-4 space-y-2 border border-slate-100"
+                        >
+                          <div className="font-semibold text-slate-800 flex items-center justify-between">
+                            <span>{title}</span>
+                            <span className="text-blue-600 font-bold">{weight}%</span>
+                          </div>
+                          {content}
+                        </motion.div>
                       ))}
                     </div>
-                  </div>
-                </div>
-              )}
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.28, duration: 0.18, ease: 'easeOut' }}
+                      className="rounded-lg border border-slate-200 overflow-hidden bg-white"
+                    >
+                      <div className="px-4 py-2 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Score Tiers</div>
+                      <div className="grid grid-cols-4 divide-x divide-slate-100">
+                        {[
+                          { label: 'Elite',    range: '95–100',   cls: 'bg-emerald-100 text-emerald-700' },
+                          { label: 'Strong',   range: '85–94',    cls: 'bg-blue-100 text-blue-700' },
+                          { label: 'Moderate', range: '70–84',    cls: 'bg-yellow-100 text-yellow-700' },
+                          { label: 'Weak',     range: 'Below 70', cls: 'bg-slate-100 text-slate-500' },
+                        ].map(({ label, range, cls }) => (
+                          <div key={label} className="flex flex-col items-center gap-1.5 px-3 py-3">
+                            <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${cls}`}>{label}</span>
+                            <span className="text-sm text-slate-500">{range}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Card view hint */}
