@@ -338,7 +338,10 @@ export default function Dashboard() {
               </Button>
               <div className="flex items-center gap-2">
                 <Globe className="w-6 h-6 text-blue-600" />
-                <h1 className="font-semibold text-lg">State Comparison Results</h1>
+                <h1 className="font-semibold text-lg">
+                  <span className="hidden sm:inline">State Comparison Results</span>
+                  <span className="sm:hidden">Results</span>
+                </h1>
                 {originStateName && (
                   <span className="hidden sm:flex items-center gap-1.5 text-xs text-slate-500 border border-slate-200 px-2.5 py-1 rounded-full font-medium">
                     COL &amp; Taxes vs {originStateName}
@@ -676,7 +679,6 @@ export default function Dashboard() {
             onFilterChange={handleFilterChange}
             onWeightChange={handleWeightChange}
             onReset={handleReset}
-            onClose={() => setShowFilters(false)}
             excludedStates={excludedStates}
             onExcludeState={handleExcludeState}
             onIncludeState={handleIncludeState}

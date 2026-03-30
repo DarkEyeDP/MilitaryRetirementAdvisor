@@ -96,13 +96,13 @@ interface RowProps {
 function Row({ label, values, bold, divider, bestIdx: best, n }: RowProps) {
   return (
     <tr className={`border-b border-slate-100 last:border-0 ${divider ? 'border-t-2 border-slate-200' : ''}`}>
-      <td className={`px-5 py-3 text-sm bg-slate-50/70 ${bold ? 'font-semibold text-slate-800' : 'text-slate-500 font-medium'}`}>
+      <td className={`px-3 sm:px-5 py-2 sm:py-3 text-sm bg-slate-50/70 ${bold ? 'font-semibold text-slate-800' : 'text-slate-500 font-medium'}`}>
         {label}
       </td>
       {values.map((val, i) => (
         <td
           key={i}
-          className={`px-4 py-3 text-sm text-center ${bold ? 'font-semibold text-slate-900' : 'text-slate-800'} ${n === 2 ? 'w-[38%]' : 'w-[28%]'}`}
+          className={`px-2 sm:px-4 py-2 sm:py-3 text-sm text-center ${bold ? 'font-semibold text-slate-900' : 'text-slate-800'} ${n === 2 ? 'w-[38%]' : 'w-[28%]'}`}
         >
           <div className="flex items-center justify-center gap-1.5">
             {best === i && <span className="w-1.5 h-1.5 rounded-full bg-green-500 flex-shrink-0" />}
@@ -119,14 +119,14 @@ function CTable({ states, children }: { states: { name: string; idx: number }[];
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <colgroup>
-          <col style={{ width: '200px' }} />
+          <col style={{ width: 'clamp(110px, 28vw, 200px)' }} />
           {states.map((_, i) => <col key={i} />)}
         </colgroup>
         <thead>
           <tr className="border-b-2 border-slate-100">
-            <th className="px-5 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-50/70" />
+            <th className="px-3 sm:px-5 py-2 sm:py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider bg-slate-50/70" />
             {states.map(({ name, idx: _idx }) => (
-              <th key={_idx} className="px-4 py-3 text-center bg-slate-50/70">
+              <th key={_idx} className="px-2 sm:px-4 py-2 sm:py-3 text-center bg-slate-50/70">
                 <span className="text-sm font-semibold text-slate-800">{name}</span>
               </th>
             ))}
@@ -212,7 +212,7 @@ export default function ComparisonPage() {
               <ArrowLeft className="w-4 h-4" />
             </button>
             <span className="font-bold text-slate-900 flex-shrink-0">State Comparison</span>
-            <div className="flex items-center divide-x divide-slate-200">
+            <div className="hidden sm:flex items-center divide-x divide-slate-200">
               {states.map((s) => (
                 <span key={s.id} className="px-3 first:pl-3 text-sm font-medium text-slate-700">{s.name}</span>
               ))}

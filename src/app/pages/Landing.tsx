@@ -359,7 +359,7 @@ export default function Landing() {
         <div className="border-t border-slate-100" />
 
         {/* Region + Submit — side by side */}
-        <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end">
           <div className="space-y-1.5">
             <Label htmlFor="region" className="text-xs">
               Preferred Region <span className="text-slate-400 font-normal">(Optional)</span>
@@ -376,7 +376,7 @@ export default function Landing() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleCompare} disabled={isLoading} className="h-9 px-6 shrink-0">
+          <Button onClick={handleCompare} disabled={isLoading} className="h-9 px-6 shrink-0 w-full sm:w-auto">
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
