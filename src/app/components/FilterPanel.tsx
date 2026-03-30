@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Slider } from './ui/slider';
@@ -43,7 +42,6 @@ export default function FilterPanel({
   onExcludeAll,
 }: FilterPanelProps) {
   const [stateSearch, setStateSearch] = useState('');
-  const [showMethodology, setShowMethodology] = useState(false);
   const [pendingIncludes, setPendingIncludes] = useState<string[]>([]);
 
   const allExcluded = excludedStates.length === statesData.length;
@@ -181,73 +179,6 @@ export default function FilterPanel({
             onValueChange={(value) => onWeightChange('benefits', value[0])}
           />
         </div>
-      </div>
-
-      {/* Score Methodology */}
-      <div className="pt-4 border-t border-slate-200">
-        <button
-          onClick={() => setShowMethodology((v) => !v)}
-          className="flex items-center justify-between w-full text-left group"
-        >
-          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">How Scores Are Calculated</span>
-          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${showMethodology ? 'rotate-180' : ''}`} />
-        </button>
-
-        {showMethodology && (
-          <div className="mt-3 space-y-3 text-xs text-slate-600">
-            <p className="text-slate-500">
-              Each state earns 0–100 across three components weighted by your priority sliders above.
-            </p>
-
-            <div className="space-y-2">
-              <div className="bg-slate-50 rounded-lg p-3 space-y-1.5">
-                <div className="font-semibold text-slate-700 flex items-center justify-between">
-                  <span>Tax Friendliness</span>
-                  <span className="text-blue-600 font-bold">{weights.taxes}%</span>
-                </div>
-                <div className="space-y-1 text-slate-500">
-                  <div className="flex justify-between"><span>Military pension not taxed</span><span className="font-medium text-slate-700">+50 pts</span></div>
-                  <div className="flex justify-between"><span>Pension partially exempt</span><span className="font-medium text-slate-700">+28 pts</span></div>
-                  <div className="flex justify-between"><span>State income tax rate (0–13%)</span><span className="font-medium text-slate-700">up to +32 pts</span></div>
-                  <div className="flex justify-between"><span>Property tax level (Low/Med/High)</span><span className="font-medium text-slate-700">+18 / +10 / 0</span></div>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 rounded-lg p-3 space-y-1.5">
-                <div className="font-semibold text-slate-700 flex items-center justify-between">
-                  <span>Cost of Living</span>
-                  <span className="text-blue-600 font-bold">{weights.cost}%</span>
-                </div>
-                <p className="text-slate-500">Scaled against a national baseline. Score drops sharply above the national average and rises for states below it.</p>
-              </div>
-
-              <div className="bg-slate-50 rounded-lg p-3 space-y-1.5">
-                <div className="font-semibold text-slate-700 flex items-center justify-between">
-                  <span>Veteran Benefits</span>
-                  <span className="text-blue-600 font-bold">{weights.benefits}%</span>
-                </div>
-                <p className="text-slate-500">State VA facility quality, veteran services, and veteran-focused programs rated 0–100.</p>
-              </div>
-            </div>
-
-            <div className="rounded-lg border border-slate-200 overflow-hidden">
-              <div className="px-3 py-1.5 bg-slate-50 text-xs font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-200">Score Tiers</div>
-              <div className="divide-y divide-slate-100">
-                {[
-                  { label: 'Elite',    range: '95–100', cls: 'bg-emerald-100 text-emerald-700' },
-                  { label: 'Strong',   range: '85–94',  cls: 'bg-blue-100 text-blue-700' },
-                  { label: 'Moderate', range: '70–84',  cls: 'bg-yellow-100 text-yellow-700' },
-                  { label: 'Weak',     range: 'Below 70', cls: 'bg-slate-100 text-slate-500' },
-                ].map(({ label, range, cls }) => (
-                  <div key={label} className="flex items-center justify-between px-3 py-1.5">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cls}`}>{label}</span>
-                    <span className="text-slate-500">{range}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Exclude States */}
