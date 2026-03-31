@@ -1,0 +1,378 @@
+/**
+ * Employment & job market data per state.
+ * Sources:
+ *   BLS Local Area Unemployment Statistics (2024 annual avg)
+ *   BLS Quarterly Census of Employment and Wages (2024 YoY)
+ *   Census Bureau ACS 2023 (median household income)
+ *   USASpending.gov DoD prime contract awards (FY2024)
+ *
+ * Always verify with current BLS and USASpending data before updating.
+ */
+
+export type DefensePresence = 'High' | 'Medium' | 'Low';
+
+export interface StateEmploymentData {
+  unemploymentRate: number;             // Annual avg %, e.g. 3.4
+  jobGrowthRate: number;                // YoY total nonfarm employment change, %
+  medianHouseholdIncome: number;        // ACS 2023 median household income, $
+  topIndustries: string[];              // 3–5 dominant civilian employment sectors
+  defenseContractorPresence: DefensePresence; // DoD prime contract footprint tier
+}
+
+export const NATIONAL_EMPLOYMENT = {
+  unemploymentRate: 3.7,
+  medianHouseholdIncome: 74_580,
+};
+
+export const stateEmploymentData: Record<string, StateEmploymentData> = {
+  alabama: {
+    unemploymentRate: 3.0,
+    jobGrowthRate: 1.8,
+    medianHouseholdIncome: 58_376,
+    topIndustries: ['Defense & Aerospace', 'Manufacturing', 'Healthcare', 'Agriculture'],
+    defenseContractorPresence: 'High',
+  },
+  alaska: {
+    unemploymentRate: 4.3,
+    jobGrowthRate: 0.9,
+    medianHouseholdIncome: 82_103,
+    topIndustries: ['Federal Government', 'Oil & Gas', 'Healthcare', 'Tourism'],
+    defenseContractorPresence: 'Medium',
+  },
+  arizona: {
+    unemploymentRate: 3.6,
+    jobGrowthRate: 2.8,
+    medianHouseholdIncome: 72_581,
+    topIndustries: ['Defense & Aerospace', 'Technology', 'Healthcare', 'Real Estate'],
+    defenseContractorPresence: 'High',
+  },
+  arkansas: {
+    unemploymentRate: 3.2,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 55_432,
+    topIndustries: ['Manufacturing', 'Retail', 'Agriculture', 'Healthcare'],
+    defenseContractorPresence: 'Low',
+  },
+  california: {
+    unemploymentRate: 5.2,
+    jobGrowthRate: 1.2,
+    medianHouseholdIncome: 85_300,
+    topIndustries: ['Defense & Aerospace', 'Technology', 'Healthcare', 'Entertainment', 'Agriculture'],
+    defenseContractorPresence: 'High',
+  },
+  colorado: {
+    unemploymentRate: 3.5,
+    jobGrowthRate: 2.4,
+    medianHouseholdIncome: 80_184,
+    topIndustries: ['Defense & Space', 'Technology', 'Healthcare', 'Energy', 'Tourism'],
+    defenseContractorPresence: 'High',
+  },
+  connecticut: {
+    unemploymentRate: 3.9,
+    jobGrowthRate: 1.6,
+    medianHouseholdIncome: 90_213,
+    topIndustries: ['Defense Manufacturing', 'Finance & Insurance', 'Healthcare', 'Technology'],
+    defenseContractorPresence: 'High',
+  },
+  delaware: {
+    unemploymentRate: 3.7,
+    jobGrowthRate: 1.5,
+    medianHouseholdIncome: 76_384,
+    topIndustries: ['Finance & Insurance', 'Healthcare', 'Federal Government', 'Chemical Manufacturing'],
+    defenseContractorPresence: 'Medium',
+  },
+  florida: {
+    unemploymentRate: 3.2,
+    jobGrowthRate: 3.1,
+    medianHouseholdIncome: 63_062,
+    topIndustries: ['Defense & Aerospace', 'Healthcare', 'Tourism', 'Real Estate', 'Technology'],
+    defenseContractorPresence: 'High',
+  },
+  georgia: {
+    unemploymentRate: 3.3,
+    jobGrowthRate: 2.6,
+    medianHouseholdIncome: 71_355,
+    topIndustries: ['Defense & Logistics', 'Healthcare', 'Technology', 'Manufacturing', 'Film & Media'],
+    defenseContractorPresence: 'High',
+  },
+  hawaii: {
+    unemploymentRate: 2.9,
+    jobGrowthRate: 2.1,
+    medianHouseholdIncome: 88_005,
+    topIndustries: ['Federal Government & Military', 'Tourism', 'Healthcare', 'Construction'],
+    defenseContractorPresence: 'Medium',
+  },
+  idaho: {
+    unemploymentRate: 3.1,
+    jobGrowthRate: 2.5,
+    medianHouseholdIncome: 65_044,
+    topIndustries: ['Technology', 'Agriculture', 'Healthcare', 'Manufacturing'],
+    defenseContractorPresence: 'Low',
+  },
+  illinois: {
+    unemploymentRate: 4.7,
+    jobGrowthRate: 1.1,
+    medianHouseholdIncome: 74_994,
+    topIndustries: ['Defense Logistics', 'Finance & Insurance', 'Healthcare', 'Manufacturing', 'Agriculture'],
+    defenseContractorPresence: 'High',
+  },
+  indiana: {
+    unemploymentRate: 3.4,
+    jobGrowthRate: 1.6,
+    medianHouseholdIncome: 63_567,
+    topIndustries: ['Manufacturing', 'Healthcare', 'Logistics', 'Agriculture'],
+    defenseContractorPresence: 'Medium',
+  },
+  iowa: {
+    unemploymentRate: 2.8,
+    jobGrowthRate: 1.3,
+    medianHouseholdIncome: 67_034,
+    topIndustries: ['Agriculture', 'Manufacturing', 'Healthcare', 'Finance'],
+    defenseContractorPresence: 'Low',
+  },
+  kansas: {
+    unemploymentRate: 2.9,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 65_904,
+    topIndustries: ['Defense & Aviation', 'Agriculture', 'Manufacturing', 'Healthcare'],
+    defenseContractorPresence: 'Medium',
+  },
+  kentucky: {
+    unemploymentRate: 4.1,
+    jobGrowthRate: 1.7,
+    medianHouseholdIncome: 57_834,
+    topIndustries: ['Manufacturing', 'Healthcare', 'Logistics', 'Agriculture'],
+    defenseContractorPresence: 'Medium',
+  },
+  louisiana: {
+    unemploymentRate: 3.8,
+    jobGrowthRate: 1.2,
+    medianHouseholdIncome: 57_852,
+    topIndustries: ['Energy & Petrochemicals', 'Healthcare', 'Logistics', 'Defense'],
+    defenseContractorPresence: 'Medium',
+  },
+  maine: {
+    unemploymentRate: 2.8,
+    jobGrowthRate: 1.3,
+    medianHouseholdIncome: 67_488,
+    topIndustries: ['Defense Shipbuilding', 'Healthcare', 'Tourism', 'Agriculture'],
+    defenseContractorPresence: 'Medium',
+  },
+  maryland: {
+    unemploymentRate: 2.9,
+    jobGrowthRate: 1.8,
+    medianHouseholdIncome: 94_384,
+    topIndustries: ['Federal Government & Defense', 'Technology & Cybersecurity', 'Healthcare', 'Finance'],
+    defenseContractorPresence: 'High',
+  },
+  massachusetts: {
+    unemploymentRate: 3.7,
+    jobGrowthRate: 1.9,
+    medianHouseholdIncome: 96_505,
+    topIndustries: ['Defense Technology', 'Biotech & Healthcare', 'Finance', 'Education'],
+    defenseContractorPresence: 'High',
+  },
+  michigan: {
+    unemploymentRate: 3.9,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 65_166,
+    topIndustries: ['Automotive & Defense Manufacturing', 'Healthcare', 'Technology', 'Agriculture'],
+    defenseContractorPresence: 'Medium',
+  },
+  minnesota: {
+    unemploymentRate: 3.1,
+    jobGrowthRate: 1.5,
+    medianHouseholdIncome: 80_441,
+    topIndustries: ['Healthcare', 'Finance', 'Defense Manufacturing', 'Agriculture', 'Technology'],
+    defenseContractorPresence: 'Medium',
+  },
+  mississippi: {
+    unemploymentRate: 4.1,
+    jobGrowthRate: 1.1,
+    medianHouseholdIncome: 50_138,
+    topIndustries: ['Defense & Shipbuilding', 'Agriculture', 'Manufacturing', 'Healthcare'],
+    defenseContractorPresence: 'Medium',
+  },
+  missouri: {
+    unemploymentRate: 3.3,
+    jobGrowthRate: 1.6,
+    medianHouseholdIncome: 65_920,
+    topIndustries: ['Defense & Aerospace', 'Healthcare', 'Agriculture', 'Finance', 'Manufacturing'],
+    defenseContractorPresence: 'High',
+  },
+  montana: {
+    unemploymentRate: 2.7,
+    jobGrowthRate: 1.8,
+    medianHouseholdIncome: 61_714,
+    topIndustries: ['Federal Government', 'Agriculture', 'Healthcare', 'Tourism'],
+    defenseContractorPresence: 'Low',
+  },
+  nebraska: {
+    unemploymentRate: 2.5,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 68_821,
+    topIndustries: ['Defense (STRATCOM)', 'Agriculture', 'Finance', 'Healthcare'],
+    defenseContractorPresence: 'Medium',
+  },
+  nevada: {
+    unemploymentRate: 5.1,
+    jobGrowthRate: 2.6,
+    medianHouseholdIncome: 65_686,
+    topIndustries: ['Defense & Test Range', 'Tourism & Gaming', 'Healthcare', 'Construction'],
+    defenseContractorPresence: 'Medium',
+  },
+  'new-hampshire': {
+    unemploymentRate: 2.5,
+    jobGrowthRate: 1.6,
+    medianHouseholdIncome: 92_834,
+    topIndustries: ['Defense Manufacturing', 'Healthcare', 'Finance', 'Technology'],
+    defenseContractorPresence: 'Medium',
+  },
+  'new-jersey': {
+    unemploymentRate: 4.6,
+    jobGrowthRate: 1.3,
+    medianHouseholdIncome: 96_346,
+    topIndustries: ['Defense & Logistics', 'Pharmaceuticals', 'Finance', 'Healthcare'],
+    defenseContractorPresence: 'Medium',
+  },
+  'new-mexico': {
+    unemploymentRate: 4.0,
+    jobGrowthRate: 1.7,
+    medianHouseholdIncome: 55_310,
+    topIndustries: ['Defense & National Labs', 'Federal Government', 'Healthcare', 'Energy'],
+    defenseContractorPresence: 'Medium',
+  },
+  'new-york': {
+    unemploymentRate: 4.3,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 75_157,
+    topIndustries: ['Finance', 'Healthcare', 'Defense Manufacturing', 'Technology', 'Media'],
+    defenseContractorPresence: 'Medium',
+  },
+  'north-carolina': {
+    unemploymentRate: 3.5,
+    jobGrowthRate: 3.2,
+    medianHouseholdIncome: 65_018,
+    topIndustries: ['Defense', 'Technology', 'Healthcare', 'Finance', 'Agriculture'],
+    defenseContractorPresence: 'High',
+  },
+  'north-dakota': {
+    unemploymentRate: 2.1,
+    jobGrowthRate: 1.6,
+    medianHouseholdIncome: 73_959,
+    topIndustries: ['Energy & Defense', 'Agriculture', 'Healthcare', 'Federal Government'],
+    defenseContractorPresence: 'Low',
+  },
+  ohio: {
+    unemploymentRate: 3.7,
+    jobGrowthRate: 1.5,
+    medianHouseholdIncome: 64_781,
+    topIndustries: ['Defense & Aerospace', 'Manufacturing', 'Healthcare', 'Finance', 'Agriculture'],
+    defenseContractorPresence: 'High',
+  },
+  oklahoma: {
+    unemploymentRate: 3.1,
+    jobGrowthRate: 1.9,
+    medianHouseholdIncome: 60_096,
+    topIndustries: ['Defense', 'Energy & Oil', 'Agriculture', 'Healthcare'],
+    defenseContractorPresence: 'Medium',
+  },
+  oregon: {
+    unemploymentRate: 4.3,
+    jobGrowthRate: 1.5,
+    medianHouseholdIncome: 76_314,
+    topIndustries: ['Technology', 'Healthcare', 'Manufacturing', 'Agriculture', 'Tourism'],
+    defenseContractorPresence: 'Low',
+  },
+  pennsylvania: {
+    unemploymentRate: 3.8,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 72_627,
+    topIndustries: ['Defense', 'Healthcare', 'Finance', 'Manufacturing', 'Energy'],
+    defenseContractorPresence: 'Medium',
+  },
+  'rhode-island': {
+    unemploymentRate: 4.2,
+    jobGrowthRate: 1.3,
+    medianHouseholdIncome: 77_982,
+    topIndustries: ['Defense (Naval)', 'Healthcare', 'Finance', 'Manufacturing'],
+    defenseContractorPresence: 'Medium',
+  },
+  'south-carolina': {
+    unemploymentRate: 3.2,
+    jobGrowthRate: 2.8,
+    medianHouseholdIncome: 62_542,
+    topIndustries: ['Defense & Manufacturing', 'Tourism', 'Healthcare', 'Automotive'],
+    defenseContractorPresence: 'Medium',
+  },
+  'south-dakota': {
+    unemploymentRate: 2.2,
+    jobGrowthRate: 1.7,
+    medianHouseholdIncome: 67_018,
+    topIndustries: ['Defense (ICBM)', 'Agriculture', 'Healthcare', 'Tourism'],
+    defenseContractorPresence: 'Low',
+  },
+  tennessee: {
+    unemploymentRate: 3.3,
+    jobGrowthRate: 2.9,
+    medianHouseholdIncome: 61_224,
+    topIndustries: ['Manufacturing', 'Healthcare', 'Logistics', 'Defense', 'Tourism'],
+    defenseContractorPresence: 'Medium',
+  },
+  texas: {
+    unemploymentRate: 4.0,
+    jobGrowthRate: 2.8,
+    medianHouseholdIncome: 67_321,
+    topIndustries: ['Defense & Aerospace', 'Energy', 'Technology', 'Healthcare', 'Finance'],
+    defenseContractorPresence: 'High',
+  },
+  utah: {
+    unemploymentRate: 3.0,
+    jobGrowthRate: 2.6,
+    medianHouseholdIncome: 79_449,
+    topIndustries: ['Defense', 'Technology', 'Healthcare', 'Finance', 'Tourism'],
+    defenseContractorPresence: 'Medium',
+  },
+  vermont: {
+    unemploymentRate: 2.6,
+    jobGrowthRate: 1.1,
+    medianHouseholdIncome: 74_014,
+    topIndustries: ['Healthcare', 'Agriculture', 'Tourism', 'Defense Electronics'],
+    defenseContractorPresence: 'Low',
+  },
+  virginia: {
+    unemploymentRate: 2.7,
+    jobGrowthRate: 2.1,
+    medianHouseholdIncome: 83_450,
+    topIndustries: ['Defense & Federal Contracting', 'Technology & Cybersecurity', 'Healthcare', 'Finance'],
+    defenseContractorPresence: 'High',
+  },
+  washington: {
+    unemploymentRate: 4.2,
+    jobGrowthRate: 2.2,
+    medianHouseholdIncome: 87_648,
+    topIndustries: ['Defense & Aerospace', 'Technology', 'Healthcare', 'Agriculture', 'Maritime'],
+    defenseContractorPresence: 'High',
+  },
+  'west-virginia': {
+    unemploymentRate: 4.8,
+    jobGrowthRate: 0.4,
+    medianHouseholdIncome: 51_248,
+    topIndustries: ['Energy', 'Healthcare', 'Federal Government', 'Manufacturing'],
+    defenseContractorPresence: 'Low',
+  },
+  wisconsin: {
+    unemploymentRate: 2.9,
+    jobGrowthRate: 1.4,
+    medianHouseholdIncome: 72_458,
+    topIndustries: ['Manufacturing', 'Healthcare', 'Agriculture', 'Defense'],
+    defenseContractorPresence: 'Low',
+  },
+  wyoming: {
+    unemploymentRate: 3.2,
+    jobGrowthRate: 1.2,
+    medianHouseholdIncome: 68_002,
+    topIndustries: ['Defense (ICBM)', 'Energy', 'Agriculture', 'Tourism'],
+    defenseContractorPresence: 'Low',
+  },
+};

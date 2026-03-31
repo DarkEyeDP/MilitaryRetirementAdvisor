@@ -5,6 +5,8 @@ import type { StateData } from '../data/stateData';
 import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
 import { getSpaceATerminalsByProximity } from '../data/spaceATerminals';
+import { militaryInstallations } from '../data/militaryInstallations';
+import { stateEmploymentData, NATIONAL_EMPLOYMENT } from '../data/employmentData';
 import { stateVeteranPerks } from '../data/veteranPerksData';
 import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
@@ -43,6 +45,7 @@ import {
   Waves,
   Mountain,
   GitCompare,
+  Briefcase,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import StateShapeMap from '../components/StateShapeMap';
@@ -224,6 +227,7 @@ export default function StateDetail() {
 
   const housing = state ? stateHousingData[state.id] : null;
   const climate = state ? stateClimateData[state.id] : null;
+  const employment = state ? stateEmploymentData[state.id] : null;
 
   // Comparison favorites
   const [favorites, setFavorites] = useState<string[]>(() => {
@@ -335,6 +339,7 @@ export default function StateDetail() {
   const allFacilities = vaFacilityLocations[state.id] ?? [];
   const vamcs = allFacilities.filter((f) => f.type !== 'clinic');
   const clinics = allFacilities.filter((f) => f.type === 'clinic');
+  const stateInstallations = militaryInstallations.filter((i) => i.stateId === state.id);
 
   // Shared height for the map+directory row — grows with facility count
   const facilityPanelHeight = allFacilities.length > 20 ? 560 : allFacilities.length > 10 ? 460 : 380;
@@ -627,65 +632,99 @@ export default function StateDetail() {
             <StateShapeMap key={state.id} stateId={state.id} stateName={state.name} height={facilityPanelHeight} />
           </div>
 
-          {/* VA Facilities list */}
+          {/* Facility Directory — tabbed */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col h-full">
             <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3 flex-shrink-0">
               <MapPin className="w-4 h-4 text-blue-600" />
-              Facility Directory
+              Military Resources
               <span className="ml-auto text-xs font-normal text-slate-400">Tap to open in Maps</span>
             </h2>
 
-            <div className="flex-1 overflow-y-auto space-y-4">
-              {vamcs.length > 0 && (
-                <div>
-                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
-                    Medical Centers ({vamcs.length})
+            <Tabs defaultValue="va" className="flex flex-col flex-1 min-h-0">
+              <TabsList className="w-full mb-3 flex-shrink-0">
+                <TabsTrigger value="va" className="flex-1 text-xs">
+                  VA Facilities ({allFacilities.length})
+                </TabsTrigger>
+                <TabsTrigger value="installations" className="flex-1 text-xs">
+                  Installations ({stateInstallations.length})
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="va" className="flex-1 overflow-y-auto space-y-4 mt-0">
+                {vamcs.length > 0 && (
+                  <div>
+                    <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
+                      Medical Centers ({vamcs.length})
+                    </div>
+                    <ul className={vamcs.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                      {vamcs.map((f, i) => (
+                        <li key={i}>
+                          <a
+                            href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline py-0.5"
+                          >
+                            <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
+                            <span>{f.name}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className={vamcs.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
-                    {vamcs.map((f, i) => (
-                      <li key={i}>
+                )}
+
+                {clinics.length > 0 && (
+                  <div>
+                    <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">
+                      Clinics ({clinics.length})
+                    </div>
+                    <ul className={clinics.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                      {clinics.map((f, i) => (
+                        <li key={i}>
+                          <a
+                            href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-start gap-2 text-sm text-green-600 hover:text-green-800 hover:underline py-0.5"
+                          >
+                            <MapPin className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                            <span>{f.name}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {allFacilities.length === 0 && (
+                  <p className="text-sm text-slate-400 italic">No facility data available.</p>
+                )}
+              </TabsContent>
+
+              <TabsContent value="installations" className="flex-1 overflow-y-auto mt-0">
+                {stateInstallations.length > 0 ? (
+                  <ul className={stateInstallations.length > 8 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                    {stateInstallations.map((inst) => (
+                      <li key={inst.id}>
                         <a
-                          href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                          href={`https://maps.google.com/?q=${encodeURIComponent(inst.name + ', ' + state.name)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline py-0.5"
+                          className="flex items-start gap-2 text-sm hover:underline py-0.5"
+                          style={{ color: '#4b5320' }}
                         >
-                          <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
-                          <span>{f.name}</span>
+                          <span className="flex-shrink-0 mt-0.5" style={{ color: '#7a8c3a' }}>★</span>
+                          <span>{inst.name}</span>
                         </a>
                       </li>
                     ))}
                   </ul>
-                </div>
-              )}
-
-              {clinics.length > 0 && (
-                <div>
-                  <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">
-                    Clinics ({clinics.length})
-                  </div>
-                  <ul className={clinics.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
-                    {clinics.map((f, i) => (
-                      <li key={i}>
-                        <a
-                          href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-start gap-2 text-sm text-green-600 hover:text-green-800 hover:underline py-0.5"
-                        >
-                          <MapPin className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
-                          <span>{f.name}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {allFacilities.length === 0 && (
-                <p className="text-sm text-slate-400 italic">No facility data available.</p>
-              )}
-            </div>
+                ) : (
+                  <p className="text-sm text-slate-400 italic">No installation data available for this state yet.</p>
+                )}
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 
@@ -866,6 +905,100 @@ export default function StateDetail() {
                 </CardContent>
               </Card>
             )}
+            {/* Economy & Jobs */}
+            {employment && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Briefcase className="w-5 h-5 text-blue-600" />
+                    Economy &amp; Jobs
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                  {/* Three key stats */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Unemployment</div>
+                      <div className={`text-xl font-bold ${employment.unemploymentRate < 4 ? 'text-green-600' : employment.unemploymentRate < 6 ? 'text-yellow-600' : 'text-red-600'}`}>
+                        {employment.unemploymentRate}%
+                      </div>
+                      <div className={`text-xs mt-1 font-medium ${employment.unemploymentRate < NATIONAL_EMPLOYMENT.unemploymentRate ? 'text-green-600' : 'text-slate-400'}`}>
+                        {employment.unemploymentRate < NATIONAL_EMPLOYMENT.unemploymentRate ? 'Below US avg' : 'Above US avg'}
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Job Growth</div>
+                      <div className={`text-xl font-bold flex items-center justify-center gap-1 ${employment.jobGrowthRate > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {employment.jobGrowthRate > 0
+                          ? <TrendingUp className="w-4 h-4" />
+                          : <TrendingDown className="w-4 h-4" />}
+                        {employment.jobGrowthRate > 0 ? '+' : ''}{employment.jobGrowthRate}%
+                      </div>
+                      <div className="text-xs text-slate-400 mt-1">year over year</div>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Median Income</div>
+                      <div className={`text-xl font-bold ${employment.medianHouseholdIncome >= NATIONAL_EMPLOYMENT.medianHouseholdIncome ? 'text-green-600' : 'text-slate-800'}`}>
+                        ${(employment.medianHouseholdIncome / 1000).toFixed(0)}k
+                      </div>
+                      <div className={`text-xs mt-1 font-medium ${employment.medianHouseholdIncome >= NATIONAL_EMPLOYMENT.medianHouseholdIncome ? 'text-green-600' : 'text-slate-400'}`}>
+                        {employment.medianHouseholdIncome >= NATIONAL_EMPLOYMENT.medianHouseholdIncome ? 'Above US avg' : 'Below US avg'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Defense contractor badge + industries */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Defense Contractors</span>
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
+                        employment.defenseContractorPresence === 'High' ? 'bg-blue-100 text-blue-700' :
+                        employment.defenseContractorPresence === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-slate-100 text-slate-500'
+                      }`}>
+                        {employment.defenseContractorPresence} Presence
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {employment.topIndustries.map((industry) => (
+                        <span key={industry} className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
+                          {industry}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Context rows */}
+                  <div className="rounded-lg border border-slate-200 divide-y divide-slate-100 text-sm">
+                    <div className="flex items-center justify-between px-4 py-2.5">
+                      <span className="text-slate-500">vs. US unemployment avg ({NATIONAL_EMPLOYMENT.unemploymentRate}%)</span>
+                      <span className={`font-semibold ${employment.unemploymentRate < NATIONAL_EMPLOYMENT.unemploymentRate ? 'text-green-600' : 'text-red-500'}`}>
+                        {employment.unemploymentRate < NATIONAL_EMPLOYMENT.unemploymentRate
+                          ? `${(NATIONAL_EMPLOYMENT.unemploymentRate - employment.unemploymentRate).toFixed(1)}% lower ✓`
+                          : `${(employment.unemploymentRate - NATIONAL_EMPLOYMENT.unemploymentRate).toFixed(1)}% higher`}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between px-4 py-2.5">
+                      <span className="text-slate-500">DoD contractor footprint</span>
+                      <span className="text-slate-700 font-medium text-right max-w-[200px]">
+                        {employment.defenseContractorPresence === 'High'
+                          ? 'Strong — many DoD contractor roles'
+                          : employment.defenseContractorPresence === 'Medium'
+                          ? 'Moderate — some contractor presence'
+                          : 'Limited — few major DoD contractors'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-400">
+                    Data: BLS 2024 &amp; Census ACS 2023. Always verify with current job listings before relocating.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Veteran Perks — License/Registration & Medal Benefits */}
             {stateVeteranPerks[state.id] && (
               <Card>

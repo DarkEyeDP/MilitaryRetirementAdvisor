@@ -12,7 +12,7 @@ import {
   ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck,
   CheckCircle2, AlertCircle, XCircle, TrendingUp, TrendingDown,
   Home, Users, Thermometer, Wind, Flame, Waves, Snowflake,
-  TriangleAlert, Mountain, Shield,
+  TriangleAlert, Mountain, Shield, Briefcase,
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -30,6 +30,7 @@ import { stateFinancialData } from '../data/financialData';
 import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
 import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
+import { stateEmploymentData } from '../data/employmentData';
 import ComparisonMap from '../components/ComparisonMap';
 
 // ─── Color palettes per state index ─────────────────────────────────────────
@@ -409,7 +410,77 @@ export default function ComparisonPage() {
           </div>
         </Section>
 
-        {/* ── Section 6: Military Benefits ──────────────────────────────── */}
+        {/* ── Section 6: Economy & Jobs ─────────────────────────────────── */}
+        <Section title="Economy &amp; Jobs" icon={<Briefcase className="w-4 h-4" />}>
+          <CTable states={stateEntries}>
+            <Row
+              n={n}
+              label="Unemployment Rate"
+              values={states.map((s) => {
+                const e = stateEmploymentData[s.id];
+                if (!e) return '—';
+                const cls = e.unemploymentRate < 4 ? 'text-green-600 font-semibold' : e.unemploymentRate < 6 ? 'text-yellow-600 font-semibold' : 'text-red-600 font-semibold';
+                return <span className={cls}>{e.unemploymentRate}%</span>;
+              })}
+              bestIdx={bestIdx(states.map(s => stateEmploymentData[s.id]?.unemploymentRate ?? 99), 'min')}
+            />
+            <Row
+              n={n}
+              label="Job Growth (YoY)"
+              values={states.map((s) => {
+                const e = stateEmploymentData[s.id];
+                if (!e) return '—';
+                const up = e.jobGrowthRate >= 0;
+                return <span className={`flex items-center gap-1 justify-center ${up ? 'text-green-600' : 'text-red-500'}`}>{up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}{up ? '+' : ''}{e.jobGrowthRate}%</span>;
+              })}
+              bestIdx={bestIdx(states.map(s => stateEmploymentData[s.id]?.jobGrowthRate ?? -99), 'max')}
+            />
+            <Row
+              n={n}
+              label="Median Household Income"
+              values={states.map((s) => {
+                const e = stateEmploymentData[s.id];
+                return e ? `$${(e.medianHouseholdIncome / 1000).toFixed(0)}k` : '—';
+              })}
+              bestIdx={bestIdx(states.map(s => stateEmploymentData[s.id]?.medianHouseholdIncome ?? 0), 'max')}
+            />
+            <Row
+              n={n}
+              label="Defense Contractors"
+              values={states.map((s) => {
+                const e = stateEmploymentData[s.id];
+                if (!e) return '—';
+                const cls = e.defenseContractorPresence === 'High' ? 'bg-blue-100 text-blue-700' : e.defenseContractorPresence === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-500';
+                return <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cls}`}>{e.defenseContractorPresence}</span>;
+              })}
+              bestIdx={bestIdx(states.map(s => { const e = stateEmploymentData[s.id]; return e?.defenseContractorPresence === 'High' ? 2 : e?.defenseContractorPresence === 'Medium' ? 1 : 0; }), 'max')}
+            />
+          </CTable>
+          {/* Top Industries — per-state pill lists */}
+          <div className="border-t border-slate-100 px-6 py-5">
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Top Industries</p>
+            <div className={`grid gap-4 ${n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+              {states.map((s, idx) => {
+                const e = stateEmploymentData[s.id];
+                if (!e) return null;
+                return (
+                  <div key={s.id} className={`rounded-xl border p-3 ${STATE_COLORS[idx].lightBg}`}>
+                    <div className={`text-xs font-bold mb-2 ${STATE_COLORS[idx].text}`}>{s.name}</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {e.topIndustries.map((industry) => (
+                        <span key={industry} className="text-xs bg-white border border-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                          {industry}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Section>
+
+        {/* ── Section 7: Military Benefits ──────────────────────────────── */}
         <Section title="Military Benefits" icon={<ShieldCheck className="w-4 h-4" />}>
           <div className={`grid gap-4 p-6 ${n === 1 ? 'grid-cols-1' : n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {states.map((s, idx) => (

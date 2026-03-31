@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { Button } from '../components/ui/button';
 import { Label } from '../components/ui/label';
-import { Slider } from '../components/ui/slider';
+import { GaugeDotSlider } from '../components/GaugeDotSlider';
 import {
   Select,
   SelectContent,
@@ -179,13 +179,13 @@ export default function Landing() {
                 <span className="text-xs text-slate-400 ml-1.5">${Math.round(retirementIncome / 12).toLocaleString()}/mo</span>
               </div>
             </div>
-            <Slider
+            <GaugeDotSlider
               id="income"
               min={20000}
               max={150000}
               step={5000}
               value={[retirementIncome]}
-              onValueChange={(value) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
+              onValueChange={(value: number[]) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-slate-400">

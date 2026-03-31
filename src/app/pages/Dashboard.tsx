@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore } from '../data/stateData';
+import { stateEmploymentData } from '../data/employmentData';
 import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, fmt$ } from '../data/financialReality';
 import { stateFinancialData } from '../data/financialData';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
@@ -199,13 +200,16 @@ export default function Dashboard() {
     lowCostOfLiving: false,
     highVABenefits: false,
     partialTaxMilitary: false,
+    lowPropertyTax: false,
+    lowSalesTax: false,
+    strongJobMarket: false,
   });
 
   const hasSchoolKids = landingFamilyMembers.some((m) => ['6to12', '13to18'].includes(m.ageGroup));
   const [weights, setWeights] = useState(() => {
     // Boost benefits weight if user has school-age children — education benefits matter more
-    if (hasSchoolKids) return { taxes: 35, cost: 30, benefits: 35 };
-    return { taxes: 40, cost: 30, benefits: 30 };
+    if (hasSchoolKids) return { taxes: 2, cost: 2, benefits: 3 };
+    return { taxes: 2, cost: 2, benefits: 2 };
   });
 
   const handleFilterChange = (key: string, value: boolean) => {
@@ -223,12 +227,11 @@ export default function Dashboard() {
       lowCostOfLiving: false,
       highVABenefits: false,
       partialTaxMilitary: false,
+      lowPropertyTax: false,
+      lowSalesTax: false,
+      strongJobMarket: false,
     });
-    setWeights({
-      taxes: 40,
-      cost: 30,
-      benefits: 30,
-    });
+    setWeights({ taxes: 2, cost: 2, benefits: 2 });
     setExcludedStates([]);
     localStorage.removeItem('excluded-states');
   };
@@ -277,8 +280,11 @@ export default function Dashboard() {
         filters.partialTaxMilitary && state.militaryPensionTax === 'Partial',
         filters.lowCostOfLiving && state.costOfLivingIndex < 95,
         filters.highVABenefits && state.veteranBenefitsScore > 85,
+        filters.lowPropertyTax && state.propertyTaxLevel === 'Low',
+        filters.lowSalesTax && state.salesTax < 4,
+        filters.strongJobMarket && (stateEmploymentData[state.id]?.unemploymentRate ?? 99) < 4.0,
       ];
-      const anyChecked = filters.noIncomeTax || filters.taxFreeMilitary || filters.partialTaxMilitary || filters.lowCostOfLiving || filters.highVABenefits;
+      const anyChecked = filters.noIncomeTax || filters.taxFreeMilitary || filters.partialTaxMilitary || filters.lowCostOfLiving || filters.highVABenefits || filters.lowPropertyTax || filters.lowSalesTax || filters.strongJobMarket;
       if (anyChecked && !activePrefs.some(Boolean)) return false;
       if (searchTerms.length > 0) {
         const name = state.name.toLowerCase();
@@ -325,7 +331,7 @@ export default function Dashboard() {
     : null;
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
-  const hasCustomWeights = weights.taxes !== 40 || weights.cost !== 30 || weights.benefits !== 30;
+  const hasCustomWeights = weights.taxes !== 2 || weights.cost !== 2 || weights.benefits !== 2;
   const totalActiveCount = activeFiltersCount + excludedStates.length;
 
   return (
@@ -581,7 +587,7 @@ export default function Dashboard() {
                       transition={{ delay: 0.08, duration: 0.15 }}
                       className="text-slate-500"
                     >
-                      Each state earns 0–100 across three components weighted by your priority sliders.
+                      Each state earns 0–100 across three components weighted by your priority settings.
                     </motion.p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {[
@@ -617,7 +623,7 @@ export default function Dashboard() {
                         >
                           <div className="font-semibold text-slate-800 flex items-center justify-between">
                             <span>{title}</span>
-                            <span className="text-blue-600 font-bold">{weight}%</span>
+                            <span className="text-blue-600 font-bold text-xs px-2 py-0.5 bg-blue-50 rounded-md">{({ 1: 'Low', 2: 'Medium', 3: 'High' } as Record<number, string>)[weight] ?? 'Medium'}</span>
                           </div>
                           {content}
                         </motion.div>

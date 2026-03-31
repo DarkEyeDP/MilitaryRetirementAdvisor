@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
-import { Slider } from './ui/slider';
 import { Button } from './ui/button';
 import { X, Plus, ChevronDown } from 'lucide-react';
 import { statesData } from '../data/stateData';
@@ -13,6 +12,9 @@ interface FilterPanelProps {
     lowCostOfLiving: boolean;
     highVABenefits: boolean;
     partialTaxMilitary: boolean;
+    lowPropertyTax: boolean;
+    lowSalesTax: boolean;
+    strongJobMarket: boolean;
   };
   weights: {
     taxes: number;
@@ -116,54 +118,72 @@ export default function FilterPanel({
               Partial Military Pension Exemption
             </Label>
           </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="lowPropertyTax"
+              checked={filters.lowPropertyTax}
+              onCheckedChange={(checked) => onFilterChange('lowPropertyTax', checked as boolean)}
+            />
+            <Label htmlFor="lowPropertyTax" className="text-sm cursor-pointer">
+              Low Property Tax
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="lowSalesTax"
+              checked={filters.lowSalesTax}
+              onCheckedChange={(checked) => onFilterChange('lowSalesTax', checked as boolean)}
+            />
+            <Label htmlFor="lowSalesTax" className="text-sm cursor-pointer">
+              Low Sales Tax (&lt;4%)
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="strongJobMarket"
+              checked={filters.strongJobMarket}
+              onCheckedChange={(checked) => onFilterChange('strongJobMarket', checked as boolean)}
+            />
+            <Label htmlFor="strongJobMarket" className="text-sm cursor-pointer">
+              Strong Job Market (&lt;4% unemployment)
+            </Label>
+          </div>
         </div>
       </div>
 
       {/* Weights */}
-      <div className="space-y-4 pt-4 border-t border-slate-200">
+      <div className="space-y-3 pt-4 border-t border-slate-200">
         <h4 className="font-medium text-sm text-slate-700">Customize Priorities</h4>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm mb-1">
-            <Label>Tax Friendliness</Label>
-            <span className="font-medium text-blue-600">{weights.taxes}%</span>
+        {(
+          [
+            { label: 'Tax Friendliness', key: 'taxes', value: weights.taxes },
+            { label: 'Cost of Living',   key: 'cost',  value: weights.cost  },
+            { label: 'Veteran Benefits', key: 'benefits', value: weights.benefits },
+          ] as const
+        ).map(({ label, key, value }) => (
+          <div key={key} className="flex items-center justify-between gap-2">
+            <span className="text-sm text-slate-700 min-w-0 flex-1">{label}</span>
+            <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-medium shrink-0">
+              {([1, 2, 3] as const).map((tier, i) => {
+                const tierLabel = ['Low', 'Med', 'High'][i];
+                const active = value === tier;
+                return (
+                  <button
+                    key={tier}
+                    onClick={() => onWeightChange(key, tier)}
+                    className={`px-3 py-1.5 transition-colors ${i > 0 ? 'border-l border-slate-200' : ''} ${
+                      active
+                        ? 'bg-slate-900 text-white'
+                        : 'bg-white text-slate-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    {tierLabel}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <Slider
-            min={0}
-            max={100}
-            step={5}
-            value={[weights.taxes]}
-            onValueChange={(value) => onWeightChange('taxes', value[0])}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm mb-1">
-            <Label>Cost of Living</Label>
-            <span className="font-medium text-blue-600">{weights.cost}%</span>
-          </div>
-          <Slider
-            min={0}
-            max={100}
-            step={5}
-            value={[weights.cost]}
-            onValueChange={(value) => onWeightChange('cost', value[0])}
-          />
-        </div>
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-sm mb-1">
-            <Label>Veteran Benefits</Label>
-            <span className="font-medium text-blue-600">{weights.benefits}%</span>
-          </div>
-          <Slider
-            min={0}
-            max={100}
-            step={5}
-            value={[weights.benefits]}
-            onValueChange={(value) => onWeightChange('benefits', value[0])}
-          />
-        </div>
+        ))}
       </div>
 
       {/* Exclude States */}

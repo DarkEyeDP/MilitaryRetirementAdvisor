@@ -13,12 +13,22 @@ import type { Topology } from 'topojson-specification';
 import type { GeoJsonObject, Feature, FeatureCollection } from 'geojson';
 import { vaFacilityLocations, stateFipsMap } from '../data/vaFacilityLocations';
 import { spaceATerminals } from '../data/spaceATerminals';
+import { militaryInstallations } from '../data/militaryInstallations';
 import 'leaflet/dist/leaflet.css';
 
 const SPACE_A_COLOR = '#7c3aed';
+const INSTALLATION_COLOR = '#4b5320'; // olive drab
 
 const planeIcon = L.divIcon({
   html: `<div style="background:${SPACE_A_COLOR};color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);line-height:1">✈</div>`,
+  className: '',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -14],
+});
+
+const installationIcon = L.divIcon({
+  html: `<div style="background:${INSTALLATION_COLOR};color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);line-height:1">★</div>`,
   className: '',
   iconSize: [24, 24],
   iconAnchor: [12, 12],
@@ -74,6 +84,9 @@ export default function ComparisonMap({ stateIds }: Props) {
   const [highlightedGeojsons, setHighlightedGeojsons] = useState<(GeoJsonObject | null)[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [showInstallations, setShowInstallations] = useState(false);
+
+  const visibleInstallations = militaryInstallations.filter((i) => stateIds.includes(i.stateId));
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const geoJsonRefs = useRef<any[]>([]);
 
@@ -242,6 +255,18 @@ export default function ComparisonMap({ stateIds }: Props) {
           </Marker>
         ))}
 
+        {/* Military installation markers — for compared states only, toggleable */}
+        {showInstallations && visibleInstallations.map((inst) => (
+          <Marker key={inst.id} position={[inst.lat, inst.lon]} icon={installationIcon}>
+            <Popup>
+              <div className="text-sm leading-snug max-w-[240px] space-y-1">
+                <div className="font-semibold">{inst.name}</div>
+                <div className="text-xs font-medium" style={{ color: INSTALLATION_COLOR }}>Military Installation</div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
         <FitBoundsMulti geojsons={validHighlighted} />
       </MapContainer>
 
@@ -274,7 +299,23 @@ export default function ComparisonMap({ stateIds }: Props) {
             );
           })}
         </div>
-        <p className="text-xs text-blue-500">Click markers for details</p>
+        <div className="flex items-center gap-3">
+          {visibleInstallations.length > 0 && (
+            <button
+              onClick={() => setShowInstallations((v) => !v)}
+              className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-md border transition-colors ${
+                showInstallations
+                  ? 'border-transparent text-white'
+                  : 'border-slate-200 text-slate-600 bg-white hover:bg-slate-50'
+              }`}
+              style={showInstallations ? { backgroundColor: INSTALLATION_COLOR, borderColor: INSTALLATION_COLOR } : {}}
+            >
+              <span>★</span>
+              <span>Installations ({visibleInstallations.length})</span>
+            </button>
+          )}
+          <p className="text-xs text-blue-500">Click markers for details</p>
+        </div>
       </div>
     </div>
   );
