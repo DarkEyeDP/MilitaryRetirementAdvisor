@@ -78,7 +78,6 @@ export default function Landing() {
   const [disabilityRating, setDisabilityRating] = useState<string>(prefs.disabilityRating ?? '');
   const [currentStateId, setCurrentStateId] = useState<string>(prefs.currentStateId ?? '');
   const [familyMembers, setFamilyMembers] = useState<LandingMember[]>(prefs.familyMembers ?? []);
-  const [preferredRegion, setPreferredRegion] = useState<string>(prefs.preferredRegion ?? '');
   const [secondaryIncome, setSecondaryIncome] = useState<SecondaryIncomeSource[]>(prefs.secondaryIncome ?? []);
 
   const addSecondarySource = (label: string) => {
@@ -157,7 +156,7 @@ export default function Landing() {
       localStorage.setItem('origin-family-members', JSON.stringify(familyMembers));
       localStorage.setItem('origin-secondary-income', JSON.stringify(secondaryIncome));
       navigate('/dashboard', {
-        state: { retirementIncome, disabilityRating, preferredRegion, currentStateId, familyMembers, secondaryIncome },
+        state: { retirementIncome, disabilityRating, currentStateId, familyMembers, secondaryIncome },
       });
     }, 1200);
   };
@@ -199,7 +198,7 @@ export default function Landing() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="disability" className="text-xs">
-              VA Disability <span className="text-slate-400 font-normal">(Optional)</span>
+              VA Disability <span className="text-slate-400 text-xs font-normal normal-case tracking-normal">(Optional)</span>
             </Label>
             <Select value={disabilityRating} onValueChange={(v) => { setDisabilityRating(v); savePrefs({ disabilityRating: v }); }}>
               <SelectTrigger id="disability" className="h-9 text-sm"><SelectValue placeholder="Select rating" /></SelectTrigger>
@@ -213,7 +212,7 @@ export default function Landing() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="currentState" className="text-xs">
-              Current State <span className="text-slate-400 font-normal">(Optional)</span>
+              Current State <span className="text-slate-400 text-xs font-normal normal-case tracking-normal">(Optional)</span>
             </Label>
             <Select
               value={currentStateId}
@@ -241,7 +240,7 @@ export default function Landing() {
         {/* Family */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Your Family</p>
+            <p className="text-xs font-medium">Your Family <span className="text-slate-400 text-xs font-normal normal-case tracking-normal">(Optional)</span></p>
             {familyMembers.length > 0 && (
               <span className="text-xs text-slate-400">{familyMembers.length} member{familyMembers.length !== 1 ? 's' : ''}</span>
             )}
@@ -304,7 +303,7 @@ export default function Landing() {
         {/* Secondary Income */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Additional Income</p>
+            <p className="text-xs font-medium">Additional Income <span className="text-slate-400 text-xs font-normal normal-case tracking-normal">(Optional)</span></p>
             {secondaryIncome.length > 0 && (
               <span className="text-xs text-slate-400">{secondaryIncome.length} source{secondaryIncome.length !== 1 ? 's' : ''}</span>
             )}
@@ -320,14 +319,14 @@ export default function Landing() {
                     <span className="text-xs text-slate-400">$</span>
                     <input
                       type="number"
-                      min={1000}
-                      max={500000}
-                      step={1000}
-                      value={src.annualAmount}
-                      onChange={(e) => updateSecondaryAmount(src.id, Number(e.target.value))}
+                      min={0}
+                      max={50000}
+                      step={100}
+                      value={Math.round(src.annualAmount / 12)}
+                      onChange={(e) => updateSecondaryAmount(src.id, Number(e.target.value) * 12)}
                       className="w-full text-xs font-semibold text-slate-800 bg-transparent border-b border-slate-200 focus:border-blue-400 focus:outline-none"
                     />
-                    <span className="text-xs text-slate-400 shrink-0">/yr</span>
+                    <span className="text-xs text-slate-400 shrink-0">/mo</span>
                   </div>
                   <Button variant="ghost" size="sm" onClick={() => removeSecondarySource(src.id)} className="h-5 w-5 p-0 text-slate-300 hover:text-red-500 shrink-0">
                     <X className="w-3 h-3" />
@@ -338,8 +337,8 @@ export default function Landing() {
           )}
 
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" size="sm" onClick={() => addSecondarySource('Part-time work')} className="gap-1 text-xs h-7">
-              <Plus className="w-3 h-3" />Part-time work
+            <Button variant="outline" size="sm" onClick={() => addSecondarySource('Income')} className="gap-1 text-xs h-7">
+              <Plus className="w-3 h-3" />Income
             </Button>
             <Button variant="outline" size="sm" onClick={() => addSecondarySource('Spouse income')} disabled={hasSpouseIncome} className="gap-1 text-xs h-7">
               <Plus className="w-3 h-3" />Spouse income
@@ -358,25 +357,9 @@ export default function Landing() {
 
         <div className="border-t border-slate-100" />
 
-        {/* Region + Submit — side by side */}
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end">
-          <div className="space-y-1.5">
-            <Label htmlFor="region" className="text-xs">
-              Preferred Region <span className="text-slate-400 font-normal">(Optional)</span>
-            </Label>
-            <Select value={preferredRegion} onValueChange={(v) => { setPreferredRegion(v); savePrefs({ preferredRegion: v }); }}>
-              <SelectTrigger id="region" className="h-9 text-sm"><SelectValue placeholder="Any region" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="any">Any Region</SelectItem>
-                <SelectItem value="northeast">Northeast</SelectItem>
-                <SelectItem value="southeast">Southeast</SelectItem>
-                <SelectItem value="midwest">Midwest</SelectItem>
-                <SelectItem value="southwest">Southwest</SelectItem>
-                <SelectItem value="west">West</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button onClick={handleCompare} disabled={isLoading} className="h-9 px-6 shrink-0 w-full sm:w-auto">
+        {/* Submit */}
+        <div>
+          <Button onClick={handleCompare} disabled={isLoading} className="h-9 px-6 w-full">
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <span className="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
@@ -396,7 +379,7 @@ export default function Landing() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center">
           <div className="flex items-center gap-2">
             <Shield className="w-8 h-8 text-blue-600" />
             <h1 className="font-semibold text-xl">Military Retirement Advisor</h1>
@@ -421,32 +404,17 @@ export default function Landing() {
             </div>
 
             <div>
-              <div className="flex items-start gap-5 py-5 border-t border-slate-200/80">
-                <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                  <TrendingDown className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900 mb-1">Tax Analysis</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states.</p>
-                </div>
+              <div className="py-5 border-t border-slate-200/80">
+                <h3 className="font-semibold text-slate-900 mb-1">Tax Analysis</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states.</p>
               </div>
-              <div className="flex items-start gap-5 py-5 border-t border-slate-200/80">
-                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                  <Heart className="w-5 h-5 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900 mb-1">Veteran Benefits</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">See VA medical centers, veteran populations, education programs, and state-specific perks ranked for your profile.</p>
-                </div>
+              <div className="py-5 border-t border-slate-200/80">
+                <h3 className="font-semibold text-slate-900 mb-1">Veteran Benefits</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">See VA medical centers, veteran populations, education programs, and state-specific perks ranked for your profile.</p>
               </div>
-              <div className="flex items-start gap-5 py-5 border-t border-b border-slate-200/80">
-                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center shrink-0 mt-0.5">
-                  <MapPin className="w-5 h-5 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900 mb-1">Cost of Living</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">Understand how far your retirement income goes with COL index, median rent, home prices, and savings vs. your current state.</p>
-                </div>
+              <div className="py-5 border-t border-b border-slate-200/80">
+                <h3 className="font-semibold text-slate-900 mb-1">Cost of Living</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">Understand how far your retirement income goes with COL index, median rent, home prices, and savings vs. your current state.</p>
               </div>
             </div>
 

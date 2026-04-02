@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import { useNavigate } from 'react-router';
 import {
   ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck,
@@ -220,11 +221,24 @@ export default function ComparisonPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-semibold">
-              <button onClick={() => setAnnual(false)} className={`px-3 py-1.5 transition-colors ${!annual ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>Monthly</button>
-              <button onClick={() => setAnnual(true)} className={`px-3 py-1.5 transition-colors ${annual ? 'bg-blue-600 text-white' : 'text-slate-500 hover:bg-slate-50'}`}>Annual</button>
+            <div className="flex rounded-full bg-slate-100 p-0.5 text-xs font-semibold">
+              {[{ label: 'Monthly', value: false }, { label: 'Annual', value: true }].map(({ label, value }) => {
+                const active = annual === value;
+                return (
+                  <button key={label} onClick={() => setAnnual(value)} className={`relative px-3 py-1 rounded-full transition-colors z-10 ${active ? 'text-white' : 'text-slate-500 hover:text-slate-700'}`}>
+                    {active && (
+                      <motion.div
+                        layoutId="comparison-annual-pill"
+                        className="absolute inset-0 bg-blue-600 rounded-full shadow-sm"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        style={{ zIndex: -1 }}
+                      />
+                    )}
+                    {label}
+                  </button>
+                );
+              })}
             </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard')} className="text-slate-500 hidden sm:flex">Back to Dashboard</Button>
           </div>
         </div>
       </header>

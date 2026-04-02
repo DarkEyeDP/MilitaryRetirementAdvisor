@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'motion/react';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
 import { Button } from './ui/button';
@@ -50,7 +51,7 @@ export default function FilterPanel({
     .sort((a, b) => a.name.localeCompare(b.name));
   const excludedStateObjects = statesData
     .filter((s) => excludedStates.includes(s.id))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.abbreviation.localeCompare(b.abbreviation));
 
   return (
     <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
@@ -163,7 +164,7 @@ export default function FilterPanel({
         ).map(({ label, key, value }) => (
           <div key={key} className="flex items-center justify-between gap-2">
             <span className="text-sm text-slate-700 min-w-0 flex-1">{label}</span>
-            <div className="flex rounded-lg border border-slate-200 overflow-hidden text-xs font-medium shrink-0">
+            <div className="flex rounded-full bg-slate-100 p-0.5 text-xs font-medium shrink-0">
               {([1, 2, 3] as const).map((tier, i) => {
                 const tierLabel = ['Low', 'Med', 'High'][i];
                 const active = value === tier;
@@ -171,12 +172,16 @@ export default function FilterPanel({
                   <button
                     key={tier}
                     onClick={() => onWeightChange(key, tier)}
-                    className={`px-3 py-1.5 transition-colors ${i > 0 ? 'border-l border-slate-200' : ''} ${
-                      active
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-white text-slate-500 hover:bg-slate-50'
-                    }`}
+                    className={`relative px-3 py-1 rounded-full transition-colors z-10 ${active ? 'text-white' : 'text-slate-500 hover:text-slate-700'}`}
                   >
+                    {active && (
+                      <motion.div
+                        layoutId={`weight-pill-${key}`}
+                        className="absolute inset-0 bg-blue-600 rounded-full shadow-sm"
+                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                        style={{ zIndex: -1 }}
+                      />
+                    )}
                     {tierLabel}
                   </button>
                 );
@@ -218,7 +223,7 @@ export default function FilterPanel({
 
         {/* Included states — green pills */}
         {showAllStates && includedStateObjects.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto pr-1">
+          <div className="flex flex-wrap gap-1.5">
             {includedStateObjects.map((state) => (
               <span
                 key={state.id}

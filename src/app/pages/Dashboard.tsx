@@ -22,9 +22,9 @@ import {
   X,
   Globe,
   MousePointer2,
-  DollarSign,
   ChevronDown,
   Info,
+  BookOpen,
 } from 'lucide-react';
 
 const DISABILITY_RATINGS = ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'];
@@ -44,7 +44,6 @@ export default function Dashboard() {
   const locationState = location.state as {
     retirementIncome?: number;
     disabilityRating?: string;
-    preferredRegion?: string;
     currentStateId?: string;
     familyMembers?: Array<{ id: string; role: string; ageGroup: import('../data/financialReality').AgeGroup }>;
     secondaryIncome?: import('../data/financialReality').SecondaryIncomeSource[];
@@ -133,17 +132,17 @@ export default function Dashboard() {
       return [];
     }
   });
+  const [showMethodology, setShowMethodology] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [showMethodology, setShowMethodology] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showBudgetPanel, setShowBudgetPanel] = useState(false);
   const [userCostProfile, setUserCostProfile] = useState<UserCostProfile>(() => {
     try {
       const saved = localStorage.getItem('budget-profile');
       const base: UserCostProfile = saved ? JSON.parse(saved) : DEFAULT_USER_COST_PROFILE;
-      // Pre-populate household members from landing form (overrides saved if provided)
-      if (landingFamilyMembers.length > 0) {
+      // Pre-populate household members from landing form (overrides saved whenever landing state was passed, including empty)
+      if (locationState?.familyMembers !== undefined) {
         return {
           ...base,
           householdMembers: landingFamilyMembers.map((m) => ({ id: m.id, ageGroup: m.ageGroup })),
@@ -332,14 +331,14 @@ export default function Dashboard() {
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const hasCustomWeights = weights.taxes !== 2 || weights.cost !== 2 || weights.benefits !== 2;
-  const totalActiveCount = activeFiltersCount + excludedStates.length;
+  const customWeightsCount = (weights.taxes !== 2 ? 1 : 0) + (weights.cost !== 2 ? 1 : 0) + (weights.benefits !== 2 ? 1 : 0);
+  const totalActiveCount = activeFiltersCount + excludedStates.length + customWeightsCount;
 
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="border-b bg-white sticky top-0 z-40 shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" onClick={() => navigate('/')} className="gap-2">
                 <ArrowLeft className="w-4 h-4" />
@@ -366,10 +365,9 @@ export default function Dashboard() {
                     transition={{ duration: 0.18 }}
                     className="hidden lg:flex items-center gap-2 pl-4 ml-1 border-l border-slate-200 text-sm"
                   >
-                    <DollarSign className="w-3.5 h-3.5 text-blue-500 shrink-0" />
                     {headerEditingIncome ? (
                       <span className="inline-flex items-baseline gap-px">
-                        <span className="font-semibold text-slate-900">$</span>
+                        <span className="text-sm font-semibold text-slate-900">$</span>
                         <input
                           autoFocus
                           type="number"
@@ -385,20 +383,20 @@ export default function Dashboard() {
                           }}
                           className="w-20 text-sm font-semibold text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
                         />
-                        <span className="font-semibold text-slate-900">/mo pension</span>
+                        <span className="text-sm font-semibold text-slate-900">/mo pension</span>
                       </span>
                     ) : (
                       <button
                         onClick={startHeaderEditIncome}
-                        className="font-semibold text-slate-900 hover:text-blue-600 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
+                        className="text-sm font-semibold text-slate-900 hover:text-blue-600 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
                       >
                         {fmt$(financialInputs.retirementIncome / 12)}/mo pension
                       </button>
                     )}
                     {hasHeaderDisability && (
                       <>
-                        <span className="text-slate-400">+</span>
-                        <span className="font-semibold text-slate-900 whitespace-nowrap">VA disability ({<select
+                        <span className="text-sm text-slate-400">+</span>
+                        <span className="text-sm font-semibold text-slate-900 whitespace-nowrap">VA disability ({<select
                           value={financialInputs.disabilityRating}
                           onChange={(e) => handleChangeInputs({ ...financialInputs, disabilityRating: e.target.value || 'none' })}
                           className="text-sm font-semibold text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer appearance-none"
@@ -410,7 +408,7 @@ export default function Dashboard() {
                     {!hasHeaderDisability && (
                       <button
                         onClick={() => handleChangeInputs({ ...financialInputs, disabilityRating: '50' })}
-                        className="text-xs text-blue-500 hover:text-blue-700 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
+                        className="text-sm text-blue-500 hover:text-blue-700 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
                       >
                         + Add VA disability
                       </button>
@@ -421,6 +419,10 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2">
+              <Button variant="ghost" onClick={() => navigate('/sources')} className="gap-2">
+                <BookOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Sources</span>
+              </Button>
               {favorites.length > 0 && (
                 <Button variant="outline" onClick={() => setShowComparison(true)} className="gap-2">
                   <Scale className="w-4 h-4 text-blue-600" />
@@ -437,7 +439,7 @@ export default function Dashboard() {
                     setShowFilters(true);
                   }
                 }}
-                className="gap-2"
+                className={`gap-2 ${sidebarOpen ? 'bg-slate-100 border-slate-400 text-slate-900' : ''}`}
               >
                 <Filter className="w-4 h-4" />
                 <span className="hidden sm:inline">Filters</span>
@@ -446,7 +448,6 @@ export default function Dashboard() {
                 )}
               </Button>
             </div>
-          </div>
         </div>
       </header>
 
@@ -579,7 +580,7 @@ export default function Dashboard() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
-                    className="mt-2 mb-1 rounded-xl border border-slate-200 bg-slate-50 p-5 space-y-4 text-sm text-slate-600 overflow-hidden"
+                    className="mt-2 mb-1 space-y-4 text-sm text-slate-600"
                   >
                     <motion.p
                       initial={{ opacity: 0 }}
@@ -742,7 +743,7 @@ export default function Dashboard() {
                 transition={{ type: 'spring', stiffness: 300, damping: 30 }}
                 className="hidden lg:block w-80 flex-shrink-0"
               >
-                <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
+                <div className="sticky top-20 max-h-[calc(100vh-5.5rem)] overflow-y-auto">
                   <FilterPanel
                     filters={filters}
                     weights={weights}
@@ -755,19 +756,6 @@ export default function Dashboard() {
                     onIncludeState={handleIncludeState}
                     onExcludeAll={handleExcludeAll}
                   />
-                  {(totalActiveCount > 0 || hasCustomWeights) && (
-                    <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-blue-900">Custom Settings Active</span>
-                        <Button variant="ghost" size="sm" onClick={handleReset} className="h-6 text-xs">
-                          Clear
-                        </Button>
-                      </div>
-                      {hasCustomWeights && <p className="text-xs text-blue-700">Custom priority weights applied</p>}
-                      {activeFiltersCount > 0 && <p className="text-xs text-blue-700">{activeFiltersCount} filter{activeFiltersCount !== 1 ? 's' : ''} active</p>}
-                      {excludedStates.length > 0 && <p className="text-xs text-blue-700">{excludedStates.length} state{excludedStates.length !== 1 ? 's' : ''} excluded</p>}
-                    </div>
-                  )}
                 </div>
               </motion.aside>
             )}

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'motion/react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
 import type { StateData } from '../data/stateData';
@@ -13,8 +14,8 @@ import type { RiskLevel } from '../data/climateData';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Separator } from '../components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Tabs, TabsContent } from '../components/ui/tabs';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '../components/ui/accordion';
 import {
   ArrowLeft,
   ChevronLeft,
@@ -46,6 +47,8 @@ import {
   Mountain,
   GitCompare,
   Briefcase,
+  Plane,
+  BookOpen,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import StateShapeMap from '../components/StateShapeMap';
@@ -235,6 +238,15 @@ export default function StateDetail() {
     catch { return []; }
   });
   const [showComparison, setShowComparison] = useState(false);
+  const [resourceTab, setResourceTab] = useState<'va' | 'installations'>('va');
+  const [showInstallations, setShowInstallations] = useState(false);
+
+  const handleResourceTabChange = (v: string) => {
+    const tab = v as 'va' | 'installations';
+    setResourceTab(tab);
+    if (tab === 'installations') setShowInstallations(true);
+    else setShowInstallations(false);
+  };
   const isFavorite = state ? favorites.includes(state.id) : false;
 
   const saveFavorites = (next: string[]) => {
@@ -409,8 +421,12 @@ export default function StateDetail() {
               </Button>
             </div>
 
-            {/* Right: app name */}
+            {/* Right: sources link + app name */}
             <div className="flex items-center gap-2 shrink-0">
+              <Button variant="ghost" onClick={() => navigate('/sources')} className="gap-2">
+                <BookOpen className="w-4 h-4" />
+                <span className="hidden sm:inline">Sources</span>
+              </Button>
               <Shield className="w-5 h-5 text-blue-600" />
               <span className="font-semibold hidden md:inline text-sm">Military Retirement Advisor</span>
             </div>
@@ -629,84 +645,118 @@ export default function StateDetail() {
               <Building2 className="w-3.5 h-3.5 text-blue-600" />
               <span className="text-xs font-semibold text-slate-700">VA Facilities Map</span>
             </div>
-            <StateShapeMap key={state.id} stateId={state.id} stateName={state.name} height={facilityPanelHeight} />
+            <StateShapeMap key={state.id} stateId={state.id} stateName={state.name} height={facilityPanelHeight} showInstallations={showInstallations} onShowInstallationsChange={setShowInstallations} />
           </div>
 
           {/* Facility Directory — tabbed */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col h-full">
-            <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-3 flex-shrink-0">
+            <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2 pb-3 mb-3 border-b border-slate-200 flex-shrink-0 -mx-4 px-4">
               <MapPin className="w-4 h-4 text-blue-600" />
               Military Resources
               <span className="ml-auto text-xs font-normal text-slate-400">Tap to open in Maps</span>
             </h2>
 
-            <Tabs defaultValue="va" className="flex flex-col flex-1 min-h-0">
-              <TabsList className="w-full mb-3 flex-shrink-0">
-                <TabsTrigger value="va" className="flex-1 text-xs">
-                  VA Facilities ({allFacilities.length})
-                </TabsTrigger>
-                <TabsTrigger value="installations" className="flex-1 text-xs">
-                  Installations ({stateInstallations.length})
-                </TabsTrigger>
-              </TabsList>
+            <Tabs value={resourceTab} onValueChange={handleResourceTabChange} className="flex flex-col flex-1 min-h-0">
+              <div className="flex rounded-full bg-slate-100 p-1 mb-3 flex-shrink-0 text-xs font-medium">
+                {([
+                  { value: 'va', label: `VA Facilities (${allFacilities.length})` },
+                  { value: 'installations', label: `Installations (${stateInstallations.length})` },
+                ] as const).map(({ value, label }) => {
+                  const active = resourceTab === value;
+                  return (
+                    <button
+                      key={value}
+                      onClick={() => handleResourceTabChange(value)}
+                      className={`relative flex-1 px-3 py-1.5 rounded-full transition-colors z-10 ${active ? 'text-white' : 'text-slate-500 hover:text-slate-700'}`}
+                    >
+                      {active && (
+                        <motion.div
+                          layoutId="resource-tab-pill"
+                          className="absolute inset-0 bg-blue-600 rounded-full shadow-sm"
+                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                          style={{ zIndex: -1 }}
+                        />
+                      )}
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
 
-              <TabsContent value="va" className="flex-1 overflow-y-auto space-y-4 mt-0">
-                {vamcs.length > 0 && (
-                  <div>
-                    <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
-                      Medical Centers ({vamcs.length})
-                    </div>
-                    <ul className={vamcs.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
-                      {vamcs.map((f, i) => (
-                        <li key={i}>
-                          <a
-                            href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline py-0.5"
+              <TabsContent value="va" className="flex-1 overflow-y-auto mt-0">
+                <div className="space-y-4">
+                  {vamcs.length > 0 && (
+                    <div>
+                      <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-2">
+                        Medical Centers ({vamcs.length})
+                      </div>
+                      <ul className={vamcs.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                        {vamcs.map((f, i) => (
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, delay: i * 0.04, ease: 'easeOut' }}
                           >
-                            <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
-                            <span>{f.name}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {clinics.length > 0 && (
-                  <div>
-                    <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">
-                      Clinics ({clinics.length})
+                            <a
+                              href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline py-0.5"
+                            >
+                              <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
+                              <span>{f.name}</span>
+                            </a>
+                          </motion.li>
+                        ))}
+                      </ul>
                     </div>
-                    <ul className={clinics.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
-                      {clinics.map((f, i) => (
-                        <li key={i}>
-                          <a
-                            href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-start gap-2 text-sm text-green-600 hover:text-green-800 hover:underline py-0.5"
-                          >
-                            <MapPin className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
-                            <span>{f.name}</span>
-                          </a>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                  )}
 
-                {allFacilities.length === 0 && (
-                  <p className="text-sm text-slate-400 italic">No facility data available.</p>
-                )}
+                  {clinics.length > 0 && (
+                    <div>
+                      <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">
+                        Clinics ({clinics.length})
+                      </div>
+                      <ul className={clinics.length > 6 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
+                        {clinics.map((f, i) => (
+                          <motion.li
+                            key={i}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.2, delay: (vamcs.length + i) * 0.04, ease: 'easeOut' }}
+                          >
+                            <a
+                              href={`https://maps.google.com/?q=${encodeURIComponent(f.address ?? f.name + ', ' + state.name)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-start gap-2 text-sm text-green-600 hover:text-green-800 hover:underline py-0.5"
+                            >
+                              <MapPin className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
+                              <span>{f.name}</span>
+                            </a>
+                          </motion.li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {allFacilities.length === 0 && (
+                    <p className="text-sm text-slate-400 italic">No facility data available.</p>
+                  )}
+                </div>
               </TabsContent>
 
               <TabsContent value="installations" className="flex-1 overflow-y-auto mt-0">
                 {stateInstallations.length > 0 ? (
                   <ul className={stateInstallations.length > 8 ? 'grid grid-cols-2 gap-x-4 gap-y-1' : 'space-y-1'}>
-                    {stateInstallations.map((inst) => (
-                      <li key={inst.id}>
+                    {stateInstallations.map((inst, i) => (
+                      <motion.li
+                        key={inst.id}
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2, delay: i * 0.04, ease: 'easeOut' }}
+                      >
                         <a
                           href={`https://maps.google.com/?q=${encodeURIComponent(inst.name + ', ' + state.name)}`}
                           target="_blank"
@@ -717,7 +767,7 @@ export default function StateDetail() {
                           <span className="flex-shrink-0 mt-0.5" style={{ color: '#7a8c3a' }}>★</span>
                           <span>{inst.name}</span>
                         </a>
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
                 ) : (
@@ -732,8 +782,13 @@ export default function StateDetail() {
         <div className="space-y-6">
             {/* Summary Card */}
             <Card>
-              <CardHeader>
-                <CardTitle>
+              <CardHeader className="border-b">
+                <CardTitle className="flex items-center gap-2">
+                  {computedScore >= 85
+                    ? <Star className="w-5 h-5 text-green-500" />
+                    : computedScore >= 70
+                      ? <CheckCircle2 className="w-5 h-5 text-blue-500" />
+                      : <AlertCircle className="w-5 h-5 text-amber-500" />}
                   Why {state.name}{' '}
                   {computedScore >= 85
                     ? 'is Great'
@@ -743,88 +798,146 @@ export default function StateDetail() {
                   for Your Retirement
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-green-700 mb-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5" />
-                    Advantages
-                  </h4>
-                  <ul className="space-y-2">
-                    {state.pros.map((pro, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="text-green-600 mt-1">✓</span>
-                        <span>{pro}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <Separator />
-                <div>
-                  <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5" />
-                    Considerations
-                  </h4>
-                  <ul className="space-y-2">
-                    {state.cons.map((con, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <span className="text-red-600 mt-1">⚠</span>
-                        <span>{con}</span>
-                      </li>
-                    ))}
-                  </ul>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
+                      <span className="text-xs font-semibold text-green-700 uppercase tracking-wider">Advantages</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {state.pros.map((pro, idx) => (
+                        <motion.span
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: idx * 0.04, duration: 0.2 }}
+                          className="inline-flex items-start gap-1.5 bg-green-50 border border-green-200 text-green-800 text-xs font-medium px-2.5 py-1.5 rounded-lg"
+                        >
+                          <CheckCircle2 className="w-3 h-3 text-green-500 flex-shrink-0 mt-0.5" />
+                          {pro}
+                        </motion.span>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <AlertCircle className="w-4 h-4 text-amber-600" />
+                      <span className="text-xs font-semibold text-amber-700 uppercase tracking-wider">Considerations</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {state.cons.map((con, idx) => (
+                        <motion.span
+                          key={idx}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: (state.pros.length + idx) * 0.04, duration: 0.2 }}
+                          className="inline-flex items-start gap-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium px-2.5 py-1.5 rounded-lg"
+                        >
+                          <AlertCircle className="w-3 h-3 text-amber-500 flex-shrink-0 mt-0.5" />
+                          {con}
+                        </motion.span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Military Benefits */}
             <Card>
-              <CardHeader>
+              <CardHeader className="border-b">
                 <CardTitle className="flex items-center gap-2">
                   <Star className="w-5 h-5 text-blue-600" />
                   Military-Specific Benefits
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {state.militaryBenefits.map((benefit, idx) => (
-                    <li key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                      <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span>{benefit}</span>
-                    </li>
+                    <motion.div
+                      key={idx}
+                      initial={{ opacity: 0, x: -6 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05, duration: 0.2 }}
+                      className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-colors"
+                    >
+                      <div className="w-1 self-stretch rounded-full bg-blue-400 flex-shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-slate-700">{benefit}</span>
+                    </motion.div>
                   ))}
-                  {(() => {
-                    const { inState, bordering } = getSpaceATerminalsByProximity(state.id);
-                    return (
-                      <>
-                        {inState.map((t) => (
-                          <li key={t.id} className="flex items-start gap-3 p-3 bg-violet-50 rounded-lg">
-                            <CheckCircle2 className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5" />
-                            <span>
-                              <span className="font-medium">Space-A Travel:</span> {t.name} ({t.base}) is located in-state —{' '}
-                              <a href={t.amcUrl} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline underline-offset-2">AMC Terminal Info</a>
+                </div>
+                {(() => {
+                  const { inState, bordering } = getSpaceATerminalsByProximity(state.id);
+                  const total = inState.length + bordering.length;
+                  if (total === 0) return null;
+                  return (
+                    <div className="rounded-xl border border-violet-200 bg-violet-50 p-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Terminals column */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <Plane className="w-4 h-4 text-violet-600" />
+                            <span className="text-sm font-semibold text-violet-800">Space-A Travel Access</span>
+                            <span className="ml-auto text-xs font-semibold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">
+                              {total} terminal{total !== 1 ? 's' : ''}
                             </span>
-                          </li>
-                        ))}
-                        {bordering.map((t) => (
-                          <li key={t.id} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                            <CheckCircle2 className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-                            <span className="text-slate-700">
-                              <span className="font-medium">Space-A (nearby):</span> {t.base}, {t.stateAbbr} — bordering state terminal{' '}
-                              <a href={t.amcUrl} target="_blank" rel="noopener noreferrer" className="text-violet-700 underline underline-offset-2">AMC Info</a>
-                            </span>
-                          </li>
-                        ))}
-                      </>
-                    );
-                  })()}
-                </ul>
+                          </div>
+                          <div className="space-y-2">
+                            {inState.map((t) => (
+                              <div key={t.id} className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-violet-500 flex-shrink-0 mt-1.5" />
+                                <span className="text-sm text-violet-900">
+                                  <span className="font-medium">{t.name}</span> ({t.base}) —{' '}
+                                  <a href={t.amcUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-violet-700">AMC Terminal Info</a>
+                                </span>
+                              </div>
+                            ))}
+                            {bordering.map((t) => (
+                              <div key={t.id} className="flex items-start gap-2 opacity-75">
+                                <div className="w-1.5 h-1.5 rounded-full bg-violet-300 flex-shrink-0 mt-1.5" />
+                                <span className="text-sm text-violet-800">
+                                  {t.base}, {t.stateAbbr} (bordering state) —{' '}
+                                  <a href={t.amcUrl} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-violet-700">AMC Info</a>
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Retiree eligibility column */}
+                        <div className="border-t border-violet-200 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-sm font-semibold text-violet-800">Retiree Eligibility</span>
+                          </div>
+                          <div className="space-y-2">
+                            {[
+                              'Category VI — lowest priority, flies when seats available',
+                              'Valid military retiree ID (DD-2765) required',
+                              'Dependents on ID card may travel with you',
+                              'OCONUS travel permitted (unlike active duty Cat IV/V)',
+                              'Sign up in person or via email at each terminal',
+                            ].map((text, i) => (
+                              <div key={i} className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0 mt-1.5" />
+                                <span className="text-sm text-violet-800">{text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
 
-            {/* Housing Market */}
+            {/* Housing Market + Economy side-by-side */}
+            {(housing || employment) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             {housing && (
-              <Card>
-                <CardHeader>
+              <Card className="h-full">
+                <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
                     <Home className="w-5 h-5 text-blue-600" />
                     Housing Market
@@ -907,8 +1020,8 @@ export default function StateDetail() {
             )}
             {/* Economy & Jobs */}
             {employment && (
-              <Card>
-                <CardHeader>
+              <Card className="h-full">
+                <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
                     <Briefcase className="w-5 h-5 text-blue-600" />
                     Economy &amp; Jobs
@@ -949,18 +1062,8 @@ export default function StateDetail() {
                     </div>
                   </div>
 
-                  {/* Defense contractor badge + industries */}
+                  {/* Top industries */}
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Defense Contractors</span>
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
-                        employment.defenseContractorPresence === 'High' ? 'bg-blue-100 text-blue-700' :
-                        employment.defenseContractorPresence === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-slate-100 text-slate-500'
-                      }`}>
-                        {employment.defenseContractorPresence} Presence
-                      </span>
-                    </div>
                     <div className="flex flex-wrap gap-1.5">
                       {employment.topIndustries.map((industry) => (
                         <span key={industry} className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">
@@ -998,92 +1101,70 @@ export default function StateDetail() {
                 </CardContent>
               </Card>
             )}
+              </div>
+            )}
 
             {/* Veteran Perks — License/Registration & Medal Benefits */}
-            {stateVeteranPerks[state.id] && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Car className="w-5 h-5 text-blue-600" />
-                    License, Registration &amp; Military Honor Benefits
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-5">
-                  {stateVeteranPerks[state.id].vehicleRegistrationBenefits.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
-                        <Car className="w-4 h-4 text-slate-400" />
-                        Driver's License &amp; Vehicle Registration
-                      </h4>
-                      <ul className="space-y-2">
-                        {stateVeteranPerks[state.id].vehicleRegistrationBenefits.map((benefit, idx) => (
-                          <li key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg text-sm">
-                            <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
+            {stateVeteranPerks[state.id] && (() => {
+              const perks = stateVeteranPerks[state.id];
+              const sections = [
+                { value: 'dl',      label: "Driver's License & Vehicle Registration", items: perks.vehicleRegistrationBenefits, checkClass: 'text-green-600',   pillClass: 'bg-slate-50 text-slate-700'   },
+                { value: 'medal',   label: 'Military Medal & Honor Benefits',          items: perks.medalBenefits,               checkClass: 'text-yellow-500',  pillClass: 'bg-slate-50 text-slate-700'   },
+                { value: 'edu-r',   label: 'Education Benefits — Retiree',             items: perks.educationBenefits.retiree,   checkClass: 'text-blue-600',    pillClass: 'bg-blue-50 text-blue-900'     },
+                { value: 'edu-f',   label: 'Education Benefits — Spouse & Dependents', items: perks.educationBenefits.family,    checkClass: 'text-purple-600',  pillClass: 'bg-purple-50 text-purple-900' },
+              ].filter((s) => s.items.length > 0);
+              if (sections.length === 0) return null;
+              return (
+                <Card>
+                  <CardHeader className="border-b">
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-blue-600" />
+                      Veteran Perks &amp; Benefits
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <Accordion type="single" collapsible className="divide-y divide-slate-100">
+                      {sections.map((section) => (
+                          <AccordionItem key={section.value} value={section.value} className="border-0 px-6">
+                            <AccordionTrigger className="hover:no-underline py-4 gap-3">
+                              <span className="text-sm font-semibold text-slate-700 flex-1 text-left">{section.label}</span>
+                              <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mr-2 tabular-nums">
+                                {section.items.length} item{section.items.length !== 1 ? 's' : ''}
+                              </span>
+                            </AccordionTrigger>
+                            <AccordionContent className="pb-4">
+                              <ul className="space-y-2">
+                                {section.items.map((item, idx) => (
+                                  <motion.li
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.04, duration: 0.18 }}
+                                    className={`flex items-start gap-3 p-3 rounded-lg text-sm ${section.pillClass}`}
+                                  >
+                                    <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${section.checkClass}`} />
+                                    <span>{item}</span>
+                                  </motion.li>
+                                ))}
+                              </ul>
+                            </AccordionContent>
+                          </AccordionItem>
+                      ))}
+                    </Accordion>
+                    <div className="px-6 pb-2 pt-1">
+                      <p className="text-xs text-slate-400">
+                        Verify current eligibility requirements with your state DMV and official veteran services office.
+                      </p>
                     </div>
-                  )}
-                  {stateVeteranPerks[state.id].medalBenefits.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
-                        <Medal className="w-4 h-4 text-slate-400" />
-                        Military Medal &amp; Honor Benefits
-                      </h4>
-                      <ul className="space-y-2">
-                        {stateVeteranPerks[state.id].medalBenefits.map((benefit, idx) => (
-                          <li key={idx} className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg text-sm">
-                            <CheckCircle2 className="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {stateVeteranPerks[state.id].educationBenefits.retiree.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
-                        <GraduationCap className="w-4 h-4 text-slate-400" />
-                        Education Benefits — Retiree
-                      </h4>
-                      <ul className="space-y-2">
-                        {stateVeteranPerks[state.id].educationBenefits.retiree.map((benefit, idx) => (
-                          <li key={idx} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg text-sm">
-                            <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {stateVeteranPerks[state.id].educationBenefits.family.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-semibold text-slate-700 flex items-center gap-2 mb-2">
-                        <GraduationCap className="w-4 h-4 text-slate-400" />
-                        Education Benefits — Spouse &amp; Dependents
-                      </h4>
-                      <ul className="space-y-2">
-                        {stateVeteranPerks[state.id].educationBenefits.family.map((benefit, idx) => (
-                          <li key={idx} className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg text-sm">
-                            <CheckCircle2 className="w-4 h-4 text-purple-600 flex-shrink-0 mt-0.5" />
-                            <span>{benefit}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <p className="text-xs text-slate-400">
-                    Verify current eligibility requirements with your state DMV and official veteran services office.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {/* Climate & Natural Disaster Risk */}
             {climate && (
               <Card>
-                <CardHeader>
+                <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
                     <Thermometer className="w-5 h-5 text-orange-500" />
                     Climate &amp; Natural Disaster Risk

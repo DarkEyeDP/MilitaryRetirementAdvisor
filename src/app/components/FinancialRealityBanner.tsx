@@ -153,7 +153,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
   const monthlyPension = inputs.retirementIncome / 12;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm mb-6">
       {/* Header row */}
       <div className="px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex items-center justify-between mb-1">
@@ -288,11 +288,11 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
             {hasCustomizations && <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />}
           </div>
           <p className="text-2xl font-bold text-slate-900">
-            {fmt$(topState.breakdown.totalTrackedExpenses)}
+            {fmt$(best.breakdown.totalTrackedExpenses)}
           </p>
           <p className="text-xs text-slate-500 mt-1">Tax + insurance + utilities</p>
-          <p className="text-xs text-slate-400 mt-1">In {topState.state.name} (top ranked)</p>
-          {showTooltip === 'costs' && <BreakdownTooltip breakdown={topState.breakdown} profile={profile} />}
+          <p className="text-xs text-slate-400 mt-1">In {best.state.name} (lowest cost)</p>
+          {showTooltip === 'costs' && <BreakdownTooltip breakdown={best.breakdown} profile={profile} />}
         </div>
 
         {/* Best state */}
@@ -336,6 +336,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
           exit={{ height: 0, opacity: 0 }}
           transition={{ duration: 0.28, ease: 'easeInOut' }}
           style={{ overflow: 'hidden' }}
+          className="rounded-b-xl overflow-hidden"
         >
         <div className="px-6 py-5 bg-slate-50 border-t border-slate-100">
           <p className="text-slate-700 text-sm font-semibold mb-3">

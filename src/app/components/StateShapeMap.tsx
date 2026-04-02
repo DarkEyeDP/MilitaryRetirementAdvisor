@@ -40,6 +40,8 @@ interface Props {
   stateId: string;
   stateName: string;
   height?: number;
+  showInstallations?: boolean;
+  onShowInstallationsChange?: (value: boolean) => void;
 }
 
 // Fit the map view to the GeoJSON bounds after it loads
@@ -65,11 +67,16 @@ const TOPO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 // Simple cache so we only fetch once per session
 let topoCache: Topology | null = null;
 
-export default function StateShapeMap({ stateId, stateName, height = 380 }: Props) {
+export default function StateShapeMap({ stateId, stateName, height = 380, showInstallations: showInstallationsProp, onShowInstallationsChange }: Props) {
   const [stateGeojson, setStateGeojson] = useState<GeoJsonObject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [showInstallations, setShowInstallations] = useState(false);
+  const [showInstallationsInternal, setShowInstallationsInternal] = useState(false);
+  const showInstallations = showInstallationsProp !== undefined ? showInstallationsProp : showInstallationsInternal;
+  const setShowInstallations = (value: boolean) => {
+    setShowInstallationsInternal(value);
+    onShowInstallationsChange?.(value);
+  };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const geoJsonRef = useRef<any>(null);
 

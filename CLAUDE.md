@@ -233,3 +233,10 @@ npm run build   # Production build
 - Do not hardcode dollar amounts or tax rates in component JSX — they belong in `src/app/data/`.
 - Do not add npm packages without checking if an existing dependency already covers the need. The project is already well-stocked with UI utilities.
 - Do not store sensitive user information (SSN, DOD ID, etc.) — this is a public advisory tool, not an authenticated service.
+
+---
+
+## Codebase Index
+
+Pre-built index files are in `.ai-codex/`. Read these FIRST before exploring the codebase:
+- `.ai-codex/lib.md` — library exports (data utilities, helper functions)

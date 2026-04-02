@@ -266,14 +266,14 @@ export default function BudgetCustomizerPanel({
                           <Input
                             type="number"
                             min={0}
-                            step={1000}
-                            value={src.annualAmount > 0 ? String(src.annualAmount) : ''}
-                            onChange={(e) => updateSecondaryAmount(src.id, Math.max(0, parseFloat(e.target.value) || 0))}
+                            step={100}
+                            value={src.annualAmount > 0 ? String(Math.round(src.annualAmount / 12)) : ''}
+                            onChange={(e) => updateSecondaryAmount(src.id, Math.max(0, parseFloat(e.target.value) || 0) * 12)}
                             className="h-8 text-sm text-right pl-5"
-                            placeholder="Annual"
+                            placeholder="Monthly"
                           />
                         </div>
-                        <span className="text-xs text-slate-400 shrink-0">/yr</span>
+                        <span className="text-xs text-slate-400 shrink-0">/mo</span>
                         <button
                           onClick={() => removeSecondarySource(src.id)}
                           className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"
@@ -290,10 +290,10 @@ export default function BudgetCustomizerPanel({
 
                   <div className="flex gap-2 flex-wrap">
                     <button
-                      onClick={() => addSecondarySource('Part-time work')}
+                      onClick={() => addSecondarySource('Income')}
                       className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-md px-2.5 py-1.5 transition-colors"
                     >
-                      <Plus className="w-3 h-3" />Part-time work
+                      <Plus className="w-3 h-3" />Income
                     </button>
                     <button
                       onClick={() => addSecondarySource('Spouse income')}
@@ -340,14 +340,17 @@ export default function BudgetCustomizerPanel({
                           <p className="text-xs text-slate-400 mt-0.5">Select a state to see avg</p>
                         )}
                       </div>
-                      <Input
-                        type="number"
-                        min={0}
-                        placeholder={field.avg !== null ? String(Math.round(field.avg)) : '0'}
-                        value={field.value !== null ? String(field.value) : ''}
-                        onChange={(e) => update({ [field.key]: parseOverride(e.target.value) })}
-                        className="w-28 text-right h-8 text-sm"
-                      />
+                      <div className="relative flex items-center w-28 shrink-0">
+                        <span className="absolute left-2 text-xs text-slate-400">$</span>
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder={field.avg !== null ? String(Math.round(field.avg)) : '0'}
+                          value={field.value !== null ? String(field.value) : ''}
+                          onChange={(e) => update({ [field.key]: parseOverride(e.target.value) })}
+                          className="w-28 text-right h-8 text-sm pl-5"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -416,16 +419,19 @@ export default function BudgetCustomizerPanel({
                       </Label>
                       <p className="text-xs text-slate-400 mt-0.5">Override the estimate above</p>
                     </div>
-                    <Input
-                      type="number"
-                      min={0}
-                      placeholder={
-                        calculatedGrocery > 0 ? String(Math.round(calculatedGrocery)) : '0'
-                      }
-                      value={profile.groceryOverride !== null ? String(profile.groceryOverride) : ''}
-                      onChange={(e) => update({ groceryOverride: parseOverride(e.target.value) })}
-                      className="w-28 text-right h-8 text-sm"
-                    />
+                    <div className="relative flex items-center w-28 shrink-0">
+                      <span className="absolute left-2 text-xs text-slate-400">$</span>
+                      <Input
+                        type="number"
+                        min={0}
+                        placeholder={
+                          calculatedGrocery > 0 ? String(Math.round(calculatedGrocery)) : '0'
+                        }
+                        value={profile.groceryOverride !== null ? String(profile.groceryOverride) : ''}
+                        onChange={(e) => update({ groceryOverride: parseOverride(e.target.value) })}
+                        className="w-28 text-right h-8 text-sm pl-5"
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -450,18 +456,21 @@ export default function BudgetCustomizerPanel({
                         onChange={(e) => updateLineItem(item.id, { label: e.target.value })}
                         className="flex-1 h-8 text-sm"
                       />
-                      <Input
-                        type="number"
-                        min={0}
-                        placeholder="$/mo"
-                        value={item.amount > 0 ? String(item.amount) : ''}
-                        onChange={(e) =>
-                          updateLineItem(item.id, {
-                            amount: Math.max(0, parseFloat(e.target.value) || 0),
-                          })
-                        }
-                        className="w-24 text-right h-8 text-sm"
-                      />
+                      <div className="relative flex items-center w-24 shrink-0">
+                        <span className="absolute left-2 text-xs text-slate-400">$</span>
+                        <Input
+                          type="number"
+                          min={0}
+                          placeholder="0"
+                          value={item.amount > 0 ? String(item.amount) : ''}
+                          onChange={(e) =>
+                            updateLineItem(item.id, {
+                              amount: Math.max(0, parseFloat(e.target.value) || 0),
+                            })
+                          }
+                          className="w-24 text-right h-8 text-sm pl-5"
+                        />
+                      </div>
                       <button
                         onClick={() => removeLineItem(item.id)}
                         className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors flex-shrink-0"

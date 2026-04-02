@@ -4,6 +4,8 @@ import Landing from './pages/Landing';
 import Dashboard from './pages/Dashboard';
 import StateDetail from './pages/StateDetail';
 import ComparisonPage from './pages/ComparisonPage';
+import ErrorPage from './pages/ErrorPage';
+import Sources from './pages/Sources';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -20,11 +22,14 @@ function ScrollToTop() {
 export const router = createHashRouter([
   {
     Component: ScrollToTop,
+    errorElement: <ErrorPage />,
     children: [
       { path: '/', Component: Landing },
       { path: '/dashboard', Component: Dashboard },
       { path: '/state/:stateId', Component: StateDetail },
       { path: '/compare', Component: ComparisonPage },
+      { path: '/sources', Component: Sources },
+      { path: '*', Component: ErrorPage },
     ],
   },
 ]);
