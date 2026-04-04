@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Marker, Popup, Pane, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, Marker, Popup, Pane, useMap, useMapEvents } from 'react-leaflet';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import type { GeoJsonObject } from 'geojson';
@@ -92,6 +92,22 @@ function CrosshairTracker({
   useEffect(() => { detect(); }, [detect]);
   return null;
 }
+
+const vamcIcon = L.divIcon({
+  html: `<div style="background:${VAMC_COLOR};border-radius:50%;width:16px;height:16px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35)"></div>`,
+  className: '',
+  iconSize: [16, 16],
+  iconAnchor: [8, 8],
+  popupAnchor: [0, -10],
+});
+
+const clinicIcon = L.divIcon({
+  html: `<div style="background:${CLINIC_COLOR};border-radius:50%;width:12px;height:12px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35)"></div>`,
+  className: '',
+  iconSize: [12, 12],
+  iconAnchor: [6, 6],
+  popupAnchor: [0, -8],
+});
 
 const planeIcon = L.divIcon({
   html: `<div style="background:${SPACE_A_COLOR};color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);line-height:1">✈</div>`,
@@ -324,8 +340,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
           )}
 
           {showVAMC && allFacilities.filter((f) => f.type !== 'clinic').map((f, i) => (
-            <CircleMarker key={`vamc-${i}`} center={[f.lat, f.lon]} radius={8}
-              pathOptions={{ color: '#ffffff', weight: 2, fillColor: VAMC_COLOR, fillOpacity: 0.9 }}>
+            <Marker key={`vamc-${i}`} position={[f.lat, f.lon]} icon={vamcIcon}>
               <Popup>
                 <div className="text-sm leading-snug max-w-[220px] space-y-1">
                   <div className="font-semibold">{f.name}</div>
@@ -334,12 +349,11 @@ export default function MapView({ states, customScores }: MapViewProps) {
                   {f.phone && <a href={`tel:${f.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">{f.phone}</a>}
                 </div>
               </Popup>
-            </CircleMarker>
+            </Marker>
           ))}
 
           {showClinics && allFacilities.filter((f) => f.type === 'clinic').map((f, i) => (
-            <CircleMarker key={`clinic-${i}`} center={[f.lat, f.lon]} radius={6}
-              pathOptions={{ color: '#ffffff', weight: 2, fillColor: CLINIC_COLOR, fillOpacity: 0.9 }}>
+            <Marker key={`clinic-${i}`} position={[f.lat, f.lon]} icon={clinicIcon}>
               <Popup>
                 <div className="text-sm leading-snug max-w-[220px] space-y-1">
                   <div className="font-semibold">{f.name}</div>
@@ -348,7 +362,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
                   {f.phone && <a href={`tel:${f.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">{f.phone}</a>}
                 </div>
               </Popup>
-            </CircleMarker>
+            </Marker>
           ))}
 
           {showInstallations && allInstallations.map((inst) => (
