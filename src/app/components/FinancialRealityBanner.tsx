@@ -153,10 +153,10 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
   const monthlyPension = inputs.retirementIncome / 12;
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm mb-6">
+    <div className="mb-6 md:bg-white md:rounded-xl md:border md:border-slate-200 md:shadow-sm">
       {/* Header row */}
       <div className="px-6 pt-5 pb-4 border-b border-slate-100">
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-1">
           <div className="flex items-center gap-1">
             <DollarSign className="w-4 h-4 text-blue-600" />
             <span className="text-blue-700 text-sm font-semibold tracking-wide uppercase">
@@ -176,7 +176,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
             </button>
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg px-3 py-1.5 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 border border-slate-200 hover:border-blue-200 rounded-lg px-3 py-1.5 transition-colors whitespace-nowrap"
             >
               {expanded ? 'Less detail' : 'Full breakdown'}
               {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}

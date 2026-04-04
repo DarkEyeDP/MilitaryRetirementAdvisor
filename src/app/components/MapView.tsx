@@ -181,7 +181,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-slate-200 p-6">
+      <div className="md:bg-white md:rounded-lg md:border md:border-slate-200 md:p-6">
         <div className="h-[540px] flex items-center justify-center text-slate-400 text-sm">
           Loading map…
         </div>
@@ -192,7 +192,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
   const isFiltered = states.length < statesData.length;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200 p-6">
+    <div className="md:bg-white md:rounded-lg md:border md:border-slate-200 md:p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-3 flex-wrap gap-3">
         <div>

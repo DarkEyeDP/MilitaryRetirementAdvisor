@@ -2,3 +2,33 @@
 @source '../**/*.{js,ts,jsx,tsx}';
 
 @import 'tw-animate-css';
+
+@layer base {
+  button, a, select, [role="button"], label,
+  input[type="checkbox"], input[type="radio"] {
+    cursor: pointer;
+  }
+
+  /* Crisp text rendering on Mac/WebKit */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Smooth anchor scroll + prevent iOS text-size inflation on orientation change */
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Remove gray tap-highlight flash on mobile (iOS/Android) */
+  button, a, select, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Consistent text selection color matching site blue theme */
+  ::selection {
+    background-color: #dbeafe; /* blue-100 */
+    color: #1e3a5f;            /* blue-950 */
+  }
+}
