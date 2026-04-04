@@ -56,7 +56,7 @@ function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdow
   const hasCustom = breakdown.groceryMonthly > 0 || breakdown.customExpensesMonthly > 0;
 
   return (
-    <div className="absolute z-50 top-full left-0 w-72 pt-2">
+    <div className="absolute z-50 top-full right-0 w-72 pt-2">
     <div className="bg-white border border-slate-200 rounded-lg shadow-xl p-4 text-sm">
       <p className="font-semibold text-slate-800 mb-3">Monthly Cost Breakdown</p>
       <div className="space-y-2">
@@ -304,6 +304,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
           className="px-5 py-4 relative"
           onMouseEnter={() => setShowTooltip('costs')}
           onMouseLeave={() => setShowTooltip(null)}
+          onClick={() => setShowTooltip(v => v === 'costs' ? null : 'costs')}
         >
           <div className="flex items-center gap-1 mb-1">
             <p className="text-slate-400 text-xs uppercase tracking-wide">Est. Monthly Costs</p>
