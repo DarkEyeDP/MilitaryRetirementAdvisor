@@ -24,8 +24,8 @@ import {
   MousePointer2,
   ChevronDown,
   Info,
-  BookOpen,
 } from 'lucide-react';
+import IconReadOutlined from '../components/ui/IconReadOutlined';
 
 const DISABILITY_RATINGS = ['10', '20', '30', '40', '50', '60', '70', '80', '90', '100'];
 import { toast } from 'sonner';
@@ -47,7 +47,25 @@ export default function Dashboard() {
     currentStateId?: string;
     familyMembers?: Array<{ id: string; role: string; ageGroup: import('../data/financialReality').AgeGroup }>;
     secondaryIncome?: import('../data/financialReality').SecondaryIncomeSource[];
+    hasSpouse?: boolean;
+    dependentChildren?: number;
   } | null;
+  // Derive dependent counts from saved budget members when no router state is present
+  const _savedBudgetMembers: Array<{ ageGroup: import('../data/financialReality').AgeGroup }> = (() => {
+    try {
+      const p = JSON.parse(localStorage.getItem('budget-profile') ?? 'null');
+      return p?.householdMembers ?? [];
+    } catch { return []; }
+  })();
+  const _initHasSpouse = locationState?.hasSpouse
+    ?? (_savedBudgetMembers.length > 0
+      ? _savedBudgetMembers.some(m => m.ageGroup === 'adult' || m.ageGroup === 'senior')
+      : localStorage.getItem('origin-has-spouse') === 'true');
+  const _initDependentChildren = locationState?.dependentChildren
+    ?? (_savedBudgetMembers.length > 0
+      ? _savedBudgetMembers.filter(m => ['under6', '6to12', '13to18'].includes(m.ageGroup)).length
+      : parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10));
+
   const [financialInputs, setFinancialInputs] = useState<FinancialInputs>({
     retirementIncome: locationState?.retirementIncome ?? 60000,
     disabilityRating: locationState?.disabilityRating
@@ -59,6 +77,8 @@ export default function Dashboard() {
         return stored ? JSON.parse(stored) : [];
       } catch { return []; }
     })(),
+    hasSpouse: _initHasSpouse,
+    dependentChildren: _initDependentChildren,
   });
 
   const handleChangeInputs = (updated: FinancialInputs) => {
@@ -156,8 +176,19 @@ export default function Dashboard() {
 
   const handleProfileChange = (profile: UserCostProfile) => {
     setUserCostProfile(profile);
+    // Sync VA disability dependent counts from household members.
+    // adult/senior age groups are treated as a spouse (max 1); under-18 groups are children.
+    const hasSpouse = profile.householdMembers.some(
+      m => m.ageGroup === 'adult' || m.ageGroup === 'senior'
+    );
+    const dependentChildren = profile.householdMembers.filter(
+      m => m.ageGroup === 'under6' || m.ageGroup === '6to12' || m.ageGroup === '13to18'
+    ).length;
+    setFinancialInputs(prev => ({ ...prev, hasSpouse, dependentChildren }));
     try {
       localStorage.setItem('budget-profile', JSON.stringify(profile));
+      localStorage.setItem('origin-has-spouse', String(hasSpouse));
+      localStorage.setItem('origin-dependent-children', String(dependentChildren));
     } catch { /* storage unavailable */ }
   };
 
@@ -204,10 +235,11 @@ export default function Dashboard() {
     strongJobMarket: false,
   });
 
-  const hasSchoolKids = landingFamilyMembers.some((m) => ['6to12', '13to18'].includes(m.ageGroup));
   const [weights, setWeights] = useState(() => {
-    // Boost benefits weight if user has school-age children — education benefits matter more
-    if (hasSchoolKids) return { taxes: 2, cost: 2, benefits: 3 };
+    try {
+      const saved = localStorage.getItem('dashboard-weights');
+      if (saved) return JSON.parse(saved) as { taxes: number; cost: number; benefits: number };
+    } catch { /* ignore */ }
     return { taxes: 2, cost: 2, benefits: 2 };
   });
 
@@ -216,7 +248,11 @@ export default function Dashboard() {
   };
 
   const handleWeightChange = (key: string, value: number) => {
-    setWeights((prev) => ({ ...prev, [key]: value }));
+    setWeights((prev) => {
+      const next = { ...prev, [key]: value };
+      try { localStorage.setItem('dashboard-weights', JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
   };
 
   const handleReset = () => {
@@ -233,6 +269,7 @@ export default function Dashboard() {
     setWeights({ taxes: 2, cost: 2, benefits: 2 });
     setExcludedStates([]);
     localStorage.removeItem('excluded-states');
+    localStorage.removeItem('dashboard-weights');
   };
 
   const toggleFavorite = (stateId: string) => {
@@ -337,7 +374,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="border-b bg-white sticky top-0 z-40 shadow-sm">
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" onClick={() => navigate('/')} className="gap-2">
@@ -420,7 +457,7 @@ export default function Dashboard() {
 
             <div className="flex items-center gap-2">
               <Button variant="ghost" onClick={() => navigate('/sources')} className="gap-2">
-                <BookOpen className="w-4 h-4" />
+                <IconReadOutlined className="w-4 h-4" />
                 <span className="hidden sm:inline">Sources</span>
               </Button>
               {favorites.length > 0 && (
@@ -659,7 +696,7 @@ export default function Dashboard() {
             {/* Card view hint */}
             {view === 'cards' && (
               <p className="text-xs text-slate-400 mb-3 flex items-center gap-1.5">
-                <MousePointer2 className="w-3.5 h-3.5" />
+                <MousePointer2 className="w-3.5 h-3.5" style={{ transform: 'scaleX(-1)' }} />
                 Click any card for detailed state information, tax breakdowns, VA facilities, and more
               </p>
             )}

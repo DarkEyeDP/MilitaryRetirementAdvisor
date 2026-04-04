@@ -9,6 +9,7 @@ import { getSpaceATerminalsByProximity } from '../data/spaceATerminals';
 import { militaryInstallations } from '../data/militaryInstallations';
 import { stateEmploymentData, NATIONAL_EMPLOYMENT } from '../data/employmentData';
 import { stateVeteranPerks } from '../data/veteranPerksData';
+import { stateVeteranUrls } from '../data/stateVeteranUrls';
 import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
 import { Button } from '../components/ui/button';
@@ -48,8 +49,9 @@ import {
   GitCompare,
   Briefcase,
   Plane,
-  BookOpen,
+  ExternalLink,
 } from 'lucide-react';
+import IconReadOutlined from '../components/ui/IconReadOutlined';
 import { toast } from 'sonner';
 import StateShapeMap from '../components/StateShapeMap';
 import ComparisonDrawer from '../components/ComparisonDrawer';
@@ -359,7 +361,7 @@ export default function StateDetail() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Sticky Header */}
-      <header className="border-b bg-white sticky top-0 z-40 shadow-sm">
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
 
@@ -424,7 +426,7 @@ export default function StateDetail() {
             {/* Right: sources link + app name */}
             <div className="flex items-center gap-2 shrink-0">
               <Button variant="ghost" onClick={() => navigate('/sources')} className="gap-2">
-                <BookOpen className="w-4 h-4" />
+                <IconReadOutlined className="w-4 h-4" />
                 <span className="hidden sm:inline">Sources</span>
               </Button>
               <Shield className="w-5 h-5 text-blue-600" />
@@ -496,7 +498,20 @@ export default function StateDetail() {
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-slate-400 mb-4">Military retirement profile · 2026 data</p>
+              <div className="flex items-center gap-3 mb-4">
+                <p className="text-sm text-slate-400">Military retirement profile · 2026 data</p>
+                {stateVeteranUrls[state.id] && (
+                  <a
+                    href={stateVeteranUrls[state.id]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-800"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    {state.name} Veteran Services
+                  </a>
+                )}
+              </div>
 
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
                 <div className="flex items-center gap-1.5">
@@ -1123,10 +1138,10 @@ export default function StateDetail() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <Accordion type="single" collapsible className="divide-y divide-slate-100">
+                    <Accordion type="single" collapsible>
                       {sections.map((section) => (
-                          <AccordionItem key={section.value} value={section.value} className="border-0 px-6">
-                            <AccordionTrigger className="hover:no-underline py-4 gap-3">
+                          <AccordionItem key={section.value} value={section.value} className="border-0 px-6 data-[state=closed]:hover:bg-slate-50 transition-colors">
+                            <AccordionTrigger className="hover:no-underline py-4 gap-3 border-t border-slate-200">
                               <span className="text-sm font-semibold text-slate-700 flex-1 text-left">{section.label}</span>
                               <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full mr-2 tabular-nums">
                                 {section.items.length} item{section.items.length !== 1 ? 's' : ''}

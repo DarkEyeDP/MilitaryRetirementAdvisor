@@ -166,6 +166,8 @@ export default function ComparisonPage() {
       try { return JSON.parse(localStorage.getItem('origin-secondary-income') || '[]'); }
       catch { return []; }
     })(),
+    hasSpouse: localStorage.getItem('origin-has-spouse') === 'true',
+    dependentChildren: parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10),
   };
 
   const userCostProfile: UserCostProfile =
@@ -207,7 +209,7 @@ export default function ComparisonPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <button onClick={() => navigate('/dashboard')} className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors flex-shrink-0">

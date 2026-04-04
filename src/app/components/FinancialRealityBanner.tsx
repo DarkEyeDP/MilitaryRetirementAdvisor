@@ -218,23 +218,38 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
           {hasDisability ? (
             <>
               <span>+</span>
-              <span className="text-slate-900 font-medium whitespace-nowrap">
-                {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability ({onChangeInputs ? (<select
-                    value={inputs.disabilityRating}
-                    onChange={handleDisabilityChange}
-                    className="text-sm font-medium text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer transition-colors appearance-none"
-                    style={{ width: `${inputs.disabilityRating?.length ?? 2}ch`, padding: 0 }}
-                  >{DISABILITY_RATINGS.map((r) => (<option key={r} value={r}>{r}</option>))}</select>) : inputs.disabilityRating}%)
+              <span className="inline-flex flex-col">
+                <span className="text-slate-900 font-medium whitespace-nowrap">
+                  {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability ({onChangeInputs ? (<select
+                      value={inputs.disabilityRating}
+                      onChange={handleDisabilityChange}
+                      className="text-sm font-medium text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer transition-colors appearance-none"
+                      style={{ width: `${inputs.disabilityRating?.length ?? 2}ch`, padding: 0 }}
+                    >{DISABILITY_RATINGS.map((r) => (<option key={r} value={r}>{r}</option>))}</select>) : inputs.disabilityRating}%)
+                  {onChangeInputs && (
+                    <button
+                      onClick={() => handleDisabilityChange({ target: { value: 'none' } } as React.ChangeEvent<HTMLSelectElement>)}
+                      className="text-xs text-slate-400 hover:text-red-500 transition-colors ml-1"
+                      title="Remove disability rating"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </span>
+                {(() => {
+                  const ratingNum = parseInt(inputs.disabilityRating ?? '0') || 0;
+                  if (ratingNum < 30) return <span className="text-xs text-slate-400">No dependent supplement (&lt;30%)</span>;
+                  const hasSpouse = inputs.hasSpouse;
+                  const children = inputs.dependentChildren ?? 0;
+                  if (!hasSpouse && children === 0) return <span className="text-xs text-slate-400">No dependents</span>;
+                  const parts = [
+                    hasSpouse && 'spouse',
+                    children === 1 && '1 child',
+                    children > 1 && `${children} children`,
+                  ].filter(Boolean);
+                  return <span className="text-xs text-slate-400">{parts.join(' + ')}</span>;
+                })()}
               </span>
-              {onChangeInputs && (
-                <button
-                  onClick={() => handleDisabilityChange({ target: { value: 'none' } } as React.ChangeEvent<HTMLSelectElement>)}
-                  className="text-xs text-slate-400 hover:text-red-500 transition-colors"
-                  title="Remove disability rating"
-                >
-                  ✕
-                </button>
-              )}
             </>
           ) : (
             onChangeInputs && (
@@ -246,12 +261,20 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
               </button>
             )
           )}
-          {(inputs.secondaryIncome ?? []).map((src) => (
-            <span key={src.id} className="flex items-baseline gap-1">
-              <span>+</span>
-              <span className="text-slate-900 font-medium whitespace-nowrap">{fmt$(src.annualAmount / 12)}/mo {src.label.toLowerCase()}</span>
-            </span>
-          ))}
+          {(() => {
+            const sources = inputs.secondaryIncome ?? [];
+            if (sources.length === 0) return null;
+            const totalMonthly = sources.reduce((sum, s) => sum + s.annualAmount / 12, 0);
+            const label = sources.length === 1
+              ? sources[0].label.toLowerCase()
+              : `${sources.length} additional sources`;
+            return (
+              <span className="flex items-baseline gap-1">
+                <span>+</span>
+                <span className="text-slate-900 font-medium whitespace-nowrap">{fmt$(totalMonthly)}/mo {label}</span>
+              </span>
+            );
+          })()}
           <span>across</span>
           <span className="text-slate-900 font-medium">{results.length} states</span>
         </p>

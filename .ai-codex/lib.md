@@ -13,5 +13,8 @@ financialReality.ts
   fn calculateFinancialReality
   fn computeAllRealities
   fn fmt
+vaRates.ts
+  fn getVAMonthlyPay
+  fn combineRatings
 spaceATerminals.ts  fn getSpaceATerminalsByProximity
 stateData.ts  fn scoreTier

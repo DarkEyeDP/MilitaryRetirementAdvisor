@@ -152,11 +152,15 @@ export default function Landing() {
         localStorage.removeItem('origin-state-id');
         localStorage.removeItem('origin-retirement-income');
       }
+      const hasSpouse = familyMembers.some(m => m.role === 'spouse');
+      const dependentChildren = familyMembers.filter(m => m.role === 'child').length;
       localStorage.setItem('origin-disability-rating', disabilityRating || 'none');
       localStorage.setItem('origin-family-members', JSON.stringify(familyMembers));
       localStorage.setItem('origin-secondary-income', JSON.stringify(secondaryIncome));
+      localStorage.setItem('origin-has-spouse', String(hasSpouse));
+      localStorage.setItem('origin-dependent-children', String(dependentChildren));
       navigate('/dashboard', {
-        state: { retirementIncome, disabilityRating, currentStateId, familyMembers, secondaryIncome },
+        state: { retirementIncome, disabilityRating, currentStateId, familyMembers, secondaryIncome, hasSpouse, dependentChildren },
       });
     }, 1200);
   };
@@ -172,7 +176,7 @@ export default function Landing() {
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Your Finances</p>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="income" className="text-sm">Annual Retirement Income</Label>
+              <Label htmlFor="income" className="text-sm">Military Retirement Income</Label>
               <div className="text-right">
                 <span className="font-semibold text-blue-600 text-sm">${retirementIncome.toLocaleString()}</span>
                 <span className="text-xs text-slate-400 ml-1.5">${Math.round(retirementIncome / 12).toLocaleString()}/mo</span>
@@ -322,8 +326,14 @@ export default function Landing() {
                       min={0}
                       max={50000}
                       step={100}
-                      value={Math.round(src.annualAmount / 12)}
-                      onChange={(e) => updateSecondaryAmount(src.id, Number(e.target.value) * 12)}
+                      defaultValue={Math.round(src.annualAmount / 12)}
+                      key={src.id}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '' || val === '-') return;
+                        const n = parseFloat(val);
+                        if (!isNaN(n)) updateSecondaryAmount(src.id, n * 12);
+                      }}
                       className="w-full text-xs font-semibold text-slate-800 bg-transparent border-b border-slate-200 focus:border-blue-400 focus:outline-none"
                     />
                     <span className="text-xs text-slate-400 shrink-0">/mo</span>

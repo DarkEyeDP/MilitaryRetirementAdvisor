@@ -43,21 +43,33 @@ src/
 │   ├── components/
 │   │   ├── ui/              # shadcn/ui primitives — do not modify directly
 │   │   ├── figma/           # Figma-exported components — treat as reference only
+│   │   ├── BudgetCustomizerPanel.tsx
 │   │   ├── ComparisonDrawer.tsx
+│   │   ├── ComparisonMap.tsx
+│   │   ├── FinancialRealityBanner.tsx
 │   │   ├── FilterPanel.tsx
 │   │   ├── MapView.tsx
 │   │   ├── StateCard.tsx
 │   │   └── StateTable.tsx
 │   ├── pages/
-│   │   ├── Landing.tsx      # Route: /
-│   │   ├── Dashboard.tsx    # Route: /dashboard
-│   │   └── StateDetail.tsx  # Route: /state/:stateId
+│   │   ├── Landing.tsx        # Route: /
+│   │   ├── Dashboard.tsx      # Route: /dashboard
+│   │   ├── StateDetail.tsx    # Route: /state/:stateId
+│   │   ├── ComparisonPage.tsx # Route: /compare
+│   │   └── Sources.tsx        # Route: /sources
 │   ├── data/
-│   │   └── stateData.ts     # All 50 states — StateData interface + statesData array
-│   ├── routes.tsx           # createBrowserRouter config
-│   └── App.tsx              # RouterProvider root
+│   │   ├── stateData.ts       # All 50 states — StateData interface + statesData array
+│   │   ├── financialReality.ts # Financial calculation engine — calculateFinancialReality()
+│   │   ├── vaRates.ts         # VA disability rate tables + getVAMonthlyPay() + combineRatings()
+│   │   ├── financialData.ts   # Per-state financial data (property tax, insurance, utilities)
+│   │   ├── housingData.ts     # Per-state housing data (rent, home price trends)
+│   │   ├── climateData.ts     # Per-state climate data (temps, rainfall, disaster risks)
+│   │   ├── employmentData.ts  # Per-state employment data (unemployment, job growth, industries)
+│   │   └── vaFacilityLocations.ts # VA facility coordinates for map
+│   ├── routes.tsx             # createBrowserRouter config
+│   └── App.tsx                # RouterProvider root
 ├── imports/
-│   └── pasted_text/         # Raw reference material (markdown, notes)
+│   └── pasted_text/           # Raw reference material (markdown, notes)
 ├── styles/
 │   ├── index.css
 │   ├── fonts.css
@@ -79,6 +91,8 @@ Current routes:
 /                    → Landing.tsx
 /dashboard           → Dashboard.tsx
 /state/:stateId      → StateDetail.tsx
+/compare             → ComparisonPage.tsx
+/sources             → Sources.tsx
 ```
 
 Planned routes to add as features are built:
@@ -141,6 +155,65 @@ Default weights: taxes 40%, cost 30%, benefits 30%.
 
 ---
 
+## Financial Calculation Engine (`src/app/data/financialReality.ts`)
+
+`calculateFinancialReality(state, inputs, profile)` is the core function used on every page that shows financial breakdowns. It returns a `FinancialBreakdown` with full monthly income/expense itemization.
+
+```typescript
+interface FinancialInputs {
+  retirementIncome: number;        // Annual military pension ($)
+  disabilityRating: string;        // '10'–'100', 'none', or ''
+  secondaryIncome?: SecondaryIncomeSource[];
+  hasSpouse?: boolean;             // Affects VA disability pay at 30%+
+  dependentChildren?: number;      // Count of children under 18
+}
+```
+
+Key rules:
+- VA disability pay is **always federally tax-exempt** — never apply state tax to it
+- Military pension tax varies by state (`militaryPensionTax`: No / Partial / Yes)
+- Secondary income is taxed at the full state income tax rate
+- `hasSpouse` and `dependentChildren` are synced from Budget Customizer household members (adult/senior → spouse, under-18 age groups → child)
+
+---
+
+## VA Disability Rates (`src/app/data/vaRates.ts`)
+
+Single source of truth for all VA disability compensation. **Update this file each year when the VA publishes new COLA rates.**
+
+```typescript
+getVAMonthlyPay(rating, hasSpouse, dependentChildren) → number
+combineRatings(ratings[]) → number   // 38 CFR §4.25 whole-person formula
+```
+
+Rate tables exported: `VA_RATE_ALONE`, `VA_RATE_WITH_SPOUSE`, `VA_RATE_WITH_SPOUSE_ONE_CHILD`, `VA_RATE_ADDITIONAL_CHILD`, `VA_RATE_CHILD_NO_SPOUSE`.
+
+**Policy:** Dependent supplements only apply at 30%+. 10% and 20% ratings pay the same regardless of family size.
+
+Source: VA.gov official published rates, effective December 1, 2025 (2.8% COLA). URL: va.gov/disability/compensation-rates/veteran-rates/. Reference: 38 CFR Part 3 (compensation amounts), 38 CFR §4.25 (combined ratings formula).
+
+---
+
+## localStorage Keys
+
+User data persists across navigation via these keys:
+
+| Key | Value | Set by |
+|---|---|---|
+| `origin-state-id` | Current state abbreviation | Landing |
+| `origin-retirement-income` | Annual pension $ | Landing / Dashboard header |
+| `origin-disability-rating` | `'10'`–`'100'` or `'none'` | Landing / Dashboard header |
+| `origin-family-members` | JSON array of `LandingMember[]` | Landing |
+| `origin-secondary-income` | JSON array of `SecondaryIncomeSource[]` | Landing |
+| `origin-has-spouse` | `'true'` / `'false'` | Landing, Budget Customizer |
+| `origin-dependent-children` | Number string | Landing, Budget Customizer |
+| `budget-profile` | JSON `UserCostProfile` | Budget Customizer |
+| `comparison-favorites` | JSON string[] of state IDs | Dashboard |
+| `excluded-states` | JSON string[] of state IDs | Dashboard filters |
+| `landing-preferences` | JSON blob of Landing form state | Landing |
+
+---
+
 ## Component Conventions
 
 - **shadcn/ui components** live in `src/app/components/ui/`. Import them from `@/app/components/ui/<name>`. Do not rewrite these — they are managed primitives.
@@ -148,6 +221,23 @@ Default weights: taxes 40%, cost 30%, benefits 30%.
 - **Page components** handle routing, layout, and data orchestration only — keep business logic and UI out of pages when possible.
 - Prefer **composition over abstraction** — three similar JSX blocks beats a premature wrapper component.
 - Use **Lucide React** for icons by default. Fall back to MUI Icons only if the icon doesn't exist in Lucide.
+
+### Animation Pattern
+
+Use `motion/react` (Framer Motion v12). For animating table rows, use `motion.tr` directly — **do not** use `motion(TableRow)` because `TableRow` doesn't forward refs and the animation will get stuck at `opacity: 0`.
+
+```tsx
+const MotionTr = motion.tr;
+// ...
+<MotionTr
+  initial={{ opacity: 0, y: 6 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.2, delay: i * 0.04, ease: 'easeOut' }}
+  className="border-b hover:bg-slate-50 transition-colors"
+>
+```
+
+Tab content transitions use `motion.div` with `initial={{ opacity: 0, y: 8 }}`.
 
 ---
 
@@ -165,6 +255,7 @@ Default weights: taxes 40%, cost 30%, benefits 30%.
   - Partial pension: yellow badge
   - Taxed pension: red badge
 - Dark mode is supported via `next-themes`. Use `dark:` variants in Tailwind classes.
+- Sortable data tables: do **not** use `table-fixed` or `<colgroup>` — let the browser size columns naturally. Use `whitespace-nowrap` on headers and rely on the container's `overflow-x-auto` for any overflow.
 
 ---
 
@@ -174,7 +265,7 @@ The phases below represent a suggested build order, not a strict sequence. Jump 
 
 ### Phase 1 — Core Financial Tools
 - [ ] **Retirement Pay Calculator** — High-3 vs BRS comparison, years of service slider, rank selector, monthly/annual output. Include SBP cost toggle.
-- [ ] **VA Disability Estimator** — Ratings table, combined ratings formula, monthly compensation lookup.
+- [x] **VA Disability Estimator** — `getVAMonthlyPay()` + `combineRatings()` are built in `vaRates.ts`. Dependent-aware rates (spouse, children) are wired throughout the app. A dedicated calculator UI page is still to be built.
 - [ ] **TSP Withdrawal Planner** — Balance input, withdrawal strategy options (RMD, fixed %, fixed $), projected timeline.
 
 ### Phase 2 — Transition Planning
@@ -186,10 +277,10 @@ The phases below represent a suggested build order, not a strict sequence. Jump 
 - [ ] **Resource Directory** — Curated links to VA.gov, milConnect, MyArmyBenefits, TSP.gov, MilTax, VSO finder, base legal assistance.
 
 ### Phase 4 — Enhanced State Data
-- [ ] Add nearby military installations per state
+- [x] Add nearby military installations per state
 - [ ] Add school district quality data
 - [ ] Add healthcare system ratings per state
-- [ ] Improve map to use actual SVG US map instead of grid
+- [x] Improve map to use actual SVG US map instead of grid
 
 ### Phase 5 — Personalization
 - [ ] User profile: rank, years of service, branch, retirement date, disability rating
@@ -203,7 +294,7 @@ The phases below represent a suggested build order, not a strict sequence. Jump 
 This site is used by real people making major financial and life decisions. Data accuracy is critical.
 
 - State tax data should reflect the current tax year (2026). Cite the source in a comment when adding or updating a state's data.
-- VA disability compensation rates come from the VA's annual COLA adjustments.
+- VA disability compensation rates come from the VA's annual COLA adjustments. All dollar values live in `src/app/data/vaRates.ts` — update that file each year.
 - Military retirement pay formulas come from DoD Financial Management Regulation (FMR).
 - When in doubt, link to the official government source rather than presenting uncertain data as fact.
 - Always note the data year prominently in the UI (currently shown as "2026 Updated Data" on landing page — keep this current).
@@ -216,6 +307,7 @@ This site is used by real people making major financial and life decisions. Data
 npm i           # Install dependencies
 npm run dev     # Start Vite dev server (localhost:5173)
 npm run build   # Production build
+npx ai-codex    # Regenerate .ai-codex/ codebase index (run after significant changes)
 ```
 
 **No test framework is configured yet.** When adding one, prefer Vitest (already implied by Vite stack) + React Testing Library.
@@ -230,9 +322,10 @@ npm run build   # Production build
 - Do not modify files in `src/app/components/ui/` directly — these are shadcn/ui managed components. Extend them via wrapper components if needed.
 - Do not use `src/app/components/figma/` as a model for new components — these are Figma exports and may not follow the project's conventions.
 - Do not use MUI for new layout or page-level components — prefer Tailwind + shadcn/ui. MUI should remain confined to existing usages.
-- Do not hardcode dollar amounts or tax rates in component JSX — they belong in `src/app/data/`.
+- Do not hardcode dollar amounts or tax rates in component JSX — they belong in `src/app/data/`. VA disability dollar values specifically belong in `src/app/data/vaRates.ts`.
 - Do not add npm packages without checking if an existing dependency already covers the need. The project is already well-stocked with UI utilities.
 - Do not store sensitive user information (SSN, DOD ID, etc.) — this is a public advisory tool, not an authenticated service.
+- Do not use `motion(TableRow)` for animated table rows — use `motion.tr` directly (see Animation Pattern above).
 
 ---
 

@@ -18,23 +18,10 @@
 
 import { StateData } from './stateData';
 import { stateFinancialData } from './financialData';
+import { getVAMonthlyPay } from './vaRates';
 
-// ─── VA Disability Monthly Pay (2026, single veteran, no dependents) ────────
-// Source: VA.gov compensation rate tables (with 2.5% COLA from 2025)
-export const VA_DISABILITY_MONTHLY: Record<string, number> = {
-  '': 0,
-  none: 0,
-  '10': 175,
-  '20': 347,
-  '30': 537,
-  '40': 774,
-  '50': 1102,
-  '60': 1396,
-  '70': 1759,
-  '80': 2045,
-  '90': 2298,
-  '100': 3831,
-};
+// Re-export for any consumers that imported VA_DISABILITY_MONTHLY directly
+export { VA_RATE_ALONE as VA_DISABILITY_MONTHLY } from './vaRates';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -48,6 +35,8 @@ export interface FinancialInputs {
   retirementIncome: number;        // annual military pension ($)
   disabilityRating: string;        // '10'–'100', 'none', or ''
   secondaryIncome?: SecondaryIncomeSource[]; // taxed at full state rate
+  hasSpouse?: boolean;             // veteran has qualifying spouse — affects VA pay at 30%+
+  dependentChildren?: number;      // count of dependent children under 18
 }
 
 export type AgeGroup = 'under6' | '6to12' | '13to18' | 'adult' | 'senior';
@@ -164,7 +153,11 @@ export function calculateFinancialReality(
   }
 
   const monthlyPension = inputs.retirementIncome / 12;
-  const monthlyDisabilityPay = VA_DISABILITY_MONTHLY[inputs.disabilityRating] ?? 0;
+  const monthlyDisabilityPay = getVAMonthlyPay(
+    inputs.disabilityRating,
+    inputs.hasSpouse ?? false,
+    inputs.dependentChildren ?? 0,
+  );
   const totalMonthlyIncome = monthlyPension + monthlyDisabilityPay + monthlySecondaryIncome;
 
   // State income tax on military pension
