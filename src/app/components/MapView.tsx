@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import L from 'leaflet';
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Marker, Popup, Pane } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Marker, Popup, Pane, useMap, useMapEvents } from 'react-leaflet';
 import { feature } from 'topojson-client';
 import type { Topology } from 'topojson-specification';
 import type { GeoJsonObject } from 'geojson';
@@ -24,7 +24,6 @@ const CLINIC_COLOR = '#16a34a';
 const SPACE_A_COLOR = '#7c3aed';
 const INSTALLATION_COLOR = '#4b5320';
 
-// Reverse map: FIPS → state ID (both padded '01' and unpadded '1' forms)
 const fipsToStateId: Record<string, string> = {};
 Object.entries(stateFipsMap).forEach(([id, fips]) => {
   fipsToStateId[fips] = id;
@@ -41,6 +40,58 @@ const getScoreColor = (score: number) => {
   if (score >= 70) return '#eab308';
   return '#94a3b8';
 };
+
+// Ray-casting point-in-polygon for GeoJSON ring coordinates [lng, lat]
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function pointInPolygon(point: [number, number], rings: any[][][]): boolean {
+  const [lng, lat] = point;
+  const outer = rings[0];
+  let inside = false;
+  for (let i = 0, j = outer.length - 1; i < outer.length; j = i++) {
+    const [xi, yi] = outer[i];
+    const [xj, yj] = outer[j];
+    if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+// Detects which state is under the map center — used by the mobile crosshair
+function CrosshairTracker({
+  features,
+  onStateChange,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  features: any[];
+  onStateChange: (state: StateData | null) => void;
+}) {
+  const map = useMap();
+
+  const detect = useCallback(() => {
+    const { lng, lat } = map.getCenter();
+    const pt: [number, number] = [lng, lat];
+    for (const feat of features) {
+      const stateId = fipsToStateId[String(feat.id)];
+      const state = stateId ? stateById[stateId] : null;
+      if (!state) continue;
+      const geom = feat.geometry;
+      let found = false;
+      if (geom.type === 'Polygon') {
+        found = pointInPolygon(pt, geom.coordinates);
+      } else if (geom.type === 'MultiPolygon') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        found = geom.coordinates.some((poly: any[][][]) => pointInPolygon(pt, poly));
+      }
+      if (found) { onStateChange(state); return; }
+    }
+    onStateChange(null);
+  }, [map, features, onStateChange]);
+
+  useMapEvents({ moveend: detect, zoomend: detect });
+  useEffect(() => { detect(); }, [detect]);
+  return null;
+}
 
 const planeIcon = L.divIcon({
   html: `<div style="background:${SPACE_A_COLOR};color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:13px;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.35);line-height:1">✈</div>`,
@@ -90,6 +141,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
   const [loading, setLoading] = useState(true);
   const [hoveredState, setHoveredState] = useState<StateData | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const [crosshairState, setCrosshairState] = useState<StateData | null>(null);
 
   const [showVAMC, setShowVAMC] = useState(false);
   const [showClinics, setShowClinics] = useState(false);
@@ -97,6 +149,13 @@ export default function MapView({ states, customScores }: MapViewProps) {
   const [showSpaceA, setShowSpaceA] = useState(false);
 
   const filteredIds = useMemo(() => new Set(states.map((s) => s.id)), [states]);
+
+  // GeoJSON features extracted for crosshair point-in-polygon detection
+  const geoJsonFeatures = useMemo(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    () => (usGeoJson ? (usGeoJson as any).features ?? [] : []),
+    [usGeoJson]
+  );
 
   useEffect(() => {
     async function load() {
@@ -151,9 +210,13 @@ export default function MapView({ states, customScores }: MapViewProps) {
         : { fillOpacity: 0.6, weight: 1, color: '#ffffff' };
 
       layer.on({
-        click: () => navigate(`/state/${stateId}`),
+        // Mobile uses crosshair + "View full details" button — disable tap-to-navigate
+        click: () => {
+          if (window.innerWidth >= 768) navigate(`/state/${stateId}`);
+        },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         mouseover: (e: any) => {
+          if (window.innerWidth < 768) return;
           setHoveredState(state);
           setTooltipPos({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
           layer.setStyle({ fillOpacity: 0.85, weight: 3, color: '#0f172a' });
@@ -161,9 +224,11 @@ export default function MapView({ states, customScores }: MapViewProps) {
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         mousemove: (e: any) => {
+          if (window.innerWidth < 768) return;
           setTooltipPos({ x: e.originalEvent.clientX, y: e.originalEvent.clientY });
         },
         mouseout: () => {
+          if (window.innerWidth < 768) return;
           setHoveredState(null);
           layer.setStyle(baseStyle);
         },
@@ -172,11 +237,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
     [filteredIds, navigate],
   );
 
-  // Flatten all facilities across all 50 states for global rendering
-  const allFacilities = useMemo(
-    () => Object.values(vaFacilityLocations).flat(),
-    []
-  );
+  const allFacilities = useMemo(() => Object.values(vaFacilityLocations).flat(), []);
   const allInstallations = militaryInstallations;
 
   if (loading) {
@@ -195,24 +256,14 @@ export default function MapView({ states, customScores }: MapViewProps) {
     <div className="md:bg-white md:rounded-lg md:border md:border-slate-200 md:p-6">
       {/* Header */}
       <div className="flex items-start justify-between mb-3 flex-wrap gap-3">
-        <div>
-          <h3 className="font-semibold text-lg">Retirement Score by State</h3>
-        </div>
-
-        {/* Layer toggles */}
+        <h3 className="font-semibold text-lg">Retirement Score by State</h3>
         <div className="flex items-center gap-2 flex-wrap">
           <ToggleButton active={showVAMC} color={VAMC_COLOR} onClick={() => setShowVAMC((v) => !v)}>
-            <span
-              className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
-              style={{ backgroundColor: showVAMC ? 'white' : VAMC_COLOR }}
-            />
+            <span className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: showVAMC ? 'white' : VAMC_COLOR }} />
             VA Med Centers
           </ToggleButton>
           <ToggleButton active={showClinics} color={CLINIC_COLOR} onClick={() => setShowClinics((v) => !v)}>
-            <span
-              className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0"
-              style={{ backgroundColor: showClinics ? 'white' : CLINIC_COLOR }}
-            />
+            <span className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: showClinics ? 'white' : CLINIC_COLOR }} />
             VA Clinics
           </ToggleButton>
           <ToggleButton active={showInstallations} color={INSTALLATION_COLOR} onClick={() => setShowInstallations((v) => !v)}>
@@ -247,10 +298,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
       </div>
 
       {/* Map */}
-      <div
-        className="rounded-lg overflow-hidden border border-slate-100"
-        style={{ isolation: 'isolate' }}
-      >
+      <div className="relative rounded-lg overflow-hidden border border-slate-100" style={{ isolation: 'isolate' }}>
         <MapContainer
           center={[39.5, -98.35]}
           zoom={4}
@@ -264,136 +312,130 @@ export default function MapView({ states, customScores }: MapViewProps) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
 
-          {/* Choropleth — in lower pane so markers sit on top */}
           <Pane name="states-choropleth" style={{ zIndex: 300 }}>
             {usGeoJson && (
-              <GeoJSON
-                key={geoJsonKey}
-                data={usGeoJson}
-                style={styleFeature}
-                onEachFeature={onEachFeature}
-              />
+              <GeoJSON key={geoJsonKey} data={usGeoJson} style={styleFeature} onEachFeature={onEachFeature} />
             )}
           </Pane>
 
-          {/* VA Medical Centers — all states, shown whenever toggled on */}
-          {showVAMC &&
-            allFacilities
-              .filter((f) => f.type !== 'clinic')
-              .map((f, i) => (
-                <CircleMarker
-                  key={`vamc-${i}`}
-                  center={[f.lat, f.lon]}
-                  radius={8}
-                  pathOptions={{ color: '#ffffff', weight: 2, fillColor: VAMC_COLOR, fillOpacity: 0.9 }}
-                >
-                  <Popup>
-                    <div className="text-sm leading-snug max-w-[220px] space-y-1">
-                      <div className="font-semibold">{f.name}</div>
-                      <div className="text-xs text-gray-500 italic">VA Medical Center</div>
-                      {f.address && (
-                        <a
-                          href={`https://maps.google.com/?q=${encodeURIComponent(f.address)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline block"
-                        >
-                          {f.address}
-                        </a>
-                      )}
-                      {f.phone && (
-                        <a href={`tel:${f.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">
-                          {f.phone}
-                        </a>
-                      )}
-                    </div>
-                  </Popup>
-                </CircleMarker>
-              ))}
+          {/* Crosshair state tracker — runs whenever map moves */}
+          {geoJsonFeatures.length > 0 && (
+            <CrosshairTracker features={geoJsonFeatures} onStateChange={setCrosshairState} />
+          )}
 
-          {/* VA Clinics — all states, shown whenever toggled on */}
-          {showClinics &&
-            allFacilities
-              .filter((f) => f.type === 'clinic')
-              .map((f, i) => (
-                <CircleMarker
-                  key={`clinic-${i}`}
-                  center={[f.lat, f.lon]}
-                  radius={6}
-                  pathOptions={{ color: '#ffffff', weight: 2, fillColor: CLINIC_COLOR, fillOpacity: 0.9 }}
-                >
-                  <Popup>
-                    <div className="text-sm leading-snug max-w-[220px] space-y-1">
-                      <div className="font-semibold">{f.name}</div>
-                      <div className="text-xs text-gray-500 italic">VA Outpatient Clinic</div>
-                      {f.address && (
-                        <a
-                          href={`https://maps.google.com/?q=${encodeURIComponent(f.address)}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline block"
-                        >
-                          {f.address}
-                        </a>
-                      )}
-                      {f.phone && (
-                        <a href={`tel:${f.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">
-                          {f.phone}
-                        </a>
-                      )}
-                    </div>
-                  </Popup>
-                </CircleMarker>
-              ))}
+          {showVAMC && allFacilities.filter((f) => f.type !== 'clinic').map((f, i) => (
+            <CircleMarker key={`vamc-${i}`} center={[f.lat, f.lon]} radius={8}
+              pathOptions={{ color: '#ffffff', weight: 2, fillColor: VAMC_COLOR, fillOpacity: 0.9 }}>
+              <Popup>
+                <div className="text-sm leading-snug max-w-[220px] space-y-1">
+                  <div className="font-semibold">{f.name}</div>
+                  <div className="text-xs text-gray-500 italic">VA Medical Center</div>
+                  {f.address && <a href={`https://maps.google.com/?q=${encodeURIComponent(f.address)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline block">{f.address}</a>}
+                  {f.phone && <a href={`tel:${f.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">{f.phone}</a>}
+                </div>
+              </Popup>
+            </CircleMarker>
+          ))}
 
-          {/* Military installations — all states, shown whenever toggled on */}
-          {showInstallations &&
-            allInstallations.map((inst) => (
-              <Marker key={inst.id} position={[inst.lat, inst.lon]} icon={installationIcon}>
-                <Popup>
-                  <div className="text-sm leading-snug max-w-[240px] space-y-1">
-                    <div className="font-semibold">{inst.name}</div>
-                    <div className="text-xs font-medium" style={{ color: INSTALLATION_COLOR }}>
-                      Military Installation
-                    </div>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+          {showClinics && allFacilities.filter((f) => f.type === 'clinic').map((f, i) => (
+            <CircleMarker key={`clinic-${i}`} center={[f.lat, f.lon]} radius={6}
+              pathOptions={{ color: '#ffffff', weight: 2, fillColor: CLINIC_COLOR, fillOpacity: 0.9 }}>
+              <Popup>
+                <div className="text-sm leading-snug max-w-[220px] space-y-1">
+                  <div className="font-semibold">{f.name}</div>
+                  <div className="text-xs text-gray-500 italic">VA Outpatient Clinic</div>
+                  {f.address && <a href={`https://maps.google.com/?q=${encodeURIComponent(f.address)}`} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline block">{f.address}</a>}
+                  {f.phone && <a href={`tel:${f.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">{f.phone}</a>}
+                </div>
+              </Popup>
+            </CircleMarker>
+          ))}
 
-          {/* Space-A terminals — shown whenever toggled on */}
-          {showSpaceA &&
-            spaceATerminals.map((terminal) => (
-              <Marker key={terminal.id} position={[terminal.lat, terminal.lon]} icon={planeIcon}>
-                <Popup>
-                  <div className="text-sm leading-snug max-w-[240px] space-y-1">
-                    <div className="font-semibold">{terminal.name}</div>
-                    <div className="text-xs text-violet-700 font-medium">AMC Space-A Terminal</div>
-                    {terminal.phone && (
-                      <a href={`tel:${terminal.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">
-                        {terminal.phone}
-                      </a>
-                    )}
-                    <a
-                      href={terminal.amcUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline block"
-                    >
-                      AMC Terminal Info →
-                    </a>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
+          {showInstallations && allInstallations.map((inst) => (
+            <Marker key={inst.id} position={[inst.lat, inst.lon]} icon={installationIcon}>
+              <Popup>
+                <div className="text-sm leading-snug max-w-[240px] space-y-1">
+                  <div className="font-semibold">{inst.name}</div>
+                  <div className="text-xs font-medium" style={{ color: INSTALLATION_COLOR }}>Military Installation</div>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {showSpaceA && spaceATerminals.map((terminal) => (
+            <Marker key={terminal.id} position={[terminal.lat, terminal.lon]} icon={planeIcon}>
+              <Popup>
+                <div className="text-sm leading-snug max-w-[240px] space-y-1">
+                  <div className="font-semibold">{terminal.name}</div>
+                  <div className="text-xs text-violet-700 font-medium">AMC Space-A Terminal</div>
+                  {terminal.phone && <a href={`tel:${terminal.phone.replace(/\D/g, '')}`} className="text-xs text-blue-600 hover:underline block">{terminal.phone}</a>}
+                  <a href={terminal.amcUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline block">AMC Terminal Info →</a>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
         </MapContainer>
+
+        {/* Mobile crosshair — pointer-events-none so all touches pass through to the map */}
+        <div className="md:hidden absolute inset-0 flex items-center justify-center pointer-events-none z-[1000]">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none"
+            style={{ filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.65))' }}>
+            <circle cx="22" cy="22" r="17" stroke="white" strokeWidth="2.5" />
+            <circle cx="22" cy="22" r="3" fill="white" />
+            <line x1="22" y1="2" x2="22" y2="9" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="22" y1="35" x2="22" y2="42" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="2" y1="22" x2="9" y2="22" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+            <line x1="35" y1="22" x2="42" y2="22" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        {/* Mobile state preview card — pinned to bottom of map, pointer-events-auto for the button */}
+        {crosshairState && (
+          <div className="md:hidden absolute bottom-8 left-3 right-3 z-[1000] bg-white border border-slate-200 rounded-xl shadow-xl p-3 pointer-events-auto">
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-semibold text-sm text-slate-900">{crosshairState.name}</span>
+              <span className="text-sm font-bold"
+                style={{ color: getScoreColor(customScores?.[crosshairState.id] ?? crosshairState.retirementScore) }}>
+                {customScores?.[crosshairState.id] ?? crosshairState.retirementScore}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-x-3 gap-y-1 text-xs mb-3">
+              <div>
+                <p className="text-slate-400">Pension Tax</p>
+                <p className="font-medium text-slate-800">
+                  {crosshairState.militaryPensionTax === 'No' ? 'Exempt' : crosshairState.militaryPensionTax}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Income Tax</p>
+                <p className="font-medium text-slate-800">
+                  {crosshairState.stateIncomeTax === 0 ? 'None' : `${crosshairState.stateIncomeTax}%`}
+                </p>
+              </div>
+              <div>
+                <p className="text-slate-400">Cost of Living</p>
+                <p className="font-medium text-slate-800">{crosshairState.costOfLivingIndex}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(`/state/${crosshairState.id}`)}
+              className="w-full text-xs font-semibold text-blue-600 border border-blue-200 rounded-lg py-1.5 hover:bg-blue-50 transition-colors"
+            >
+              View full details →
+            </button>
+          </div>
+        )}
       </div>
 
-      <p className="mt-3 text-center text-xs text-slate-400">
+      {/* Hint text */}
+      <p className="hidden md:block mt-3 text-center text-xs text-slate-400">
         Hover to preview · Click any state to view full retirement details · Click markers for details
       </p>
+      <p className="md:hidden mt-3 text-center text-xs text-slate-400">
+        Pan to aim crosshair · Tap "View full details" to navigate · Tap markers for info
+      </p>
 
-      {/* Hover tooltip — rendered outside map to avoid z-index issues */}
+      {/* Desktop hover tooltip */}
       {hoveredState && (
         <div
           className="fixed z-[9999] pointer-events-none bg-white border border-slate-200 rounded-lg shadow-xl p-3 min-w-[190px]"
@@ -403,10 +445,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
           <div className="space-y-1 text-xs">
             <div className="flex justify-between gap-6">
               <span className="text-slate-500">Score</span>
-              <span
-                className="font-bold"
-                style={{ color: getScoreColor(customScores?.[hoveredState.id] ?? hoveredState.retirementScore) }}
-              >
+              <span className="font-bold" style={{ color: getScoreColor(customScores?.[hoveredState.id] ?? hoveredState.retirementScore) }}>
                 {customScores?.[hoveredState.id] ?? hoveredState.retirementScore}
               </span>
             </div>
