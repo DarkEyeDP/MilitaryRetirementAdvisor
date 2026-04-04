@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, Pane, useMap, useMapEvents } from 'react-leaflet';
 import { feature } from 'topojson-client';
@@ -158,6 +158,9 @@ export default function MapView({ states, customScores }: MapViewProps) {
   const [hoveredState, setHoveredState] = useState<StateData | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
   const [crosshairState, setCrosshairState] = useState<StateData | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const layersByStateId = useRef<Record<string, any>>({});
+  const prevCrosshairRef = useRef<StateData | null>(null);
 
   const [showVAMC, setShowVAMC] = useState(false);
   const [showClinics, setShowClinics] = useState(false);
@@ -225,6 +228,8 @@ export default function MapView({ states, customScores }: MapViewProps) {
         ? { fillOpacity: 0.65, weight: 1, color: '#ffffff' }
         : { fillOpacity: 0.6, weight: 1, color: '#ffffff' };
 
+      layersByStateId.current[stateId] = { layer, baseStyle };
+
       layer.on({
         // Mobile uses crosshair + "View full details" button — disable tap-to-navigate
         click: () => {
@@ -252,6 +257,23 @@ export default function MapView({ states, customScores }: MapViewProps) {
     },
     [filteredIds, navigate],
   );
+
+  // Apply/remove the bold-border highlight on the GeoJSON layer matching the crosshair state
+  useEffect(() => {
+    const prev = prevCrosshairRef.current;
+    if (prev) {
+      const entry = layersByStateId.current[prev.id];
+      if (entry) entry.layer.setStyle(entry.baseStyle);
+    }
+    if (crosshairState) {
+      const entry = layersByStateId.current[crosshairState.id];
+      if (entry) {
+        entry.layer.setStyle({ fillOpacity: 0.85, weight: 3, color: '#0f172a' });
+        entry.layer.bringToFront();
+      }
+    }
+    prevCrosshairRef.current = crosshairState;
+  }, [crosshairState]);
 
   const allFacilities = useMemo(() => Object.values(vaFacilityLocations).flat(), []);
   const allInstallations = militaryInstallations;
