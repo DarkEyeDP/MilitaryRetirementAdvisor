@@ -123,7 +123,7 @@ export default function ComparisonMap({ stateIds }: Props) {
 
   if (loading) {
     return (
-      <div className="w-full rounded-xl bg-slate-100 flex items-center justify-center" style={{ height: 500 }}>
+      <div className="w-full sm:rounded-xl bg-slate-100 flex items-center justify-center" style={{ height: 500 }}>
         <div className="text-slate-500 text-sm">Loading map…</div>
       </div>
     );
@@ -131,7 +131,7 @@ export default function ComparisonMap({ stateIds }: Props) {
 
   if (error) {
     return (
-      <div className="w-full rounded-xl bg-slate-100 flex items-center justify-center" style={{ height: 500 }}>
+      <div className="w-full sm:rounded-xl bg-slate-100 flex items-center justify-center" style={{ height: 500 }}>
         <div className="text-slate-500 text-sm">Map unavailable</div>
       </div>
     );
@@ -145,7 +145,7 @@ export default function ComparisonMap({ stateIds }: Props) {
   );
 
   return (
-    <div className="w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm" style={{ isolation: 'isolate' }}>
+    <div className="w-full sm:rounded-xl overflow-hidden sm:border sm:border-slate-200 sm:shadow-sm sm:mx-0" style={{ isolation: 'isolate' }}>
       <MapContainer
         center={[39.5, -98.35]}
         zoom={4}
@@ -271,7 +271,10 @@ export default function ComparisonMap({ stateIds }: Props) {
       </MapContainer>
 
       {/* Legend */}
-      <div className="px-4 py-3 bg-white border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
+      <div className="px-4 pt-3 pb-3 bg-white border-t border-slate-100 space-y-2.5">
+        {/* Click hint — centered */}
+        <p className="text-xs text-blue-500 text-center">Click markers for details</p>
+        {/* Marker types + installations toggle inline */}
         <div className="flex items-center gap-4 text-xs text-slate-600 flex-wrap">
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: VAMC_COLOR }} />
@@ -285,21 +288,6 @@ export default function ComparisonMap({ stateIds }: Props) {
             <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[9px]" style={{ backgroundColor: SPACE_A_COLOR }}>✈</div>
             <span>Space-A Terminal</span>
           </div>
-          <div className="w-px h-3 bg-slate-200" />
-          {stateIds.map((stateId, idx) => {
-            const facilities = vaFacilityLocations[stateId] ?? [];
-            const vamcCount = facilities.filter((f) => f.type !== 'clinic').length;
-            const clinicCount = facilities.filter((f) => f.type === 'clinic').length;
-            return (
-              <div key={stateId} className="flex items-center gap-1.5">
-                <div className="w-5 h-2 rounded-sm border" style={{ backgroundColor: STATE_FILL_COLORS[idx], borderColor: STATE_BORDER_COLORS[idx] }} />
-                <span className="font-medium text-slate-700">{stateNames[idx]}</span>
-                <span className="text-slate-400">{vamcCount} VMC · {clinicCount} clinics</span>
-              </div>
-            );
-          })}
-        </div>
-        <div className="flex items-center gap-3">
           {visibleInstallations.length > 0 && (
             <button
               onClick={() => setShowInstallations((v) => !v)}
@@ -314,7 +302,21 @@ export default function ComparisonMap({ stateIds }: Props) {
               <span>Installations ({visibleInstallations.length})</span>
             </button>
           )}
-          <p className="text-xs text-blue-500">Click markers for details</p>
+        </div>
+        {/* State facility counts */}
+        <div className="grid grid-cols-1 sm:flex sm:flex-wrap sm:gap-4 gap-1.5 text-xs">
+          {stateIds.map((stateId, idx) => {
+            const facilities = vaFacilityLocations[stateId] ?? [];
+            const vamcCount = facilities.filter((f) => f.type !== 'clinic').length;
+            const clinicCount = facilities.filter((f) => f.type === 'clinic').length;
+            return (
+              <div key={stateId} className="flex items-center gap-2">
+                <div className="w-5 h-2.5 rounded-sm border flex-shrink-0" style={{ backgroundColor: STATE_FILL_COLORS[idx], borderColor: STATE_BORDER_COLORS[idx] }} />
+                <span className="font-medium text-slate-700">{stateNames[idx]}</span>
+                <span className="text-slate-400">{vamcCount} VMC · {clinicCount} clinics</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -258,8 +258,9 @@ export default function MapView({ states, customScores }: MapViewProps) {
     [filteredIds, navigate],
   );
 
-  // Apply/remove the bold-border highlight on the GeoJSON layer matching the crosshair state
+  // Apply/remove the bold-border highlight on the GeoJSON layer matching the crosshair state (mobile only)
   useEffect(() => {
+    if (window.innerWidth >= 768) return;
     const prev = prevCrosshairRef.current;
     if (prev) {
       const entry = layersByStateId.current[prev.id];
@@ -295,7 +296,9 @@ export default function MapView({ states, customScores }: MapViewProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-3 flex-wrap gap-3">
         <h3 className="font-semibold text-lg">Retirement Score by State</h3>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex flex-col items-start md:items-end gap-1.5">
+          <span className="text-[10px] text-slate-400 italic">Click to toggle layers</span>
+          <div className="flex items-center gap-2 flex-wrap justify-start md:justify-end">
           <ToggleButton active={showVAMC} color={VAMC_COLOR} onClick={() => setShowVAMC((v) => !v)}>
             <span className="w-2.5 h-2.5 rounded-full inline-block flex-shrink-0" style={{ backgroundColor: showVAMC ? 'white' : VAMC_COLOR }} />
             VA Med Centers
@@ -310,6 +313,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
           <ToggleButton active={showSpaceA} color={SPACE_A_COLOR} onClick={() => setShowSpaceA((v) => !v)}>
             ✈ Space-A
           </ToggleButton>
+          </div>
         </div>
       </div>
 

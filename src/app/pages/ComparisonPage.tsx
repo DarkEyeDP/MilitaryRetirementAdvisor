@@ -74,9 +74,9 @@ function bestIdx(vals: number[], prefer: 'max' | 'min'): number {
 
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2.5">
-        <div className="w-8 h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+    <div className="border-t border-slate-200 pt-5 md:border-0 md:pt-0 md:bg-white md:rounded-2xl md:border md:border-slate-200 md:shadow-sm md:overflow-hidden">
+      <div className="flex items-center gap-2 mb-3 md:mb-0 md:px-6 md:py-4 md:border-b md:border-slate-100 md:gap-2.5">
+        <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
           {icon}
         </div>
         <h2 className="font-semibold text-slate-800 text-base">{title}</h2>
@@ -437,7 +437,7 @@ export default function ComparisonPage() {
 
       {/* Hero State Cards */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-2">
-        <div className={`grid gap-4 ${n === 1 ? 'grid-cols-1 max-w-sm' : n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+        <div className={`grid gap-4 ${n === 1 ? 'grid-cols-1 max-w-sm' : n === 2 ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1 sm:grid-cols-3'}`}>
           {states.map((s, idx) => {
             const score = scores[idx];
             const tier = scoreTier(score);
@@ -468,7 +468,7 @@ export default function ComparisonPage() {
                       <TaxIcon className="w-3 h-3" />{taxLabel}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5 text-xs">
+                  <div className="grid grid-cols-4 sm:grid-cols-2 gap-1.5 text-xs">
                     <div className="bg-slate-50 rounded-lg px-2.5 py-2">
                       <div className="text-slate-400 font-medium">Monthly income</div>
                       <div className="font-bold text-slate-800 mt-0.5">{fmt$(bd.totalMonthlyIncome)}</div>
@@ -570,7 +570,7 @@ export default function ComparisonPage() {
             <Row n={n} label="VA Clinics" values={states.map((s) => (vaFacilityLocations[s.id] ?? []).filter(f => f.type === 'clinic').length)} bestIdx={bestIdx(states.map(s => (vaFacilityLocations[s.id] ?? []).filter(f => f.type === 'clinic').length), 'max')} />
             <Row n={n} label="Total VA Locations" bold divider values={states.map((s) => (vaFacilityLocations[s.id] ?? []).length)} bestIdx={bestIdx(states.map(s => (vaFacilityLocations[s.id] ?? []).length), 'max')} />
           </CTable>
-          <div className="px-6 py-6 border-t border-slate-100 isolate">
+          <div className="border-t border-slate-100 isolate">
             <ComparisonMap stateIds={states.map((s) => s.id)} />
           </div>
         </Section>
@@ -583,10 +583,10 @@ export default function ComparisonPage() {
             <Row n={n} label="Humidity" values={states.map((s) => { const c = stateClimateData[s.id]; if (!c) return '—'; const cls = c.humidity === 'Low' ? 'text-green-600' : c.humidity === 'Moderate' ? 'text-yellow-600' : 'text-red-600'; return <span className={`font-semibold ${cls}`}>{c.humidity}</span>; })} />
             <Row n={n} label="Annual Rainfall" values={states.map((s) => { const c = stateClimateData[s.id]; return c ? `${c.annualRainfallInches}"` : '—'; })} />
           </CTable>
-          {/* Disaster risk grid */}
-          <div className="border-t border-slate-100 px-6 py-5">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Disaster Risk Levels</p>
-            <div className={`grid gap-3 ${n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          {/* Disaster risk — desktop: card grid; mobile: table rows */}
+          <div className="border-t border-slate-100">
+            {/* Desktop card grid */}
+            <div className={`hidden sm:grid gap-3 px-6 py-5 ${n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {states.map((s, idx) => {
                 const c = stateClimateData[s.id];
                 if (!c) return null;
@@ -599,7 +599,7 @@ export default function ComparisonPage() {
                   { label: 'Winter Storm', val: c.disasterRisk.winterStorm, Icon: Snowflake },
                 ];
                 return (
-                  <div key={s.id} className={`rounded-xl border p-3 ${STATE_COLORS[idx].lightBg} border-current border-opacity-20`} style={{ borderColor: undefined }}>
+                  <div key={s.id} className={`rounded-xl border p-3 ${STATE_COLORS[idx].lightBg}`}>
                     <div className={`text-xs font-bold mb-2.5 ${STATE_COLORS[idx].text}`}>{s.name}</div>
                     <div className="space-y-1.5">
                       {risks.map(({ label, val, Icon }) => (
@@ -612,6 +612,26 @@ export default function ComparisonPage() {
                   </div>
                 );
               })}
+            </div>
+            {/* Mobile CTable rows */}
+            <div className="sm:hidden">
+              <CTable states={stateEntries}>
+                {([
+                  { label: 'Hurricane', key: 'hurricane' as const, Icon: Wind },
+                  { label: 'Wildfire',  key: 'wildfire'  as const, Icon: Flame },
+                  { label: 'Flood',     key: 'flood'     as const, Icon: Waves },
+                  { label: 'Tornado',   key: 'tornado'   as const, Icon: TriangleAlert },
+                  { label: 'Earthquake',key: 'earthquake'as const, Icon: Mountain },
+                  { label: 'Winter Storm', key: 'winterStorm' as const, Icon: Snowflake },
+                ] as { label: string; key: keyof typeof stateClimateData[string]['disasterRisk']; Icon: React.ElementType }[]).map(({ label, key }) => (
+                  <Row key={label} n={n} label={label} values={states.map((s) => {
+                    const c = stateClimateData[s.id];
+                    if (!c) return '—';
+                    const val = c.disasterRisk[key];
+                    return <span className={`text-xs font-semibold px-1.5 py-0.5 rounded border ${riskColor(val)}`}>{val}</span>;
+                  })} />
+                ))}
+              </CTable>
             </div>
           </div>
         </Section>
@@ -662,10 +682,10 @@ export default function ComparisonPage() {
               bestIdx={bestIdx(states.map(s => { const e = stateEmploymentData[s.id]; return e?.defenseContractorPresence === 'High' ? 2 : e?.defenseContractorPresence === 'Medium' ? 1 : 0; }), 'max')}
             />
           </CTable>
-          {/* Top Industries — per-state pill lists */}
-          <div className="border-t border-slate-100 px-6 py-5">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Top Industries</p>
-            <div className={`grid gap-4 ${n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          {/* Top Industries — desktop: card grid; mobile: stacked rows */}
+          <div className="border-t border-slate-100">
+            {/* Desktop */}
+            <div className={`hidden sm:grid gap-4 px-6 py-5 ${n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
               {states.map((s, idx) => {
                 const e = stateEmploymentData[s.id];
                 if (!e) return null;
@@ -683,14 +703,32 @@ export default function ComparisonPage() {
                 );
               })}
             </div>
+            {/* Mobile stacked rows */}
+            <div className="sm:hidden divide-y divide-slate-100">
+              {states.map((s, idx) => {
+                const e = stateEmploymentData[s.id];
+                if (!e) return null;
+                return (
+                  <div key={s.id} className="flex items-start gap-3 px-3 py-3">
+                    <span className={`text-xs font-bold w-20 flex-shrink-0 pt-0.5 ${STATE_COLORS[idx].text}`}>{s.name}</span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {e.topIndustries.map((industry) => (
+                        <span key={industry} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">{industry}</span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </Section>
 
         {/* ── Section 7: Military Benefits ──────────────────────────────── */}
         <Section title="Military Benefits" icon={<ShieldCheck className="w-4 h-4" />}>
-          <div className={`grid gap-4 p-6 ${n === 1 ? 'grid-cols-1' : n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          {/* Desktop card grid */}
+          <div className={`hidden sm:grid gap-4 p-6 ${n === 1 ? 'grid-cols-1' : n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {states.map((s, idx) => (
-              <div key={s.id} className={`rounded-xl border p-4 space-y-3 ${STATE_COLORS[idx].lightBg}`} style={{ borderColor: undefined }}>
+              <div key={s.id} className={`rounded-xl border p-4 space-y-3 ${STATE_COLORS[idx].lightBg}`}>
                 <div className={`text-sm font-bold ${STATE_COLORS[idx].text}`}>{s.name}</div>
                 <ul className="space-y-2">
                   {s.militaryBenefits.map((benefit, i) => (
@@ -703,11 +741,28 @@ export default function ComparisonPage() {
               </div>
             ))}
           </div>
+          {/* Mobile stacked rows */}
+          <div className="sm:hidden divide-y divide-slate-100">
+            {states.map((s, idx) => (
+              <div key={s.id} className="flex items-start gap-3 px-3 py-3">
+                <span className={`text-xs font-bold w-20 flex-shrink-0 pt-0.5 ${STATE_COLORS[idx].text}`}>{s.name}</span>
+                <div className="flex flex-col gap-1.5">
+                  {s.militaryBenefits.map((benefit, i) => (
+                    <div key={i} className="flex items-start gap-1.5 text-xs text-slate-700">
+                      <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${STATE_COLORS[idx].dot}`} />
+                      {benefit}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </Section>
 
         {/* ── Section 7: Pros & Cons ────────────────────────────────────── */}
         <Section title="Pros &amp; Cons" icon={<Users className="w-4 h-4" />}>
-          <div className={`grid gap-4 p-6 ${n === 1 ? 'grid-cols-1' : n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+          {/* Desktop card columns */}
+          <div className={`hidden sm:grid gap-4 p-6 ${n === 1 ? 'grid-cols-1' : n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
             {states.map((s, idx) => (
               <div key={s.id} className="space-y-3">
                 <div className={`text-sm font-bold ${STATE_COLORS[idx].text}`}>{s.name}</div>
@@ -723,6 +778,28 @@ export default function ComparisonPage() {
                   {s.cons.map((c, i) => (
                     <div key={i} className="flex items-start gap-2 text-sm">
                       <XCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-slate-600">{c}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Mobile stacked rows */}
+          <div className="sm:hidden divide-y divide-slate-100">
+            {states.map((s, idx) => (
+              <div key={s.id} className="px-3 py-3">
+                <div className={`text-xs font-bold mb-2 ${STATE_COLORS[idx].text}`}>{s.name}</div>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                  {s.pros.map((p, i) => (
+                    <div key={`p${i}`} className="flex items-start gap-1.5 text-xs">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-slate-700">{p}</span>
+                    </div>
+                  ))}
+                  {s.cons.map((c, i) => (
+                    <div key={`c${i}`} className="flex items-start gap-1.5 text-xs">
+                      <XCircle className="w-3.5 h-3.5 text-red-400 flex-shrink-0 mt-0.5" />
                       <span className="text-slate-600">{c}</span>
                     </div>
                   ))}

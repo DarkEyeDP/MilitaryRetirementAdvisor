@@ -239,10 +239,10 @@ export default function ComparisonDrawer({
             {/* Full comparison link */}
             <button
               onClick={() => { onClose(); navigate('/compare'); }}
-              className="w-full flex items-center justify-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 rounded-lg py-2.5 transition-colors"
+              className="w-full flex items-center justify-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 hover:border-blue-300 rounded-lg py-2.5 transition-colors whitespace-nowrap"
             >
               <ExternalLink className="w-4 h-4" />
-              Open full comparison with financial breakdown &amp; map
+              Full Comparison &amp; Financial Breakdown
             </button>
 
             {/* Metrics table — only when 2+ states */}
