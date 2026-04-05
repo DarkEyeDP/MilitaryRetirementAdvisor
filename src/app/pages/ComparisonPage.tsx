@@ -13,7 +13,7 @@ import {
   ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck,
   CheckCircle2, AlertCircle, XCircle, TrendingUp, TrendingDown,
   Home, Users, Thermometer, Wind, Flame, Waves, Snowflake,
-  TriangleAlert, Mountain, Shield, Briefcase,
+  TriangleAlert, Mountain, Shield, Briefcase, Plus, X,
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
@@ -142,12 +142,215 @@ function CTable({ states, children }: { states: { name: string; idx: number }[];
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+// ─── Empty-state slot components ─────────────────────────────────────────────
+
+function StateSlot({
+  selected,
+  takenIds,
+  searching,
+  onOpenSearch,
+  onCloseSearch,
+  onAdd,
+  onRemove,
+}: {
+  selected: (typeof statesData)[0] | null;
+  takenIds: string[];
+  searching: boolean;
+  onOpenSearch: () => void;
+  onCloseSearch: () => void;
+  onAdd: (id: string) => void;
+  onRemove: () => void;
+}) {
+  const [query, setQuery] = useState('');
+
+  const filtered = statesData
+    .filter((s) => !takenIds.includes(s.id))
+    .filter(
+      (s) =>
+        !query ||
+        s.name.toLowerCase().includes(query.toLowerCase()) ||
+        s.abbreviation.toLowerCase().startsWith(query.toLowerCase()),
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (selected) {
+    const score = calculateCustomScore(selected, DEFAULT_SCORE_WEIGHTS);
+    return (
+      <div className="relative border-2 border-slate-200 rounded-xl p-4 bg-white min-h-36 flex flex-col items-center justify-center">
+        <button
+          onClick={onRemove}
+          className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+        >
+          <X className="w-3 h-3" />
+        </button>
+        <div className={`text-3xl font-bold ${getScoreColor(score)}`}>{score}</div>
+        <div className="text-[10px] text-slate-400 mt-0.5 uppercase tracking-wide">Retirement Score</div>
+        <div className="font-semibold text-slate-800 mt-2 text-center leading-tight">{selected.name}</div>
+        <div className="text-xs text-slate-400 mt-0.5">{selected.abbreviation}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      {!searching ? (
+        <button
+          onClick={onOpenSearch}
+          className="w-full min-h-36 border-2 border-dashed border-slate-300 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-blue-400 hover:bg-blue-50/30 transition-all group"
+        >
+          <div className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+            <Plus className="w-5 h-5 text-slate-400 group-hover:text-blue-500" />
+          </div>
+          <span className="text-sm text-slate-400 group-hover:text-blue-500 transition-colors">Add a state</span>
+        </button>
+      ) : (
+        <div className="border-2 border-blue-400 rounded-xl overflow-hidden shadow-md bg-white">
+          <div className="p-3 border-b border-slate-100">
+            <input
+              // eslint-disable-next-line jsx-a11y/no-autofocus
+              autoFocus
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search states..."
+              className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+            />
+          </div>
+          <div className="max-h-64 overflow-y-auto">
+            {filtered.length === 0 && (
+              <p className="text-xs text-slate-400 px-4 py-3 text-center">No states found</p>
+            )}
+            {filtered.map((s) => {
+              const sc = calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS);
+              return (
+                <button
+                  key={s.id}
+                  className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 text-left transition-colors"
+                  onClick={() => { onAdd(s.id); setQuery(''); onCloseSearch(); }}
+                >
+                  <span className="text-sm font-medium text-slate-700">{s.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-bold ${getScoreColor(sc)}`}>{sc}</span>
+                    <span className="text-xs text-slate-400">{s.abbreviation}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <button
+            onClick={() => { setQuery(''); onCloseSearch(); }}
+            className="w-full px-4 py-2.5 text-xs text-slate-400 border-t border-slate-100 hover:bg-slate-50 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmptyWithSlots({
+  navigate,
+  onCompare,
+}: {
+  navigate: (path: string) => void;
+  onCompare: (ids: string[]) => void;
+}) {
+  const [pending, setPending] = useState<(string | null)[]>([null, null, null]);
+  const [activeSlot, setActiveSlot] = useState<number | null>(null);
+
+  const filledIds = pending.filter((id): id is string => id !== null);
+
+  function addAt(idx: number, id: string) {
+    setPending((prev) => { const next = [...prev]; next[idx] = id; return next; });
+    setActiveSlot(null);
+  }
+  function removeAt(idx: number) {
+    setPending((prev) => { const next = [...prev]; next[idx] = null; return next; });
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center gap-3">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <span className="font-bold text-slate-900">State Comparison</span>
+        </div>
+      </header>
+
+      <div className="max-w-2xl mx-auto px-4 py-10 sm:py-14">
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-7 h-7 text-blue-400" />
+          </div>
+          <h1 className="text-2xl font-bold text-slate-800 mb-2">Compare States Side by Side</h1>
+          <p className="text-slate-500 text-sm">
+            Select up to 3 states to compare taxes, costs, and veteran benefits.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          {[0, 1, 2].map((i) => {
+            const selId = pending[i];
+            const selState = selId ? (statesData.find((s) => s.id === selId) ?? null) : null;
+            return (
+              <StateSlot
+                key={i}
+                selected={selState}
+                takenIds={filledIds}
+                searching={activeSlot === i}
+                onOpenSearch={() => setActiveSlot(i)}
+                onCloseSearch={() => setActiveSlot(null)}
+                onAdd={(id) => addAt(i, id)}
+                onRemove={() => removeAt(i)}
+              />
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-center">
+          <Button
+            disabled={filledIds.length === 0}
+            onClick={() => onCompare(filledIds)}
+            className="w-full sm:w-auto"
+          >
+            Compare {filledIds.length > 0 ? `${filledIds.length} ` : ''}
+            {filledIds.length === 1 ? 'State' : 'States'}
+          </Button>
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/dashboard')}
+            className="w-full sm:w-auto text-slate-500"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
 export default function ComparisonPage() {
   const navigate = useNavigate();
   const [annual, setAnnual] = useState(false);
 
-  // Load compared state IDs
-  const favoriteIds: string[] = JSON.parse(localStorage.getItem('comparison-favorites') ?? '[]');
+  // Load compared state IDs — reactive so empty-state slots can populate it
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem('comparison-favorites') ?? '[]'),
+  );
+
+  function commitFavorites(ids: string[]) {
+    setFavoriteIds(ids);
+    localStorage.setItem('comparison-favorites', JSON.stringify(ids));
+  }
+
   const states = favoriteIds
     .map((id) => statesData.find((s) => s.id === id))
     .filter((s): s is (typeof statesData)[0] => s !== undefined);
@@ -187,20 +390,7 @@ export default function ComparisonPage() {
 
   // Empty state
   if (n === 0) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-6 p-8">
-        <div className="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-2">
-          <Shield className="w-8 h-8 text-blue-400" />
-        </div>
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-bold text-slate-800">No States Selected</h1>
-          <p className="text-slate-500">Add up to 3 states from the dashboard or a state detail page to compare them here.</p>
-        </div>
-        <Button onClick={() => navigate('/dashboard')}>
-          <ArrowLeft className="w-4 h-4 mr-2" />Back to Dashboard
-        </Button>
-      </div>
-    );
+    return <EmptyWithSlots navigate={navigate} onCompare={commitFavorites} />;
   }
 
   const flagUrl = (abbr: string) =>

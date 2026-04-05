@@ -6,6 +6,7 @@ import StateDetail from './pages/StateDetail';
 import ComparisonPage from './pages/ComparisonPage';
 import ErrorPage from './pages/ErrorPage';
 import Sources from './pages/Sources';
+import Footer from './components/Footer';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -16,7 +17,12 @@ function ScrollToTop() {
     }
     window.scrollTo(0, 0);
   }, [pathname]);
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      <Footer />
+    </>
+  );
 }
 
 export const router = createHashRouter([
