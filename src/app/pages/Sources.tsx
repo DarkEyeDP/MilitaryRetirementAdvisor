@@ -1093,14 +1093,14 @@ export default function Sources() {
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Button variant="ghost" onClick={() => navigate(-1)} className="gap-2 flex-shrink-0">
               <ArrowLeft className="w-4 h-4" />
               Back
             </Button>
-            <div className="flex items-center gap-2">
-              <IconReadOutlined className="w-5 h-5 text-blue-600" />
-              <h1 className="font-semibold text-lg">Data Sources &amp; Methodology</h1>
+            <div className="flex items-center gap-2 min-w-0">
+              <IconReadOutlined className="w-5 h-5 text-blue-600 flex-shrink-0" />
+              <h1 className="font-semibold text-sm sm:text-lg truncate">Data Sources &amp; Methodology</h1>
             </div>
           </div>
           <span className="hidden sm:inline text-xs text-slate-400 border border-slate-200 px-2.5 py-1 rounded-full font-medium">

@@ -350,6 +350,19 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
         </div>
       </div>
 
+      {/* Expand trigger — shown only when collapsed */}
+      {!expanded && (
+        <button
+          onClick={() => setExpanded(true)}
+          className="w-full flex items-center justify-center gap-2 py-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50/50 border-t border-slate-200 transition-colors group"
+          aria-label="Expand full breakdown"
+        >
+          <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+          <span className="text-xs font-medium">Expand Full Breakdown</span>
+          <ChevronDown className="w-4 h-4 transition-transform group-hover:translate-y-0.5" />
+        </button>
+      )}
+
       {/* Expanded breakdown table */}
       <AnimatePresence initial={false}>
       {expanded && (
