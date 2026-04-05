@@ -281,7 +281,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
       </div>
 
       {/* Metric cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-slate-100">
+      <div className="grid grid-cols-2 lg:grid-cols-4 [&>*]:border-slate-100 [&>*:nth-child(2)]:border-l [&>*:nth-child(4)]:border-l [&>*:nth-child(n+3)]:border-t lg:[&>*:nth-child(3)]:border-l lg:[&>*:nth-child(3)]:border-t-0 lg:[&>*:nth-child(4)]:border-t-0">
         {/* Total monthly income */}
         <div className="px-5 py-4">
           <p className="text-slate-400 text-xs uppercase tracking-wide mb-1">

@@ -78,6 +78,36 @@ function SortableHead({
   );
 }
 
+// ─── Mobile card list — replaces horizontal-scroll tables on small screens ────
+
+type MobileCol = {
+  label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  render: (row: any) => React.ReactNode;
+  span2?: boolean;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function MobileCardList({ rows, columns }: { rows: any[]; columns: MobileCol[] }) {
+  return (
+    <div className="md:hidden divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-white">
+      {rows.map((row) => (
+        <div key={row.id} className="px-4 py-3">
+          <p className="text-sm font-semibold text-slate-900 mb-2">{row.name}</p>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+            {columns.map((col) => (
+              <div key={col.label} className={col.span2 ? 'col-span-2' : ''}>
+                <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">{col.label}</p>
+                <div className="text-xs font-medium text-slate-700">{col.render(row)}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SourceNote({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-xs text-slate-400 mt-4 px-1">
@@ -132,13 +162,15 @@ function ScoringTab() {
     <AnimatedTabContent id="scoring">
     <div className="space-y-8">
       {/* Formula overview */}
-      <div className="bg-slate-50 rounded-xl border border-slate-200 p-6">
+      <div className="md:bg-slate-50 md:rounded-xl md:border md:border-slate-200 md:p-6">
         <h2 className="text-base font-semibold text-slate-800 mb-1">How the Retirement Score is Calculated</h2>
-        <p className="text-sm text-slate-500 mb-5">
+        <p className="text-sm text-slate-500 mb-4">
           Each state receives a 0–100 score based on three weighted factors. The default weights reflect what
           matters most to the average military retiree, but you can adjust them on the Dashboard.
         </p>
-        <div className="flex flex-wrap gap-3 mb-6 items-center">
+
+        {/* Formula — desktop pills */}
+        <div className="hidden md:flex flex-wrap gap-3 mb-6 items-center">
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg px-4 py-2 text-sm font-medium text-slate-700">
             Tax Score <span className="text-blue-600 font-semibold ml-1">× 40%</span>
           </div>
@@ -152,10 +184,26 @@ function ScoringTab() {
           </div>
         </div>
 
-        {/* Three factor cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Formula — mobile compact 3-col */}
+        <div className="md:hidden grid grid-cols-3 border border-slate-200 rounded-lg overflow-hidden bg-white mb-5">
+          <div className="flex flex-col items-center justify-center px-2 py-3 text-center border-r border-slate-200">
+            <span className="text-xs font-medium text-slate-700 leading-tight">Tax</span>
+            <span className="text-blue-600 font-bold text-sm mt-0.5">×40%</span>
+          </div>
+          <div className="flex flex-col items-center justify-center px-2 py-3 text-center border-r border-slate-200">
+            <span className="text-xs font-medium text-slate-700 leading-tight">Cost of Living</span>
+            <span className="text-blue-600 font-bold text-sm mt-0.5">×30%</span>
+          </div>
+          <div className="flex flex-col items-center justify-center px-2 py-3 text-center">
+            <span className="text-xs font-medium text-slate-700 leading-tight">Vet Benefits</span>
+            <span className="text-blue-600 font-bold text-sm mt-0.5">×30%</span>
+          </div>
+        </div>
+
+        {/* Three factor sections — desktop: cards in grid; mobile: divider-separated rows */}
+        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-4 divide-y divide-slate-200 md:divide-y-0">
           {/* Tax Score */}
-          <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="py-4 first:pt-0 md:py-0 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">T</div>
               <span className="font-semibold text-slate-800">Tax Score (0–100)</span>
@@ -191,7 +239,7 @@ function ScoringTab() {
           </div>
 
           {/* COL Score */}
-          <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="py-4 md:py-0 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm">C</div>
               <span className="font-semibold text-slate-800">COL Score (0–100)</span>
@@ -211,7 +259,7 @@ function ScoringTab() {
           </div>
 
           {/* Benefits Score */}
-          <div className="bg-white border border-slate-200 rounded-xl p-4">
+          <div className="py-4 md:py-0 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm">B</div>
               <span className="font-semibold text-slate-800">Benefits Score (0–100)</span>
@@ -298,7 +346,7 @@ function TaxesTab() {
   return (
     <AnimatedTabContent id="taxes">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -340,6 +388,13 @@ function TaxesTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'Pension Tax', render: (s) => <PensionBadge value={s.militaryPensionTax} /> },
+        { label: 'Income Tax', render: (s) => s.stateIncomeTax === 0 ? '0%' : `${s.stateIncomeTax}%` },
+        { label: 'Property Tax', render: (s) => <span className={s.propertyTaxLevel === 'Low' ? 'text-green-700' : s.propertyTaxLevel === 'Medium' ? 'text-yellow-700' : 'text-red-600'}>{s.propertyTaxLevel}</span> },
+        { label: 'Sales Tax', render: (s) => `${s.salesTax}%` },
+        { label: 'Tax Score', render: (s) => <ScorePill score={s.taxScore} /> },
+      ]} />
       <SourceNote>
         State tax laws (2026 tax year). Pension exemption status reflects enacted legislation as of 2026.
         Sales tax rates: Tax Foundation. Always verify with your state's Department of Revenue before filing.
@@ -381,7 +436,7 @@ function CostOfLivingTab() {
   return (
     <AnimatedTabContent id="col">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -415,6 +470,12 @@ function CostOfLivingTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'COL Index', render: (s) => <span className={s.costOfLivingIndex <= 90 ? 'text-green-700 font-medium' : s.costOfLivingIndex >= 120 ? 'text-red-600 font-medium' : ''}>{s.costOfLivingIndex}</span> },
+        { label: 'COL Score', render: (s) => <ScorePill score={s.colScore} /> },
+        { label: 'Avg Home', render: (s) => `$${s.avgHomeCost.toLocaleString()}` },
+        { label: 'Sales Tax', render: (s) => `${s.salesTax}%` },
+      ]} />
       <SourceNote>
         COL Index: composite economic index where 100 = US national average. Home costs: Zillow/Census median home value estimates (2025).
         A COL Index above 100 means above-average cost; below 100 means below-average.
@@ -456,7 +517,7 @@ function HousingTab() {
   return (
     <AnimatedTabContent id="housing">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -488,6 +549,11 @@ function HousingTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'Avg Home Cost', render: (s) => `$${s.avgHomeCost.toLocaleString()}` },
+        { label: 'Median Rent/mo', render: (s) => s.medianRent ? `$${s.medianRent.toLocaleString()}/mo` : '—' },
+        { label: 'Price Trend (YoY)', render: (s) => s.housingPriceTrend != null ? <span className={s.housingPriceTrend > 0 ? 'text-orange-600' : 'text-green-700'}>{s.housingPriceTrend > 0 ? '+' : ''}{s.housingPriceTrend}%</span> : '—' },
+      ]} />
       <SourceNote>
         Median rent and price trends: Zillow Research, Redfin Data Center (2024–2025 estimates).
         Avg home cost: Census Bureau ACS 2023 median home value. Trends are YoY % change in median sale price.
@@ -531,7 +597,7 @@ function FinancialTab() {
   return (
     <AnimatedTabContent id="financial">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -569,6 +635,14 @@ function FinancialTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'Prop Tax Rate', render: (s) => { const f = stateFinancialData[s.id]; return f ? `${f.propertyTaxRate}%` : '—'; } },
+        { label: 'Annual Prop Tax', render: (s) => { const f = stateFinancialData[s.id]; return f ? `$${f.medianAnnualPropertyTax.toLocaleString()}` : '—'; } },
+        { label: 'Home Ins/mo', render: (s) => { const f = stateFinancialData[s.id]; return f ? `$${f.avgHomeInsuranceMonthly}/mo` : '—'; } },
+        { label: 'Auto Ins/mo', render: (s) => { const f = stateFinancialData[s.id]; return f ? `$${f.avgAutoInsuranceMonthly}/mo` : '—'; } },
+        { label: 'Utilities/mo', render: (s) => { const f = stateFinancialData[s.id]; return f ? `$${f.avgMonthlyUtilities}/mo` : '—'; } },
+        { label: 'Sales Tax', render: (s) => { const f = stateFinancialData[s.id]; return f ? `${f.salesTaxCombined}%` : '—'; } },
+      ]} />
       <SourceNote>
         Property tax rates and combined sales tax: Tax Foundation (2026). Home insurance: Insurance.com state averages.
         Auto insurance: ValuePenguin full-coverage estimates. Utilities: BLS Consumer Expenditure Survey, NerdWallet. Data year: 2026.
@@ -612,7 +686,7 @@ function ClimateTab() {
   return (
     <AnimatedTabContent id="climate">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -663,6 +737,15 @@ function ClimateTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'Summer High', render: (s) => { const c = stateClimateData[s.id]; return c ? `${c.avgSummerHighF}°F` : '—'; } },
+        { label: 'Winter Low', render: (s) => { const c = stateClimateData[s.id]; return c ? `${c.avgWinterLowF}°F` : '—'; } },
+        { label: 'Humidity', render: (s) => { const c = stateClimateData[s.id]; return c ? <span className={c.humidity === 'High' ? 'text-blue-700' : c.humidity === 'Low' ? 'text-orange-600' : 'text-slate-600'}>{c.humidity}</span> : '—'; } },
+        { label: 'Rainfall', render: (s) => { const c = stateClimateData[s.id]; return c ? `${c.annualRainfallInches}"` : '—'; } },
+        { label: 'Heat Days >95°F', render: (s) => { const c = stateClimateData[s.id]; return c ? String(c.extremeHeatDays) : '—'; } },
+        { label: 'Cold Days <20°F', render: (s) => { const c = stateClimateData[s.id]; return c ? String(c.extremeColdDays) : '—'; } },
+        { label: 'Disaster Risks', span2: true, render: (s) => { const c = stateClimateData[s.id]; if (!c) return '—'; return <div className="flex flex-wrap gap-1 mt-0.5"><RiskBadge level={c.disasterRisk.hurricane} label="Hurricane" /><RiskBadge level={c.disasterRisk.wildfire} label="Wildfire" /><RiskBadge level={c.disasterRisk.flood} label="Flood" /><RiskBadge level={c.disasterRisk.tornado} label="Tornado" /><RiskBadge level={c.disasterRisk.earthquake} label="Earthquake" /><RiskBadge level={c.disasterRisk.winterStorm} label="Winter Storm" /></div>; } },
+      ]} />
       <SourceNote>
         Temperature and precipitation: NOAA Climate Normals (1991–2020). Extreme heat/cold days: NWS historical averages.
         Disaster risk levels: FEMA National Risk Index, NIFC wildfire data. Verify current risks at ready.gov.
@@ -706,7 +789,7 @@ function EmploymentTab() {
   return (
     <AnimatedTabContent id="employment">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -746,6 +829,12 @@ function EmploymentTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'Unemployment', render: (s) => { const e = stateEmploymentData[s.id]; return e ? `${e.unemploymentRate}%` : '—'; } },
+        { label: 'Job Growth', render: (s) => { const e = stateEmploymentData[s.id]; if (!e) return '—'; return <span className={e.jobGrowthRate >= 2 ? 'text-green-700 font-medium' : e.jobGrowthRate <= 0.5 ? 'text-slate-400' : ''}>{e.jobGrowthRate > 0 ? '+' : ''}{e.jobGrowthRate}%</span>; } },
+        { label: 'Median HH Income', render: (s) => { const e = stateEmploymentData[s.id]; return e ? `$${e.medianHouseholdIncome.toLocaleString()}` : '—'; } },
+        { label: 'Defense', render: (s) => { const e = stateEmploymentData[s.id]; return e ? <DefenseBadge value={e.defenseContractorPresence} /> : '—'; } },
+      ]} />
       <SourceNote>
         Unemployment rates: BLS Local Area Unemployment Statistics (2024 annual avg). Job growth: BLS Quarterly Census of Employment and Wages (2024 YoY).
         Median household income: Census Bureau ACS 2023. Defense contractor presence tier: USASpending.gov DoD prime contract awards (FY2024).
@@ -783,7 +872,7 @@ function VeteransTab() {
   return (
     <AnimatedTabContent id="veterans">
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
+      <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
         <Table>
           <TableHeader>
             <TableRow className="bg-slate-50">
@@ -815,6 +904,13 @@ function VeteransTab() {
           </TableBody>
         </Table>
       </div>
+      <MobileCardList rows={rows} columns={[
+        { label: 'Veteran Population', render: (s) => s.veteranPopulation.toLocaleString() },
+        { label: 'VA Facilities', render: (s) => String(s.vaFacilities) },
+        { label: 'Benefits Score', render: (s) => <ScorePill score={s.veteranBenefitsScore} /> },
+        { label: 'Pension Tax', render: (s) => <PensionBadge value={s.militaryPensionTax} /> },
+        { label: 'Retirement Score', render: (s) => <ScorePill score={calculateCustomScore(s, { taxes: 40, cost: 30, benefits: 30 })} /> },
+      ]} />
       <SourceNote>
         Veteran population: National Center for Veterans Analysis and Statistics (NCVAS), state-level estimates.
         VA facility counts: VA.gov facility locator (major VAMCs and CBOCs). Benefits score: curated index based on
@@ -848,7 +944,7 @@ function VADisabilityTab() {
 
       <div>
         <h3 className="text-sm font-semibold text-slate-700 mb-3">Monthly Compensation by Rating &amp; Dependents (2026)</h3>
-        <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
           <Table>
             <TableHeader className="bg-slate-50">
               <TableRow>
@@ -905,6 +1001,48 @@ function VADisabilityTab() {
               })}
             </TableBody>
           </Table>
+        </div>
+        {/* Mobile: one card per rating */}
+        <div className="md:hidden divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden bg-white">
+          {VA_RATINGS.map((r) => {
+            const alone = VA_RATE_ALONE[r] ?? 0;
+            const spouse = VA_RATE_WITH_SPOUSE[r] ?? 0;
+            const spouse1 = VA_RATE_WITH_SPOUSE_ONE_CHILD[r] ?? 0;
+            const addlChild = VA_RATE_ADDITIONAL_CHILD[r] ?? 0;
+            const childOnly = VA_RATE_CHILD_NO_SPOUSE[r] ?? 0;
+            const noSupplement = parseInt(r) < 30;
+            return (
+              <div key={r} className="px-4 py-3">
+                <p className="text-sm font-semibold text-slate-900 mb-2">{r}% Rating</p>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">No Dependents</p>
+                    <p className="text-xs font-medium text-slate-700">{fmt(alone)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">With Spouse</p>
+                    <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-slate-700'}`}>{noSupplement ? 'No supplement' : fmt(spouse)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">Spouse + 1 Child</p>
+                    <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-slate-700'}`}>{noSupplement ? 'No supplement' : fmt(spouse1)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">Spouse + 2 Children</p>
+                    <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-slate-700'}`}>{noSupplement ? 'No supplement' : fmt(spouse1 + addlChild)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">Child Only (No Spouse)</p>
+                    <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-slate-700'}`}>{noSupplement ? 'No supplement' : fmt(childOnly)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">Per Add'l Child</p>
+                    <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-green-700'}`}>{noSupplement ? '—' : `+$${addlChild}/mo`}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -971,24 +1109,49 @@ export default function Sources() {
         </div>
       </header>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <p className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          All 50 states. Every number used to compute scores is shown below — click any column header to sort.
-          Data is updated annually; always verify critical figures with official sources before making relocation decisions.
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Description */}
+        <p className="text-slate-500 text-sm mb-6">
+          <span className="hidden md:inline">All 50 states. Every number used to compute scores is shown below — click any column header to sort.
+          Data is updated annually; always verify critical figures with official sources before making relocation decisions.</span>
+          <span className="md:hidden">Every number behind the retirement scores — all 50 states, 2026 data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
         </p>
 
         <Tabs defaultValue="scoring">
-          <TabsList className="flex flex-wrap h-auto gap-1 bg-slate-100 p-1 rounded-lg mb-6">
+          {/* Desktop tabs — wrap */}
+          <TabsList className="hidden md:flex flex-wrap h-auto gap-1 bg-slate-100 p-1 rounded-lg mb-6">
             {TABS.map(t => (
-              <TabsTrigger
-                key={t.value}
-                value={t.value}
-                className="text-xs sm:text-sm rounded-md"
-              >
+              <TabsTrigger key={t.value} value={t.value} className="text-xs sm:text-sm rounded-md">
                 {t.label}
               </TabsTrigger>
             ))}
           </TabsList>
+          {/* Mobile tabs — sticky nav bar with underline indicator */}
+          <div className="md:hidden -mx-4 sticky top-14 z-30 bg-white border-b border-slate-200 mb-5">
+            <div className="overflow-x-auto scrollbar-none">
+              <TabsList className="flex w-max gap-0 bg-transparent p-0 rounded-none h-auto">
+                {TABS.map(t => (
+                  <TabsTrigger
+                    key={t.value}
+                    value={t.value}
+                    className="
+                      relative text-sm font-medium whitespace-nowrap
+                      px-4 py-3.5 rounded-none bg-transparent
+                      text-slate-500
+                      data-[state=active]:text-blue-600
+                      data-[state=active]:shadow-none
+                      data-[state=active]:bg-transparent
+                      after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:rounded-full
+                      after:bg-transparent
+                      data-[state=active]:after:bg-blue-600
+                    "
+                  >
+                    {t.label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </div>
+          </div>
 
           <TabsContent value="scoring"><ScoringTab /></TabsContent>
           <TabsContent value="taxes"><TaxesTab /></TabsContent>

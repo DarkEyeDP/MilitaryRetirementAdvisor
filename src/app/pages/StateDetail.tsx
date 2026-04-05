@@ -439,8 +439,8 @@ export default function StateDetail() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* State Header */}
         <div className="flex items-stretch gap-2 mb-6">
-          {/* Prev arrow */}
-          <div className="flex items-center">
+          {/* Prev arrow — desktop only */}
+          <div className="hidden md:flex items-center">
             <Button
               variant="outline"
               onClick={() => prevId && navTo(prevId)}
@@ -569,7 +569,8 @@ export default function StateDetail() {
 
           {/* Score Breakdown — Gauge Charts */}
           <div className="border-t border-slate-100 pt-5">
-            <div className="grid grid-cols-3 divide-x divide-slate-100">
+            {/* Desktop: 3-column gauge layout */}
+            <div className="hidden md:grid grid-cols-3 divide-x divide-slate-100">
               {taxScoreComponents && (() => {
                 const pensionTax = Math.round(pensionTaxDollars(state));
                 const incomeTax  = Math.round(retirementIncome * state.stateIncomeTax / 100);
@@ -630,11 +631,76 @@ export default function StateDetail() {
                 );
               })()}
             </div>
+
+            {/* Mobile: horizontal stacked rows */}
+            {taxScoreComponents && (() => {
+              const pensionTax = Math.round(pensionTaxDollars(state));
+              const perks = stateVeteranPerks[state.id];
+              const eduCount = perks ? perks.educationBenefits.retiree.length + perks.educationBenefits.family.length : 0;
+              const regCount = perks ? perks.vehicleRegistrationBenefits.length : 0;
+              const sections = [
+                {
+                  label: 'Tax Friendliness',
+                  score: taxScoreComponents.total,
+                  items: [
+                    { label: 'Pension tax', value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr` },
+                    { label: 'Income tax', value: state.stateIncomeTax === 0 ? 'None' : `${state.stateIncomeTax}%` },
+                    { label: 'Property tax', value: state.propertyTaxLevel },
+                    { label: 'Sales tax', value: state.salesTax === 0 ? 'None' : `${state.salesTax}%` },
+                  ],
+                },
+                {
+                  label: 'Cost of Living',
+                  score: costScore,
+                  items: [
+                    { label: 'COL index', value: `${state.costOfLivingIndex} (avg = 100)` },
+                    { label: 'vs avg', value: state.costOfLivingIndex <= 100 ? `${100 - state.costOfLivingIndex}% below` : `${state.costOfLivingIndex - 100}% above` },
+                    { label: 'Avg home', value: `$${(state.avgHomeCost / 1000).toFixed(0)}k` },
+                    { label: 'Median rent', value: housing ? `$${housing.medianRent.toLocaleString()}/mo` : '—' },
+                  ],
+                },
+                {
+                  label: 'Veteran Benefits',
+                  score: state.veteranBenefitsScore,
+                  items: [
+                    { label: 'VA facilities', value: `${vamcs.length} VAMC · ${clinics.length} clinic` },
+                    { label: 'Veterans', value: formatVeteranPop(state.veteranPopulation) },
+                    { label: 'Education', value: eduCount > 0 ? `${eduCount} programs` : 'None' },
+                    { label: 'Reg. perks', value: regCount > 0 ? `${regCount} benefits` : 'None' },
+                  ],
+                },
+              ];
+              const scoreColor = (s: number) =>
+                s >= 90 ? '#16a34a' : s >= 80 ? '#2563eb' : s >= 70 ? '#d97706' : '#94a3b8';
+              return (
+                <div className="md:hidden space-y-3">
+                  {sections.map((sec) => (
+                    <div key={sec.label} className="flex items-start gap-4 py-3 border-t border-slate-100 first:border-t-0">
+                      <div className="flex-shrink-0 flex flex-col items-center w-14">
+                        <span className="text-3xl font-bold tabular-nums" style={{ color: scoreColor(sec.score) }}>{sec.score}</span>
+                        <span className="text-[9px] text-slate-400 uppercase tracking-wide leading-tight text-center">/ 100</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-slate-700 mb-1.5">{sec.label}</p>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                          {sec.items.map((it) => (
+                            <div key={it.label} className="flex justify-between text-xs gap-1">
+                              <span className="text-slate-400 whitespace-nowrap">{it.label}</span>
+                              <span className="font-semibold text-slate-700 text-right">{it.value}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
           </div>{/* end hero card flex-1 */}
 
-          {/* Next arrow */}
-          <div className="flex items-center">
+          {/* Next arrow — desktop only */}
+          <div className="hidden md:flex items-center">
             <Button
               variant="outline"
               onClick={() => nextId && navTo(nextId)}
@@ -651,6 +717,30 @@ export default function StateDetail() {
             </Button>
           </div>
         </div>{/* end hero flex wrapper */}
+
+        {/* Mobile floating prev/next nav — fixed bottom corners */}
+        <div className="md:hidden">
+          {prevId && prevState && (
+            <button
+              onClick={() => navTo(prevId)}
+              className="fixed bottom-6 left-4 z-50 flex flex-col items-center justify-center w-14 h-14 rounded-full bg-white border border-slate-200 shadow-lg text-slate-600 hover:bg-slate-50 active:scale-95 transition-transform"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-[10px] font-bold leading-none">{prevState.abbreviation}</span>
+              <span className={`text-[10px] font-bold leading-none ${getScoreColor(prevScore)}`}>{prevScore}</span>
+            </button>
+          )}
+          {nextId && nextState && (
+            <button
+              onClick={() => navTo(nextId)}
+              className="fixed bottom-6 right-4 z-50 flex flex-col items-center justify-center w-14 h-14 rounded-full bg-white border border-slate-200 shadow-lg text-slate-600 hover:bg-slate-50 active:scale-95 transition-transform"
+            >
+              <ChevronRight className="w-5 h-5" />
+              <span className="text-[10px] font-bold leading-none">{nextState.abbreviation}</span>
+              <span className={`text-[10px] font-bold leading-none ${getScoreColor(nextScore)}`}>{nextScore}</span>
+            </button>
+          )}
+        </div>
 
         {/* Map + VA Facilities list side by side */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
