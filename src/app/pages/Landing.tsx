@@ -98,7 +98,7 @@ export default function Landing() {
   const hasSpouseIncome = secondaryIncome.some((s) => s.label === 'Spouse income');
 
   const [isLoading, setIsLoading] = useState(false);
-  const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states…', 'Ranking your results…'];
+  const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states + DC…', 'Ranking your results…'];
   const [loadingMsg, setLoadingMsg] = useState(loadingMessages[0]);
   const msgIndex = useRef(0);
 
@@ -409,14 +409,14 @@ export default function Landing() {
                 Choose Where Your<br />Retirement Works for You
               </h2>
               <p className="text-lg text-slate-500 max-w-lg leading-relaxed">
-                Compare all 50 states based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
+                Compare all 50 states + DC based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
               </p>
             </div>
 
             <div>
               <div className="py-5 border-t border-slate-200/80">
                 <h3 className="font-semibold text-slate-900 mb-1">Tax Analysis</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states.</p>
+                <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states + DC.</p>
               </div>
               <div className="py-5 border-t border-slate-200/80">
                 <h3 className="font-semibold text-slate-900 mb-1">Veteran Benefits</h3>
@@ -455,7 +455,7 @@ export default function Landing() {
               Choose Where Your<br />Retirement Works for You
             </h2>
             <p className="text-slate-600 max-w-lg mx-auto">
-              Compare all 50 states based on taxes, benefits, and quality of life.
+              Compare all 50 states + DC based on taxes, benefits, and quality of life.
             </p>
           </div>
 
@@ -467,7 +467,7 @@ export default function Landing() {
                 <TrendingDown className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="font-semibold mb-1">Tax Analysis</h3>
-              <p className="text-sm text-slate-500">Income, property, and pension exemptions across all 50 states.</p>
+              <p className="text-sm text-slate-500">Income, property, and pension exemptions across all 50 states + DC.</p>
             </div>
             <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
               <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center mb-3">

@@ -736,6 +736,14 @@ export const vaFacilityLocations: Record<string, VAFacility[]> = {
     { name: 'Bismarck VA Clinic', lat: 46.836178, lon: -100.776958, address: '2700 State St, Bismarck, ND 58503', phone: '(701) 221-9152', type: 'clinic' },
     { name: 'Grand Forks VA Clinic', lat: 47.924004, lon: -97.070647, address: '3701 Cambridge St, Grand Forks, ND 58203', phone: '(701) 772-3719', type: 'clinic' },
   ],
+  dc: [
+    // VA Medical Centers
+    { name: 'Washington DC VA Medical Center', lat: 38.9347, lon: -77.0138, address: '50 Irving St NW, Washington, DC 20422', phone: '(202) 745-8000', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Southeast DC VA Clinic', lat: 38.8353, lon: -76.9952, address: '820 Chesapeake St SE, Washington, DC 20032', phone: '(202) 745-8685', type: 'clinic' },
+    { name: 'Vet Center — Washington DC', lat: 38.9084, lon: -77.0363, address: '1250 Taylor St NW, Washington, DC 20011', phone: '(202) 726-5212', type: 'clinic' },
+    { name: 'DC VA Community Resource & Referral Center', lat: 38.8943, lon: -77.0291, address: '1500 Franklin St NE, Washington, DC 20018', phone: '(202) 526-3131', type: 'clinic' },
+  ],
 };
 
 /** FIPS code map — used to match us-atlas topojson features to our state IDs */
@@ -790,4 +798,5 @@ export const stateFipsMap: Record<string, string> = {
   'west-virginia': '54',
   wisconsin: '55',
   wyoming: '56',
+  dc: '11',
 };

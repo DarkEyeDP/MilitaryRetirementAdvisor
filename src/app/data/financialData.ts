@@ -423,4 +423,12 @@ export const stateFinancialData: Record<string, StateFinancialData> = {
     avgAutoInsuranceMonthly: 92,
     avgMonthlyUtilities: 158,
   },
+  'dc': {
+    propertyTaxRate: 0.56,
+    medianAnnualPropertyTax: 3472,
+    salesTaxCombined: 6.0,
+    avgHomeInsuranceMonthly: 68,
+    avgAutoInsuranceMonthly: 178,
+    avgMonthlyUtilities: 188,
+  },
 };

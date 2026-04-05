@@ -248,6 +248,7 @@ export const stateAdjacency: Record<string, string[]> = {
   'west-virginia':  ['kentucky', 'maryland', 'ohio', 'pennsylvania', 'virginia'],
   'wisconsin':      ['illinois', 'iowa', 'michigan', 'minnesota'],
   'wyoming':        ['colorado', 'idaho', 'montana', 'nebraska', 'south-dakota', 'utah'],
+  'dc':             ['maryland', 'virginia'],
 };
 
 /**

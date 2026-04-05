@@ -1323,4 +1323,38 @@ export const militaryInstallations: MilitaryInstallation[] = [
     lat: 38.8719,
     lon: -77.0563,
   },
+
+  // ── DISTRICT OF COLUMBIA ──────────────────────────────────────────────────
+  {
+    id: 'jbab',
+    name: 'Joint Base Anacostia-Bolling',
+    stateId: 'dc',
+    stateAbbr: 'DC',
+    lat: 38.8440,
+    lon: -77.0165,
+  },
+  {
+    id: 'fort-mcnair',
+    name: 'Fort Lesley J. McNair',
+    stateId: 'dc',
+    stateAbbr: 'DC',
+    lat: 38.8688,
+    lon: -77.0139,
+  },
+  {
+    id: 'marine-barracks-washington',
+    name: 'Marine Barracks Washington (8th & I)',
+    stateId: 'dc',
+    stateAbbr: 'DC',
+    lat: 38.8794,
+    lon: -76.9949,
+  },
+  {
+    id: 'washington-navy-yard',
+    name: 'Washington Navy Yard',
+    stateId: 'dc',
+    stateAbbr: 'DC',
+    lat: 38.8713,
+    lon: -77.0005,
+  },
 ];

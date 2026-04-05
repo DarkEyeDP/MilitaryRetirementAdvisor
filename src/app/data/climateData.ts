@@ -836,4 +836,20 @@ export const stateClimateData: Record<string, StateClimateData> = {
       winterStorm: 'High',
     },
   },
+  'dc': {
+    avgSummerHighF: 88,
+    avgWinterLowF: 28,
+    humidity: 'High',
+    annualRainfallInches: 41,
+    extremeHeatDays: 18,
+    extremeColdDays: 12,
+    disasterRisk: {
+      hurricane: 'Low',
+      wildfire: 'None',
+      flood: 'Moderate',
+      tornado: 'Low',
+      earthquake: 'Low',
+      winterStorm: 'Moderate',
+    },
+  },
 };

@@ -375,4 +375,11 @@ export const stateEmploymentData: Record<string, StateEmploymentData> = {
     topIndustries: ['Defense (ICBM)', 'Energy', 'Agriculture', 'Tourism'],
     defenseContractorPresence: 'Low',
   },
+  dc: {
+    unemploymentRate: 4.9,
+    jobGrowthRate: 1.0,
+    medianHouseholdIncome: 101_722,
+    topIndustries: ['Federal Government', 'Professional & Business Services', 'Healthcare & Education', 'Finance & Real Estate', 'Hospitality & Tourism'],
+    defenseContractorPresence: 'High',
+  },
 };

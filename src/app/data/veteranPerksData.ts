@@ -1330,4 +1330,29 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       ],
     },
   },
+  'dc': {
+    vehicleRegistrationBenefits: [
+      '100% service-connected disabled veterans exempt from DC vehicle registration fees',
+      'Surviving spouses of veterans who died in service or from service-connected disability retain the registration fee exemption',
+      'Veteran designation available on DC driver\'s license',
+      'Free "Disabled Veteran" specialty license plate for 100% P&T veterans',
+    ],
+    medalBenefits: [
+      'Medal of Honor: free DC vehicle registration and free specialty plate',
+      'Purple Heart: free "Purple Heart" specialty license plate',
+      'DC Office of Veterans Affairs assists Medal of Honor and Purple Heart recipients with available DC benefits',
+    ],
+    educationBenefits: {
+      retiree: [
+        'University of the District of Columbia (UDC): free tuition for eligible DC resident veterans under the DC Veterans Education Benefits Program',
+        'UDC Community College: free tuition for honorably discharged DC resident veterans',
+        'Post-9/11 GI Bill transferable to all accredited DC-area institutions',
+      ],
+      family: [
+        'Survivors\' & Dependents\' Educational Assistance (Chapter 35): federal benefit for spouses and children of veterans rated 100% P&T or died from service-connected causes — applies at UDC and all DC-area schools',
+        'DC Children of Fallen Heroes Scholarship: tuition assistance at DC public institutions for children of DC first responders and military members killed in the line of duty',
+        'UDC waives tuition for dependents of DC resident veterans under qualifying federal programs',
+      ],
+    },
+  },
 };

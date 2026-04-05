@@ -65,6 +65,7 @@ export const stateHousingData: Record<string, HousingData> = {
   'rhode-island':   { medianRent: 1_460, housingPriceTrend:  6.8 },
   'hawaii':         { medianRent: 1_960, housingPriceTrend: -1.2 },
   'north-dakota':   { medianRent:   960, housingPriceTrend:  2.5 },
+  'dc':             { medianRent: 2_200, housingPriceTrend:  2.1 },
 };
 
 /** National medians for comparison reference (2024) */

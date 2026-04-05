@@ -1402,9 +1402,49 @@ export const statesData: StateData[] = [
     ],
     coordinates: { x: 38, y: 28 },
   },
+  {
+    id: 'dc',
+    name: 'District of Columbia',
+    abbreviation: 'DC',
+    militaryPensionTax: 'Yes',
+    stateIncomeTax: 8.5,
+    propertyTaxLevel: 'Low',
+    costOfLivingIndex: 147,
+    veteranBenefitsScore: 62,
+    retirementScore: 36,
+    salesTax: 6.0,
+    militaryBenefits: [
+      'Property tax exemption for 100% service-connected disabled veterans',
+      'Veteran preference in DC government hiring',
+      'Free tuition at University of the District of Columbia for eligible veterans',
+      'DC Office of Veterans Affairs services and resources',
+    ],
+    vaFacilities: 4,
+    veteranPopulation: 30000,
+    avgHomeCost: 620000,
+    pros: [
+      'World-class VA Medical Center and VA research facilities',
+      'Federal employment hub with top-tier civilian career opportunities',
+      'Rich veteran support network and VSO headquarters',
+      'Excellent public transit — no car needed',
+    ],
+    cons: [
+      'Military pension fully taxed as regular income',
+      'Extremely high cost of living',
+      'Very expensive housing market',
+      'High state income tax rate (8.5% for most retirees)',
+    ],
+    coordinates: { x: 79, y: 51 },
+  },
 ];
 
 export const DEFAULT_SCORE_WEIGHTS = { taxes: 40, cost: 30, benefits: 30 };
+
+/**
+ * Non-state US jurisdictions included in the dataset.
+ * Add territory IDs here as they are added to statesData.
+ */
+export const TERRITORY_IDS = new Set(['dc']);
 
 /**
  * Score tiers used across the UI for consistent labeling.

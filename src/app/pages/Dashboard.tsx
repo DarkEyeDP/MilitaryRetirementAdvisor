@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { statesData, calculateCustomScore } from '../data/stateData';
+import { statesData, calculateCustomScore, TERRITORY_IDS } from '../data/stateData';
 import { stateEmploymentData } from '../data/employmentData';
 import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, fmt$ } from '../data/financialReality';
 import { stateFinancialData } from '../data/financialData';
@@ -507,7 +507,13 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-2xl font-semibold mb-1">
-                    {filteredStates.length} {filteredStates.length === 1 ? 'State' : 'States'} Found
+                    {(() => {
+                      const stateCount = filteredStates.filter(s => !TERRITORY_IDS.has(s.id)).length;
+                      const territoryCount = filteredStates.filter(s => TERRITORY_IDS.has(s.id)).length;
+                      const statePart = stateCount > 0 ? `${stateCount} ${stateCount === 1 ? 'State' : 'States'}` : '';
+                      const territoryPart = territoryCount > 0 ? `${territoryCount} ${territoryCount === 1 ? 'Territory' : 'Territories'}` : '';
+                      return [statePart, territoryPart].filter(Boolean).join(' & ') + ' Found';
+                    })()}
                   </h2>
                   <p className="text-slate-600">
                     {activeFiltersCount > 0 || hasCustomWeights
