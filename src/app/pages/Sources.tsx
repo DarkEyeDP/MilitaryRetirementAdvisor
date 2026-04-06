@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { AnimatePresence, motion } from 'motion/react';
+import { motion } from 'motion/react';
 import { statesData, calculateCustomScore } from '../data/stateData';
 import { stateFinancialData } from '../data/financialData';
 import { stateHousingData } from '../data/housingData';
@@ -14,7 +14,6 @@ import {
   VA_RATE_CHILD_NO_SPOUSE,
 } from '../data/vaRates';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
-import { Badge } from '../components/ui/badge';
 import {
   Table,
   TableHeader,
@@ -397,7 +396,7 @@ function TaxesTab() {
       ]} />
       <SourceNote>
         State tax laws (2026 tax year). Pension exemption status reflects enacted legislation as of 2026.
-        Sales tax rates: Tax Foundation. Always verify with your state's Department of Revenue before filing.
+        Sales tax rates: Tax Foundation. Always verify with your state&apos;s Department of Revenue before filing.
       </SourceNote>
     </div>
     </AnimatedTabContent>
@@ -720,7 +719,7 @@ function ClimateTab() {
                       {c.humidity}
                     </span>
                   </TableCell>
-                  <TableCell className="tabular-nums">{c.annualRainfallInches}"</TableCell>
+                  <TableCell className="tabular-nums">{c.annualRainfallInches}&quot;</TableCell>
                   <TableCell className="tabular-nums">{c.extremeHeatDays}</TableCell>
                   <TableCell className="tabular-nums">{c.extremeColdDays}</TableCell>
                   <TableCell className="min-w-[160px]">
@@ -955,7 +954,7 @@ function VADisabilityTab() {
                 <TableHead className="font-semibold text-slate-700 whitespace-nowrap">Spouse + 2 Children</TableHead>
                 <TableHead className="font-semibold text-slate-700 whitespace-nowrap">Spouse + 3 Children</TableHead>
                 <TableHead className="font-semibold text-slate-700 whitespace-nowrap">Child Only (No Spouse)</TableHead>
-                <TableHead className="font-semibold text-slate-700 whitespace-nowrap">Per Add'l Child</TableHead>
+                <TableHead className="font-semibold text-slate-700 whitespace-nowrap">Per Add&apos;l Child</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -1036,7 +1035,7 @@ function VADisabilityTab() {
                     <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-slate-700'}`}>{noSupplement ? 'No supplement' : fmt(childOnly)}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">Per Add'l Child</p>
+                    <p className="text-[10px] text-slate-400 uppercase tracking-wide leading-tight mb-0.5">Per Add&apos;l Child</p>
                     <p className={`text-xs font-medium ${noSupplement ? 'text-slate-400' : 'text-green-700'}`}>{noSupplement ? '—' : `+$${addlChild}/mo`}</p>
                   </div>
                 </div>

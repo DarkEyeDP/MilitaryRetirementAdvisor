@@ -16,6 +16,7 @@ import {
   TriangleAlert, Mountain, Shield, Briefcase, Plus, X,
 } from 'lucide-react';
 import { Button } from '@/app/components/ui/button';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
 import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
 import {
@@ -24,6 +25,7 @@ import {
   type FinancialInputs,
   type UserCostProfile,
   DEFAULT_USER_COST_PROFILE,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   VA_DISABILITY_MONTHLY,
 } from '../data/financialReality';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
@@ -207,7 +209,6 @@ function StateSlot({
         <div className="border-2 border-blue-400 rounded-xl overflow-hidden shadow-md bg-white">
           <div className="p-3 border-b border-slate-100">
             <input
-              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               value={query}
               onChange={(e) => setQuery(e.target.value)}

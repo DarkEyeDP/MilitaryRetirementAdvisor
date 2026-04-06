@@ -96,7 +96,7 @@ function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdow
   );
 }
 
-export default function FinancialRealityBanner({ states, inputs, profile, stateAvg, onCustomize, onChangeInputs }: Props) {
+export default function FinancialRealityBanner({ states, inputs, profile, stateAvg: _stateAvg, onCustomize, onChangeInputs }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [editingIncome, setEditingIncome] = useState(false);

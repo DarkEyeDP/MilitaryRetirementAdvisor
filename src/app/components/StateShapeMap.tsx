@@ -78,7 +78,7 @@ const TOPO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 // Simple cache so we only fetch once per session
 let topoCache: Topology | null = null;
 
-export default function StateShapeMap({ stateId, stateName, height = 380, showInstallations: showInstallationsProp, onShowInstallationsChange, hoveredFacilityName, hoveredInstallationId }: Props) {
+export default function StateShapeMap({ stateId, stateName: _stateName, height = 380, showInstallations: showInstallationsProp, onShowInstallationsChange, hoveredFacilityName, hoveredInstallationId }: Props) {
   const [stateGeojson, setStateGeojson] = useState<GeoJsonObject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);

@@ -36,7 +36,7 @@ export default function ErrorPage() {
             </div>
             <h1 className="text-xl font-bold text-slate-900 mb-2">Page Not Found</h1>
             <p className="text-sm text-slate-500 leading-relaxed mb-7">
-              This page doesn't exist or may have moved. Use the links below to get back on track.
+              This page doesn&apos;t exist or may have moved. Use the links below to get back on track.
             </p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <Button variant="outline" onClick={() => navigate(-1)} className="gap-1.5">

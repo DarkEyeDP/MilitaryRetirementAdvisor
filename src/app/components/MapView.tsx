@@ -472,7 +472,7 @@ export default function MapView({ states, customScores }: MapViewProps) {
         Hover to preview · Click any state to view full retirement details · Click markers for details
       </p>
       <p className="md:hidden mt-3 text-center text-xs text-slate-400">
-        Pan to aim crosshair · Tap "View full details" to navigate · Tap markers for info
+        Pan to aim crosshair · Tap &quot;View full details&quot; to navigate · Tap markers for info
       </p>
 
       {/* Desktop hover tooltip */}

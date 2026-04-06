@@ -235,7 +235,7 @@ export default function Landing() {
 
         {currentStateName && (
           <p className="text-xs text-blue-600 bg-blue-50 rounded-lg px-3 py-2">
-            We'll show your estimated annual tax savings for each state vs. staying in {currentStateName}.
+            We&apos;ll show your estimated annual tax savings for each state vs. staying in {currentStateName}.
           </p>
         )}
 

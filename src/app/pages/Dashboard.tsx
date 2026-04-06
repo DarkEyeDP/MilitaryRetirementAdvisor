@@ -356,14 +356,17 @@ export default function Dashboard() {
     );
   }, [filters, excludedStates]);
 
+  const filteredFavorites = useMemo(
+    () => favorites.filter((id) => hardFilteredIds.has(id)),
+    [favorites, hardFilteredIds]
+  );
   useEffect(() => {
-    setFavorites((prev) => {
-      const next = prev.filter((id) => hardFilteredIds.has(id));
-      if (next.length === prev.length) return prev;
-      localStorage.setItem('comparison-favorites', JSON.stringify(next));
-      return next;
-    });
-  }, [hardFilteredIds]);
+    if (filteredFavorites.length !== favorites.length) {
+      setFavorites(filteredFavorites);
+      localStorage.setItem('comparison-favorites', JSON.stringify(filteredFavorites));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredFavorites]);
 
   const customScores = useMemo(() => {
     const scores: Record<string, number> = {};

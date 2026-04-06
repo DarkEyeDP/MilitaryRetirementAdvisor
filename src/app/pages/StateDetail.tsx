@@ -34,9 +34,6 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Car,
-  Medal,
-  GraduationCap,
   Thermometer,
   Droplets,
   CloudRain,
@@ -200,6 +197,10 @@ export default function StateDetail() {
   const nextScore = nextState ? calculateCustomScore(nextState, DEFAULT_SCORE_WEIGHTS) : 0;
   const computedScore = state ? calculateCustomScore(state, DEFAULT_SCORE_WEIGHTS) : 0;
 
+  // Hover state for map marker highlight (must be before early return)
+  const [hoveredFacilityName, setHoveredFacilityName] = useState<string | null>(null);
+  const [hoveredInstallationId, setHoveredInstallationId] = useState<string | null>(null);
+
   // Animated counter for the hero score
   const [displayScore, setDisplayScore] = useState(0);
   const scoreFromRef = useRef(0);
@@ -296,6 +297,7 @@ export default function StateDetail() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prevId, nextId, headerScrolled]);
 
   const riskColor = (level: RiskLevel) => {
@@ -354,9 +356,6 @@ export default function StateDetail() {
   const vamcs = allFacilities.filter((f) => f.type !== 'clinic');
   const clinics = allFacilities.filter((f) => f.type === 'clinic');
   const stateInstallations = militaryInstallations.filter((i) => i.stateId === state.id);
-
-  const [hoveredFacilityName, setHoveredFacilityName] = useState<string | null>(null);
-  const [hoveredInstallationId, setHoveredInstallationId] = useState<string | null>(null);
 
   // Shared height for the map+directory row — grows with facility count
   const facilityPanelHeight = allFacilities.length > 20 ? 560 : allFacilities.length > 10 ? 460 : 380;
@@ -1307,7 +1306,7 @@ export default function StateDetail() {
                       <div className="p-3 bg-sky-50 rounded-lg text-center">
                         <div className="flex items-center justify-center gap-1">
                           <CloudRain className="w-4 h-4 text-sky-600" />
-                          <span className="text-2xl font-bold text-sky-700">{climate.annualRainfallInches}"</span>
+                          <span className="text-2xl font-bold text-sky-700">{climate.annualRainfallInches}&quot;</span>
                         </div>
                         <div className="text-xs text-slate-500 mt-1">Annual Rainfall</div>
                       </div>
