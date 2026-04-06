@@ -186,7 +186,7 @@ export default function Landing() {
               id="income"
               min={20000}
               max={150000}
-              step={5000}
+              step={1000}
               value={[retirementIncome]}
               onValueChange={(value: number[]) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
               className="w-full"
