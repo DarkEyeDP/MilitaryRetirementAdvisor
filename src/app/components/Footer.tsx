@@ -54,6 +54,14 @@ export default function Footer() {
                   Data Sources &amp; Methodology
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => navigate('/sitemap')}
+                  className="text-sm text-slate-300 hover:text-white transition-colors"
+                >
+                  Site Map
+                </button>
+              </li>
             </ul>
           </div>
 

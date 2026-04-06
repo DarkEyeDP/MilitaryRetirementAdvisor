@@ -6,6 +6,7 @@ import StateDetail from './pages/StateDetail';
 import ComparisonPage from './pages/ComparisonPage';
 import ErrorPage from './pages/ErrorPage';
 import Sources from './pages/Sources';
+import Sitemap from './pages/Sitemap';
 import Footer from './components/Footer';
 
 function ScrollToTop() {
@@ -35,6 +36,7 @@ export const router = createHashRouter([
       { path: '/state/:stateId', Component: StateDetail },
       { path: '/compare', Component: ComparisonPage },
       { path: '/sources', Component: Sources },
+      { path: '/sitemap', Component: Sitemap },
       { path: '*', Component: ErrorPage },
     ],
   },
