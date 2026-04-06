@@ -54,5 +54,10 @@ export const stateVeteranUrls: Record<string, string> = {
   'west-virginia':  'https://veterans.wv.gov/Pages/default.aspx',
   'wisconsin':      'https://dva.wi.gov/Pages/home.aspx',
   'wyoming':        'https://www.wyomilitary.wyo.gov/',
-  'dc':             'https://ova.dc.gov/',
+  'dc':                       'https://ova.dc.gov/',
+  'puerto-rico':              'https://ogv.pr.gov/',
+  'guam':                     'https://dva.guam.gov/',
+  'us-virgin-islands':        'https://ltg.vi.gov/veterans-affairs/',
+  'american-samoa':           'https://www.americansamoa.gov/',
+  'northern-mariana-islands': 'https://www.bnmva.org/',
 };

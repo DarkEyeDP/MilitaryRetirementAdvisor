@@ -1114,7 +1114,7 @@ export default function Sources() {
         <p className="text-slate-500 text-sm mb-6">
           <span className="hidden md:inline">All 50 states + DC. Every number used to compute scores is shown below — click any column header to sort.
           Data is updated annually; always verify critical figures with official sources before making relocation decisions.</span>
-          <span className="md:hidden">Every number behind the retirement scores — all 50 states + DC, 2026 data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
+          <span className="md:hidden">Every number behind the retirement scores — all 50 states, DC & territories, 2026 data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
         </p>
 
         <Tabs defaultValue="scoring">

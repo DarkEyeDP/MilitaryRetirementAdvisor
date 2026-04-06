@@ -98,7 +98,7 @@ export default function Landing() {
   const hasSpouseIncome = secondaryIncome.some((s) => s.label === 'Spouse income');
 
   const [isLoading, setIsLoading] = useState(false);
-  const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states + DC…', 'Ranking your results…'];
+  const loadingMessages = ['Analyzing your profile…', 'Crunching 50 states, DC & territories…', 'Ranking your results…'];
   const [loadingMsg, setLoadingMsg] = useState(loadingMessages[0]);
   const msgIndex = useRef(0);
 
@@ -400,7 +400,7 @@ export default function Landing() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Desktop: two-column layout, vertically centered in remaining viewport */}
-        <div className="hidden lg:grid lg:grid-cols-[1fr_480px] lg:gap-14 lg:min-h-[calc(100vh-65px)] lg:items-center lg:py-8">
+        <div className="hidden lg:grid lg:grid-cols-[1fr_480px] lg:gap-14 lg:items-start lg:pt-16 lg:pb-12">
 
           {/* Left: hero + features + stats */}
           <div className="space-y-10">
@@ -409,14 +409,14 @@ export default function Landing() {
                 Choose Where Your<br />Retirement Works for You
               </h2>
               <p className="text-lg text-slate-500 max-w-lg leading-relaxed">
-                Compare all 50 states + DC based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
+                Compare all 50 states, DC & territories based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
               </p>
             </div>
 
             <div>
               <div className="py-5 border-t border-slate-200/80">
                 <h3 className="font-semibold text-slate-900 mb-1">Tax Analysis</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states + DC.</p>
+                <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states, DC & territories.</p>
               </div>
               <div className="py-5 border-t border-slate-200/80">
                 <h3 className="font-semibold text-slate-900 mb-1">Veteran Benefits</h3>
@@ -430,11 +430,7 @@ export default function Landing() {
 
             <div className="flex gap-10 text-sm">
               <div>
-                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">50</div>
-                <div className="text-slate-500">States Covered</div>
-              </div>
-              <div>
-                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">100+</div>
+                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">500+</div>
                 <div className="text-slate-500">Data Points</div>
               </div>
               <div>
@@ -455,7 +451,7 @@ export default function Landing() {
               Choose Where Your<br />Retirement Works for You
             </h2>
             <p className="text-slate-600 max-w-lg mx-auto">
-              Compare all 50 states + DC based on taxes, benefits, and quality of life.
+              Compare all 50 states, DC & territories based on taxes, benefits, and quality of life.
             </p>
           </div>
 
@@ -467,7 +463,7 @@ export default function Landing() {
                 <TrendingDown className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="font-semibold mb-1">Tax Analysis</h3>
-              <p className="text-sm text-slate-500">Income, property, and pension exemptions across all 50 states + DC.</p>
+              <p className="text-sm text-slate-500">Income, property, and pension exemptions across all 50 states, DC & territories.</p>
             </div>
             <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
               <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center mb-3">
@@ -488,8 +484,7 @@ export default function Landing() {
           <div className="text-center pb-4">
             <p className="text-slate-500 text-sm mb-3">Trusted by thousands of retiring service members</p>
             <div className="flex justify-center gap-8 text-sm">
-              <div><div className="font-bold text-2xl text-blue-600">50</div><div className="text-slate-500">States Covered</div></div>
-              <div><div className="font-bold text-2xl text-blue-600">100+</div><div className="text-slate-500">Data Points</div></div>
+              <div><div className="font-bold text-2xl text-blue-600">500+</div><div className="text-slate-500">Data Points</div></div>
               <div><div className="font-bold text-2xl text-blue-600">2026</div><div className="text-slate-500">Updated Data</div></div>
             </div>
           </div>

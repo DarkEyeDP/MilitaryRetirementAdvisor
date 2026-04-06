@@ -355,6 +355,9 @@ export default function StateDetail() {
   const clinics = allFacilities.filter((f) => f.type === 'clinic');
   const stateInstallations = militaryInstallations.filter((i) => i.stateId === state.id);
 
+  const [hoveredFacilityName, setHoveredFacilityName] = useState<string | null>(null);
+  const [hoveredInstallationId, setHoveredInstallationId] = useState<string | null>(null);
+
   // Shared height for the map+directory row — grows with facility count
   const facilityPanelHeight = allFacilities.length > 20 ? 560 : allFacilities.length > 10 ? 460 : 380;
 
@@ -750,7 +753,7 @@ export default function StateDetail() {
               <Building2 className="w-3.5 h-3.5 text-blue-600" />
               <span className="text-xs font-semibold text-slate-700">VA Facilities Map</span>
             </div>
-            <StateShapeMap key={state.id} stateId={state.id} stateName={state.name} height={facilityPanelHeight} showInstallations={showInstallations} onShowInstallationsChange={setShowInstallations} />
+            <StateShapeMap key={state.id} stateId={state.id} stateName={state.name} height={facilityPanelHeight} showInstallations={showInstallations} onShowInstallationsChange={setShowInstallations} hoveredFacilityName={hoveredFacilityName} hoveredInstallationId={hoveredInstallationId} />
           </div>
 
           {/* Facility Directory — tabbed */}
@@ -808,6 +811,8 @@ export default function StateDetail() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-start gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline py-0.5"
+                              onMouseEnter={() => setHoveredFacilityName(f.name)}
+                              onMouseLeave={() => setHoveredFacilityName(null)}
                             >
                               <MapPin className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
                               <span>{f.name}</span>
@@ -836,6 +841,8 @@ export default function StateDetail() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-start gap-2 text-sm text-green-600 hover:text-green-800 hover:underline py-0.5"
+                              onMouseEnter={() => setHoveredFacilityName(f.name)}
+                              onMouseLeave={() => setHoveredFacilityName(null)}
                             >
                               <MapPin className="w-3.5 h-3.5 text-green-400 flex-shrink-0 mt-0.5" />
                               <span>{f.name}</span>
@@ -868,6 +875,8 @@ export default function StateDetail() {
                           rel="noopener noreferrer"
                           className="flex items-start gap-2 text-sm hover:underline py-0.5"
                           style={{ color: '#4b5320' }}
+                          onMouseEnter={() => setHoveredInstallationId(inst.id)}
+                          onMouseLeave={() => setHoveredInstallationId(null)}
                         >
                           <span className="flex-shrink-0 mt-0.5" style={{ color: '#7a8c3a' }}>★</span>
                           <span>{inst.name}</span>

@@ -248,7 +248,12 @@ export const stateAdjacency: Record<string, string[]> = {
   'west-virginia':  ['kentucky', 'maryland', 'ohio', 'pennsylvania', 'virginia'],
   'wisconsin':      ['illinois', 'iowa', 'michigan', 'minnesota'],
   'wyoming':        ['colorado', 'idaho', 'montana', 'nebraska', 'south-dakota', 'utah'],
-  'dc':             ['maryland', 'virginia'],
+  'dc':                       ['maryland', 'virginia'],
+  'puerto-rico':              ['us-virgin-islands'],
+  'guam':                     ['northern-mariana-islands'],
+  'us-virgin-islands':        ['puerto-rico'],
+  'american-samoa':           [],
+  'northern-mariana-islands': ['guam'],
 };
 
 /**

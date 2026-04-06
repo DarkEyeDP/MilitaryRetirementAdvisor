@@ -15,6 +15,7 @@ import type { GeoJsonObject, Feature } from 'geojson';
 import { vaFacilityLocations, stateFipsMap } from '../data/vaFacilityLocations';
 import { spaceATerminals } from '../data/spaceATerminals';
 import { militaryInstallations } from '../data/militaryInstallations';
+import { TERRITORY_IDS } from '../data/stateData';
 import 'leaflet/dist/leaflet.css';
 
 const SPACE_A_COLOR = '#7c3aed'; // violet
@@ -36,12 +37,22 @@ const installationIcon = L.divIcon({
   popupAnchor: [0, -14],
 });
 
+const installationIconHovered = L.divIcon({
+  html: `<div style="background:${INSTALLATION_COLOR};color:white;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.45);line-height:1">★</div>`,
+  className: '',
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
+  popupAnchor: [0, -19],
+});
+
 interface Props {
   stateId: string;
   stateName: string;
   height?: number;
   showInstallations?: boolean;
   onShowInstallationsChange?: (value: boolean) => void;
+  hoveredFacilityName?: string | null;
+  hoveredInstallationId?: string | null;
 }
 
 // Fit the map view to the GeoJSON bounds after it loads
@@ -67,7 +78,7 @@ const TOPO_URL = 'https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json';
 // Simple cache so we only fetch once per session
 let topoCache: Topology | null = null;
 
-export default function StateShapeMap({ stateId, stateName, height = 380, showInstallations: showInstallationsProp, onShowInstallationsChange }: Props) {
+export default function StateShapeMap({ stateId, stateName, height = 380, showInstallations: showInstallationsProp, onShowInstallationsChange, hoveredFacilityName, hoveredInstallationId }: Props) {
   const [stateGeojson, setStateGeojson] = useState<GeoJsonObject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -155,16 +166,17 @@ export default function StateShapeMap({ stateId, stateName, height = 380, showIn
         {/* VA facility markers */}
         {facilities.map((facility, i) => {
           const isClinic = facility.type === 'clinic';
+          const isHovered = hoveredFacilityName === facility.name;
           return (
             <CircleMarker
               key={i}
               center={[facility.lat, facility.lon]}
-              radius={isClinic ? 6 : 8}
+              radius={isHovered ? (isClinic ? 11 : 14) : (isClinic ? 6 : 8)}
               pathOptions={{
                 color: '#ffffff',
-                weight: 2,
+                weight: isHovered ? 3 : 2,
                 fillColor: isClinic ? '#16a34a' : '#1d4ed8',
-                fillOpacity: 0.9,
+                fillOpacity: isHovered ? 1.0 : 0.9,
               }}
             >
               <Popup>
@@ -227,7 +239,7 @@ export default function StateShapeMap({ stateId, stateName, height = 380, showIn
 
         {/* Military installation markers — toggleable, off by default */}
         {showInstallations && stateInstallations.map((inst) => (
-          <Marker key={inst.id} position={[inst.lat, inst.lon]} icon={installationIcon}>
+          <Marker key={inst.id} position={[inst.lat, inst.lon]} icon={hoveredInstallationId === inst.id ? installationIconHovered : installationIcon}>
             <Popup>
               <div className="text-sm leading-snug max-w-[240px] space-y-1">
                 <div className="font-semibold">{inst.name}</div>
@@ -241,25 +253,27 @@ export default function StateShapeMap({ stateId, stateName, height = 380, showIn
       </MapContainer>
 
       {/* Legend */}
-      <div className="px-4 py-3 bg-white border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
-        <div className="flex items-center gap-4 text-xs text-slate-600 flex-wrap">
-          <div className="flex items-center gap-1.5">
+      <div className="px-4 py-3 bg-white border-t border-slate-100 flex flex-col gap-2">
+        {/* Marker type row — never wraps; scrolls horizontally on very narrow viewports */}
+        <div className="flex items-center gap-3 text-xs text-slate-600 overflow-x-auto">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-sm" />
-            <span>VA Medical Center ({facilities.filter((f) => f.type !== 'clinic').length})</span>
+            <span className="whitespace-nowrap">VA Medical Center ({facilities.filter((f) => f.type !== 'clinic').length})</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <div className="w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow-sm" />
-            <span>VA Clinic ({facilities.filter((f) => f.type === 'clinic').length})</span>
+            <span className="whitespace-nowrap">VA Clinic ({facilities.filter((f) => f.type === 'clinic').length})</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[9px]" style={{ backgroundColor: SPACE_A_COLOR }}>✈</div>
-            <span>Space-A Terminal ({spaceATerminals.filter((t) => t.stateId === stateId).length})</span>
+            <span className="whitespace-nowrap">Space-A Terminal ({spaceATerminals.filter((t) => t.stateId === stateId).length})</span>
           </div>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-shrink-0">
             <div className="w-6 h-3 rounded-sm bg-blue-100 border border-blue-700 opacity-70" />
-            <span>{stateName} boundary</span>
+            <span className="whitespace-nowrap">{TERRITORY_IDS.has(stateId) ? 'Territory' : 'State'} boundary</span>
           </div>
         </div>
+        {/* Controls row */}
         <div className="flex items-center gap-3">
           {stateInstallations.length > 0 && (
             <button
