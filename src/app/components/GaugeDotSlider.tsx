@@ -7,6 +7,8 @@ import { cn } from './ui/utils';
  * - Thick rounded fill bar (dark)
  * - White circle dot at the tip of the fill, no colored border
  * - Dot is slightly larger than bar height so it visually caps the fill end
+ *
+ * Also supports mouse scroll wheel and two-finger horizontal swipe to adjust value.
  */
 function GaugeDotSlider({
   className,
@@ -14,14 +16,40 @@ function GaugeDotSlider({
   value,
   min = 0,
   max = 100,
+  step = 1,
+  onValueChange,
   ...props
 }: React.ComponentProps<typeof SliderPrimitive.Root>) {
+  const rootRef = React.useRef<HTMLSpanElement>(null);
+
+  const handleWheel = React.useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      const current = (value as number[] | undefined)?.[0] ?? (defaultValue as number[] | undefined)?.[0] ?? min;
+      // deltaX for two-finger swipe, deltaY for scroll wheel; right/down = decrease
+      const delta = e.deltaX !== 0 ? -e.deltaX : -e.deltaY;
+      const next = Math.min(max, Math.max(min, current + Math.sign(delta) * (step as number)));
+      onValueChange?.([next]);
+    },
+    [value, defaultValue, min, max, step, onValueChange]
+  );
+
+  React.useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, [handleWheel]);
+
   return (
     <SliderPrimitive.Root
+      ref={rootRef}
       defaultValue={defaultValue}
       value={value}
       min={min}
       max={max}
+      step={step}
+      onValueChange={onValueChange}
       className={cn(
         'relative flex w-full touch-none items-center select-none data-[disabled]:opacity-50',
         className
