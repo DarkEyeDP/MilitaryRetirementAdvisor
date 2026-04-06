@@ -203,7 +203,7 @@ function ScoringTab() {
         {/* Three factor sections — desktop: cards in grid; mobile: divider-separated rows */}
         <div className="grid grid-cols-1 md:grid-cols-3 md:gap-4 divide-y divide-slate-200 md:divide-y-0">
           {/* Tax Score */}
-          <div className="py-4 first:pt-0 md:py-0 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
+          <div className="py-4 first:pt-0 md:first:pt-4 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">T</div>
               <span className="font-semibold text-slate-800">Tax Score (0–100)</span>
@@ -239,7 +239,7 @@ function ScoringTab() {
           </div>
 
           {/* COL Score */}
-          <div className="py-4 md:py-0 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
+          <div className="py-4 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold text-sm">C</div>
               <span className="font-semibold text-slate-800">COL Score (0–100)</span>
@@ -259,7 +259,7 @@ function ScoringTab() {
           </div>
 
           {/* Benefits Score */}
-          <div className="py-4 md:py-0 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
+          <div className="py-4 md:bg-white md:border md:border-slate-200 md:rounded-xl md:p-4">
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-sm">B</div>
               <span className="font-semibold text-slate-800">Benefits Score (0–100)</span>
@@ -1114,7 +1114,7 @@ export default function Sources() {
         <p className="text-slate-500 text-sm mb-6">
           <span className="hidden md:inline">All 50 states + DC. Every number used to compute scores is shown below — click any column header to sort.
           Data is updated annually; always verify critical figures with official sources before making relocation decisions.</span>
-          <span className="md:hidden">Every number behind the retirement scores — all 50 states, DC & territories, 2026 data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
+          <span className="md:hidden">Every number behind the retirement scores — all 50 states + DC, 2026 data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
         </p>
 
         <Tabs defaultValue="scoring">

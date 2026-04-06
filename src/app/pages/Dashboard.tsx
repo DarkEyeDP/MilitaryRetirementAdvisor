@@ -331,16 +331,39 @@ export default function Dashboard() {
     });
   }, [filters, searchTerms, excludedStates]);
 
-  // Auto-remove comparison favorites when a state is filtered out of view
+  // Auto-remove comparison favorites only when a state is excluded via hard filters,
+  // NOT when hidden by the search bar (user may be mid-search while building comparison).
+  const hardFilteredIds = useMemo(() => {
+    return new Set(
+      statesData
+        .filter((state) => {
+          if (excludedStates.includes(state.id)) return false;
+          const activePrefs = [
+            filters.noIncomeTax && state.stateIncomeTax === 0,
+            filters.taxFreeMilitary && state.militaryPensionTax === 'No',
+            filters.partialTaxMilitary && state.militaryPensionTax === 'Partial',
+            filters.lowCostOfLiving && state.costOfLivingIndex < 95,
+            filters.highVABenefits && state.veteranBenefitsScore > 85,
+            filters.lowPropertyTax && state.propertyTaxLevel === 'Low',
+            filters.lowSalesTax && state.salesTax < 4,
+            filters.strongJobMarket && (stateEmploymentData[state.id]?.unemploymentRate ?? 99) < 4.0,
+          ];
+          const anyChecked = filters.noIncomeTax || filters.taxFreeMilitary || filters.partialTaxMilitary || filters.lowCostOfLiving || filters.highVABenefits || filters.lowPropertyTax || filters.lowSalesTax || filters.strongJobMarket;
+          if (anyChecked && !activePrefs.some(Boolean)) return false;
+          return true;
+        })
+        .map((s) => s.id)
+    );
+  }, [filters, excludedStates]);
+
   useEffect(() => {
-    const filteredIds = new Set(filteredStates.map((s) => s.id));
     setFavorites((prev) => {
-      const next = prev.filter((id) => filteredIds.has(id));
+      const next = prev.filter((id) => hardFilteredIds.has(id));
       if (next.length === prev.length) return prev;
       localStorage.setItem('comparison-favorites', JSON.stringify(next));
       return next;
     });
-  }, [filteredStates]);
+  }, [hardFilteredIds]);
 
   const customScores = useMemo(() => {
     const scores: Record<string, number> = {};
