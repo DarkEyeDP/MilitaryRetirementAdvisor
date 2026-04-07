@@ -32,7 +32,8 @@ export interface SecondaryIncomeSource {
 }
 
 export interface FinancialInputs {
-  retirementIncome: number;        // annual military pension ($)
+  userType?: 'retiree' | 'separating'; // 'retiree' = collecting pension; 'separating' = no pension
+  retirementIncome: number;        // annual military pension ($) or expected annual income for separating members
   disabilityRating: string;        // '10'–'100', 'none', or ''
   secondaryIncome?: SecondaryIncomeSource[]; // taxed at full state rate
   hasSpouse?: boolean;             // veteran has qualifying spouse — affects VA pay at 30%+

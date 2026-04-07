@@ -42,6 +42,7 @@ export default function Dashboard() {
 
   // Read inputs passed from Landing page; fall back to sensible defaults
   const locationState = location.state as {
+    userType?: 'retiree' | 'separating';
     retirementIncome?: number;
     disabilityRating?: string;
     currentStateId?: string;
@@ -66,7 +67,10 @@ export default function Dashboard() {
       ? _savedBudgetMembers.filter(m => ['under6', '6to12', '13to18'].includes(m.ageGroup)).length
       : parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10));
 
+  const userType = (locationState?.userType ?? localStorage.getItem('origin-user-type') ?? 'retiree') as 'retiree' | 'separating';
+
   const [financialInputs, setFinancialInputs] = useState<FinancialInputs>({
+    userType,
     retirementIncome: locationState?.retirementIncome ?? 60000,
     disabilityRating: locationState?.disabilityRating
       ?? localStorage.getItem('origin-disability-rating')
@@ -598,7 +602,7 @@ export default function Dashboard() {
               </div>
 
               {/* View Toggle + Score Methodology button */}
-              <div className="flex items-center justify-between gap-4 mb-4">
+              <div className="flex items-center justify-between gap-4">
                 <div className="flex bg-slate-100 rounded-lg p-1 max-w-xs w-full">
                   {(
                     [

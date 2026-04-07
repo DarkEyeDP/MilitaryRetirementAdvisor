@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Shield, TrendingDown, Heart, MapPin, Plus, X, Briefcase } from 'lucide-react';
+import { Shield, Plus, X, Briefcase } from 'lucide-react';
 import { statesData } from '../data/stateData';
 import type { AgeGroup, SecondaryIncomeSource } from '../data/financialReality';
 import { AGE_GROUP_LABELS } from '../data/financialReality';
@@ -74,6 +74,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const prefs = loadPrefs();
 
+  const [userType, setUserType] = useState<'retiree' | 'separating'>(prefs.userType ?? 'retiree');
   const [retirementIncome, setRetirementIncome] = useState<number>(prefs.retirementIncome ?? 60000);
   const [disabilityRating, setDisabilityRating] = useState<string>(prefs.disabilityRating ?? '');
   const [currentStateId, setCurrentStateId] = useState<string>(prefs.currentStateId ?? '');
@@ -145,6 +146,7 @@ export default function Landing() {
 
     setTimeout(() => {
       clearInterval(interval);
+      localStorage.setItem('origin-user-type', userType);
       if (currentStateId) {
         localStorage.setItem('origin-state-id', currentStateId);
         localStorage.setItem('origin-retirement-income', String(retirementIncome));
@@ -160,7 +162,7 @@ export default function Landing() {
       localStorage.setItem('origin-has-spouse', String(hasSpouse));
       localStorage.setItem('origin-dependent-children', String(dependentChildren));
       navigate('/dashboard', {
-        state: { retirementIncome, disabilityRating, currentStateId, familyMembers, secondaryIncome, hasSpouse, dependentChildren },
+        state: { userType, retirementIncome, disabilityRating, currentStateId, familyMembers, secondaryIncome, hasSpouse, dependentChildren },
       });
     }, 1200);
   };
@@ -174,9 +176,30 @@ export default function Landing() {
         {/* Income */}
         <div>
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Your Finances</p>
+
+          {/* User type toggle */}
+          <div className="flex gap-2 mb-4">
+            {(['retiree', 'separating'] as const).map((type) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => { setUserType(type); savePrefs({ userType: type }); }}
+                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium border transition-colors ${
+                  userType === type
+                    ? 'bg-blue-700 text-white border-blue-700'
+                    : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                {type === 'retiree' ? 'Retiring (Pension)' : 'Separating (EAS/ETS)'}
+              </button>
+            ))}
+          </div>
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="income" className="text-sm">Military Retirement Income</Label>
+              <Label htmlFor="income" className="text-sm">
+                {userType === 'retiree' ? 'Annual Retirement Income' : 'Expected Annual Income'}
+              </Label>
               <div className="text-right">
                 <span className="font-semibold text-blue-600 text-sm">${retirementIncome.toLocaleString()}</span>
                 <span className="text-xs text-slate-400 ml-1.5">${Math.round(retirementIncome / 12).toLocaleString()}/mo</span>
@@ -409,7 +432,7 @@ export default function Landing() {
                 Choose Where Your<br />Retirement Works for You
               </h2>
               <p className="text-lg text-slate-500 max-w-lg leading-relaxed">
-                Compare all 50 states, DC & territories based on taxes, benefits, and quality of life. Make an informed decision about where to live after service.
+                Whether you&apos;re retiring or separating, compare all 50 states, DC & territories on taxes, benefits, and quality of life to make an informed decision about where to live after service.
               </p>
             </div>
 
@@ -459,30 +482,21 @@ export default function Landing() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
-              <div className="w-9 h-9 bg-blue-100 rounded-lg flex items-center justify-center mb-3">
-                <TrendingDown className="w-5 h-5 text-blue-600" />
-              </div>
               <h3 className="font-semibold mb-1">Tax Analysis</h3>
               <p className="text-sm text-slate-500">Income, property, and pension exemptions across all 50 states, DC & territories.</p>
             </div>
             <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
-              <div className="w-9 h-9 bg-green-100 rounded-lg flex items-center justify-center mb-3">
-                <Heart className="w-5 h-5 text-green-600" />
-              </div>
               <h3 className="font-semibold mb-1">Veteran Benefits</h3>
               <p className="text-sm text-slate-500">VA facilities, populations, and state-specific benefits.</p>
             </div>
             <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
-              <div className="w-9 h-9 bg-purple-100 rounded-lg flex items-center justify-center mb-3">
-                <MapPin className="w-5 h-5 text-purple-600" />
-              </div>
               <h3 className="font-semibold mb-1">Cost of Living</h3>
               <p className="text-sm text-slate-500">See how far your retirement income goes in each state.</p>
             </div>
           </div>
 
           <div className="text-center pb-4">
-            <p className="text-slate-500 text-sm mb-3">Trusted by thousands of retiring service members</p>
+            <p className="text-slate-500 text-sm mb-3">Trusted by thousands of transitioning service members</p>
             <div className="flex justify-center gap-8 text-sm">
               <div><div className="font-bold text-2xl text-blue-600">500+</div><div className="text-slate-500">Data Points</div></div>
               <div><div className="font-bold text-2xl text-blue-600">2026</div><div className="text-slate-500">Updated Data</div></div>

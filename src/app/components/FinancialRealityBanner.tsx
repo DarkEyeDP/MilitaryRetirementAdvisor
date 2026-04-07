@@ -6,7 +6,6 @@ import {
   ShieldCheck,
   Trophy,
   Wallet,
-  DollarSign,
   Info,
   SlidersHorizontal,
 } from 'lucide-react';
@@ -38,9 +37,9 @@ interface LineItem {
   sub?: string;
 }
 
-function BreakdownTooltip({ breakdown, profile }: { breakdown: FinancialBreakdown; profile: UserCostProfile }) {
+function BreakdownTooltip({ breakdown, profile, isSeparating }: { breakdown: FinancialBreakdown; profile: UserCostProfile; isSeparating?: boolean }) {
   const items: (LineItem & { overridden?: boolean })[] = [
-    { label: 'State tax on pension', value: fmt$(breakdown.stateTaxOnPension) },
+    { label: isSeparating ? 'State income tax' : 'State tax on pension', value: fmt$(breakdown.stateTaxOnPension) },
     ...(breakdown.stateTaxOnSecondaryIncome > 0 ? [{ label: 'State tax on other income', value: fmt$(breakdown.stateTaxOnSecondaryIncome) }] : []),
     { label: 'Property tax (monthly)', value: fmt$(breakdown.propertyTaxMonthly), overridden: profile.propertyTaxOverride !== null },
     {
@@ -151,6 +150,8 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
   const hasDisability =
     inputs.disabilityRating && inputs.disabilityRating !== 'none' && inputs.disabilityRating !== '';
   const monthlyPension = inputs.retirementIncome / 12;
+  const isSeparating = inputs.userType === 'separating';
+  const incomeLabel = isSeparating ? 'income' : 'pension';
 
   return (
     <div className="mb-6 md:bg-white md:rounded-xl md:border md:border-slate-200 md:shadow-sm">
@@ -158,8 +159,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
       <div className="px-6 pt-5 pb-4 border-b border-slate-100">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-1">
           <div className="flex items-center gap-1">
-            <DollarSign className="w-4 h-4 text-blue-600" />
-            <span className="text-blue-700 text-sm font-semibold tracking-wide uppercase">
+            <span className="text-2xl font-semibold text-green-700">
               Your Financial Reality
             </span>
           </div>
@@ -204,7 +204,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
                 }}
                 className="w-20 text-sm font-medium text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
               />
-              <span className="text-slate-900 font-medium">/mo pension</span>
+              <span className="text-slate-900 font-medium">/mo {incomeLabel}</span>
               <span className="text-xs text-slate-400 ml-1">(Enter to save)</span>
             </span>
           ) : (
@@ -212,7 +212,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
               onClick={onChangeInputs ? startEditIncome : undefined}
               className={onChangeInputs ? 'text-slate-900 font-medium hover:text-blue-600 hover:underline underline-offset-2 transition-colors' : 'text-slate-900 font-medium'}
             >
-              {fmt$(monthlyPension)}/mo pension
+              {fmt$(monthlyPension)}/mo {incomeLabel}
             </button>
           )}
           {hasDisability ? (
@@ -291,7 +291,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
             {fmt$(topState.breakdown.totalMonthlyIncome)}
           </p>
           {hasDisability && (
-            <p className="text-xs text-slate-400 mt-1">Pension + disability combined</p>
+            <p className="text-xs text-slate-400 mt-1">{isSeparating ? 'Income' : 'Pension'} + disability combined</p>
           )}
           <div className="mt-2 flex items-center gap-1.5">
             <ShieldCheck className="w-3 h-3 text-green-500 flex-shrink-0" />
@@ -316,7 +316,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
           </p>
           <p className="text-xs text-slate-500 mt-1">Tax + insurance + utilities</p>
           <p className="text-xs text-slate-400 mt-1">In {best.state.name} (lowest cost)</p>
-          {showTooltip === 'costs' && <BreakdownTooltip breakdown={best.breakdown} profile={profile} />}
+          {showTooltip === 'costs' && <BreakdownTooltip breakdown={best.breakdown} profile={profile} isSeparating={isSeparating} />}
         </div>
 
         {/* Best state */}
@@ -384,7 +384,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
               <thead>
                 <tr className="text-slate-400 text-xs uppercase tracking-wide">
                   <th className="text-left pb-2 pr-4">State</th>
-                  <th className="text-right pb-2 pr-4">Pension Tax</th>
+                  <th className="text-right pb-2 pr-4">{isSeparating ? 'Income Tax' : 'Pension Tax'}</th>
                   <th className="text-right pb-2 pr-4">Prop. Tax/mo</th>
                   <th className="text-right pb-2 pr-4">Insurance/mo</th>
                   <th className="text-right pb-2 pr-4">Utilities/mo</th>

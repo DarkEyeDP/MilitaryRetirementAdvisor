@@ -164,6 +164,8 @@ export default function StateDetail() {
   const currentStateId: string | null = locState?.currentStateId ?? localStorage.getItem('origin-state-id');
   const retirementIncome: number = locState?.retirementIncome
     ?? (Number(localStorage.getItem('origin-retirement-income') || '0') || 60000);
+  const userType = (localStorage.getItem('origin-user-type') ?? 'retiree') as 'retiree' | 'separating';
+  const isSeparating = userType === 'separating';
 
   const currentIdx = resultIds.indexOf(stateId ?? '');
   const prevId = currentIdx > 0 ? resultIds[currentIdx - 1] : null;
@@ -501,7 +503,7 @@ export default function StateDetail() {
                 )}
               </div>
               <div className="flex items-center gap-3 mb-4">
-                <p className="text-sm text-slate-400">Military retirement profile · 2026 data</p>
+                <p className="text-sm text-slate-400">{isSeparating ? 'Transitioning service member' : 'Military retirement profile'} · 2026 data</p>
                 {stateVeteranUrls[state.id] && (
                   <a
                     href={stateVeteranUrls[state.id]}
@@ -581,10 +583,10 @@ export default function StateDetail() {
                     score={taxScoreComponents.total}
                     label="Tax Friendliness"
                     subItems={[
-                      {
+                      ...(!isSeparating ? [{
                         label: 'Pension tax/yr',
                         value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr`,
-                      },
+                      }] : []),
                       {
                         label: 'Income tax/yr',
                         value: incomeTax === 0 ? 'None' : `$${incomeTax.toLocaleString()}/yr`,
@@ -645,7 +647,7 @@ export default function StateDetail() {
                   label: 'Tax Friendliness',
                   score: taxScoreComponents.total,
                   items: [
-                    { label: 'Pension tax', value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr` },
+                    ...(!isSeparating ? [{ label: 'Pension tax', value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr` }] : []),
                     { label: 'Income tax', value: state.stateIncomeTax === 0 ? 'None' : `${state.stateIncomeTax}%` },
                     { label: 'Property tax', value: state.propertyTaxLevel },
                     { label: 'Sales tax', value: state.salesTax === 0 ? 'None' : `${state.salesTax}%` },
