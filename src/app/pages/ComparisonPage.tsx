@@ -13,8 +13,10 @@ import {
   ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck,
   CheckCircle2, AlertCircle, XCircle, TrendingUp, TrendingDown,
   Home, Users, Thermometer, Wind, Flame, Waves, Snowflake,
-  TriangleAlert, Mountain, Shield, Briefcase, Plus, X,
+  TriangleAlert, Mountain, Shield, Briefcase, Plus, X, Download,
 } from 'lucide-react';
+import { pdf } from '@react-pdf/renderer';
+import { ComparisonPdfDocument } from '../components/pdf/ComparisonPdfDocument';
 import { Button } from '@/app/components/ui/button';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
@@ -341,6 +343,29 @@ function EmptyWithSlots({
 export default function ComparisonPage() {
   const navigate = useNavigate();
   const [annual, setAnnual] = useState(false);
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleExportPdf = async () => {
+    setPdfLoading(true);
+    try {
+      const stateNames = states.map((s) => s.abbreviation).join('-');
+      const blob = await pdf(
+        <ComparisonPdfDocument
+          states={states}
+          inputs={financialInputs}
+          profile={userCostProfile}
+        />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `State-Comparison-${stateNames}-Military-Retirement.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
 
   // Load compared state IDs — reactive so empty-state slots can populate it
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() =>
@@ -414,6 +439,18 @@ export default function ComparisonPage() {
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
+            <button
+              onClick={handleExportPdf}
+              disabled={pdfLoading}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-blue-300 hover:text-blue-600 transition-colors disabled:opacity-50"
+            >
+              {pdfLoading ? (
+                <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-slate-600 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline">{pdfLoading ? 'Building…' : 'Export PDF'}</span>
+            </button>
             <div className="flex rounded-full bg-slate-100 p-0.5 text-xs font-semibold">
               {[{ label: 'Monthly', value: false }, { label: 'Annual', value: true }].map(({ label, value }) => {
                 const active = annual === value;

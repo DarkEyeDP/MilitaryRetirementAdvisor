@@ -47,11 +47,14 @@ import {
   Briefcase,
   Plane,
   ExternalLink,
+  Download,
 } from 'lucide-react';
 import IconReadOutlined from '../components/ui/IconReadOutlined';
 import { toast } from 'sonner';
 import StateShapeMap from '../components/StateShapeMap';
 import ComparisonDrawer from '../components/ComparisonDrawer';
+import { pdf } from '@react-pdf/renderer';
+import { StatePdfDocument } from '../components/pdf/StatePdfDocument';
 
 function ScoreGauge({
   score,
@@ -302,6 +305,34 @@ export default function StateDetail() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prevId, nextId, headerScrolled]);
 
+  const [pdfLoading, setPdfLoading] = useState(false);
+
+  const handleExportPdf = async () => {
+    if (!state) return;
+    setPdfLoading(true);
+    try {
+      const blob = await pdf(
+        <StatePdfDocument
+          state={state}
+          inputs={{ userType, retirementIncome }}
+          housingData={stateHousingData[state.id] ?? null}
+          employmentData={stateEmploymentData[state.id] ?? null}
+          climateData={stateClimateData[state.id] ?? null}
+          perks={stateVeteranPerks[state.id] ?? null}
+          originState={originState}
+        />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${state.name.replace(/\s+/g, '-')}-Military-Retirement-Report.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setPdfLoading(false);
+    }
+  };
+
   const riskColor = (level: RiskLevel) => {
     if (level === 'High')     return 'bg-red-100 text-red-700 border border-red-200';
     if (level === 'Moderate') return 'bg-yellow-100 text-yellow-700 border border-yellow-200';
@@ -427,8 +458,16 @@ export default function StateDetail() {
               </Button>
             </div>
 
-            {/* Right: sources link + app name */}
+            {/* Right: export + sources link + app name */}
             <div className="flex items-center gap-2 shrink-0">
+              <Button variant="outline" size="sm" onClick={handleExportPdf} disabled={pdfLoading} className="gap-1.5 h-8 text-xs">
+                {pdfLoading ? (
+                  <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-slate-600 animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                <span className="hidden sm:inline">{pdfLoading ? 'Building…' : 'Export PDF'}</span>
+              </Button>
               <Button variant="ghost" onClick={() => navigate('/sources')} className="gap-2">
                 <IconReadOutlined className="w-4 h-4" />
                 <span className="hidden sm:inline">Sources</span>
