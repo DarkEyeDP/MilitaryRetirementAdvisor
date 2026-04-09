@@ -24,6 +24,8 @@ import {
   MousePointer2,
   ChevronDown,
   Info,
+  MapPin,
+  Home,
 } from 'lucide-react';
 import IconReadOutlined from '../components/ui/IconReadOutlined';
 
@@ -99,6 +101,24 @@ export default function Dashboard() {
     return localStorage.getItem('origin-state-id') ?? null;
   })();
   const originStateName = currentStateId ? statesData.find((s) => s.id === currentStateId)?.name ?? null : null;
+  const originStateData = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
+  const originStateScore = originStateData ? calculateCustomScore(originStateData, { taxes: 40, cost: 30, benefits: 30 }) : null;
+
+  const [homeStatePickerOpen, setHomeStatePickerOpen] = useState(false);
+  const [homeStateQuery, setHomeStateQuery] = useState('');
+  const [homeStateOverride, setHomeStateOverride] = useState<string | null>(null);
+
+  // Effective home state: local override (set by picker) takes priority
+  const effectiveHomeStateId = homeStateOverride ?? currentStateId;
+  const effectiveOriginStateData = effectiveHomeStateId ? statesData.find((s) => s.id === effectiveHomeStateId) ?? null : null;
+  const effectiveOriginStateScore = effectiveOriginStateData ? calculateCustomScore(effectiveOriginStateData, { taxes: 40, cost: 30, benefits: 30 }) : null;
+
+  function handleHomeStateChange(newId: string) {
+    localStorage.setItem('origin-state-id', newId);
+    setHomeStateOverride(newId);
+    setHomeStatePickerOpen(false);
+    setHomeStateQuery('');
+  }
   const landingFamilyMembers = locationState?.familyMembers ?? (() => {
     try {
       const stored = localStorage.getItem('origin-family-members');
@@ -534,114 +554,262 @@ export default function Dashboard() {
 
             {/* Results Summary */}
             <div className="mb-6 pt-5 border-t border-slate-200 mx-4 md:mx-0 md:bg-white md:rounded-lg md:border md:border-slate-200 md:p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-semibold mb-1">
-                    {(() => {
-                      const stateCount = filteredStates.filter(s => !TERRITORY_IDS.has(s.id)).length;
-                      const territoryCount = filteredStates.filter(s => TERRITORY_IDS.has(s.id)).length;
-                      const statePart = stateCount > 0 ? `${stateCount} ${stateCount === 1 ? 'State' : 'States'}` : '';
-                      const territoryPart = territoryCount > 0 ? `${territoryCount} ${territoryCount === 1 ? 'Territory' : 'Territories'}` : '';
-                      return [statePart, territoryPart].filter(Boolean).join(' & ') + ' Found';
-                    })()}
-                  </h2>
-                  <p className="text-slate-600">
-                    {activeFiltersCount > 0 || hasCustomWeights
-                      ? 'Filtered and ranked based on your preferences'
-                      : 'Showing all states ranked by retirement friendliness'}
-                  </p>
-                </div>
-              </div>
 
-              {/* Search */}
-              <div className="relative mb-4">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
-                  <AnimatePresence mode="wait">
-                    {isSearching ? (
-                      <motion.span
-                        key="spinner"
-                        initial={{ opacity: 0, rotate: 0 }}
-                        animate={{ opacity: 1, rotate: 360 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ rotate: { duration: 0.6, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.15 } }}
-                        className="block w-4 h-4 rounded-full border-2 border-slate-200 border-t-blue-500"
-                      />
-                    ) : (
-                      <motion.span
-                        key="icon"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.15 }}
-                        className="block"
+              {/* Two-column layout on desktop: left = title+search+toggle, right = home state widget */}
+              <div className="flex flex-col lg:flex-row lg:gap-5 lg:items-stretch">
+
+                {/* LEFT: title + subtitle + search + view toggle — drives the container height */}
+                <div className="flex-1 min-w-0 flex flex-col gap-3">
+                  <div>
+                    <h2 className="text-2xl font-semibold mb-1">
+                      {(() => {
+                        const stateCount = filteredStates.filter(s => !TERRITORY_IDS.has(s.id)).length;
+                        const territoryCount = filteredStates.filter(s => TERRITORY_IDS.has(s.id)).length;
+                        const statePart = stateCount > 0 ? `${stateCount} ${stateCount === 1 ? 'State' : 'States'}` : '';
+                        const territoryPart = territoryCount > 0 ? `${territoryCount} ${territoryCount === 1 ? 'Territory' : 'Territories'}` : '';
+                        return [statePart, territoryPart].filter(Boolean).join(' & ') + ' Found';
+                      })()}
+                    </h2>
+                    <p className="text-slate-600">
+                      {activeFiltersCount > 0 || hasCustomWeights
+                        ? 'Filtered and ranked based on your preferences'
+                        : 'Showing all states ranked by retirement friendliness'}
+                    </p>
+                  </div>
+
+                  {/* Search bar */}
+                  <div className="relative">
+                    <div className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none">
+                      <AnimatePresence mode="wait">
+                        {isSearching ? (
+                          <motion.span
+                            key="spinner"
+                            initial={{ opacity: 0, rotate: 0 }}
+                            animate={{ opacity: 1, rotate: 360 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ rotate: { duration: 0.6, repeat: Infinity, ease: 'linear' }, opacity: { duration: 0.15 } }}
+                            className="block w-4 h-4 rounded-full border-2 border-slate-200 border-t-blue-500"
+                          />
+                        ) : (
+                          <motion.span
+                            key="icon"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="block"
+                          >
+                            <Search className="w-4 h-4 text-slate-400" />
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setIsSearching(true);
+                        if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+                        searchTimerRef.current = setTimeout(() => setIsSearching(false), 600);
+                      }}
+                      placeholder="Search states by name or abbreviation — separate multiple with spaces or commas"
+                      className="pl-9 pr-9 h-10 bg-white border border-slate-300 rounded-lg shadow-sm placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                       >
-                        <Search className="w-4 h-4 text-slate-400" />
-                      </motion.span>
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* View Toggle + Score Methodology button */}
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex bg-slate-100 rounded-lg p-1 max-w-xs w-full">
+                      {(
+                        [
+                          { value: 'cards', icon: <LayoutGrid className="w-4 h-4" />, label: 'Cards' },
+                          { value: 'table', icon: <TableIcon className="w-4 h-4" />, label: 'Table' },
+                          { value: 'map',   icon: <Map className="w-4 h-4" />,       label: 'Map'   },
+                        ] as const
+                      ).map(({ value, icon, label }) => (
+                        <button
+                          key={value}
+                          onClick={() => handleViewChange(value)}
+                          className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors z-10 ${
+                            view === value ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
+                          }`}
+                        >
+                          {view === value && (
+                            <motion.div
+                              layoutId="view-tab-pill"
+                              className="absolute inset-0 bg-white rounded-md shadow-sm"
+                              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                            />
+                          )}
+                          <span className="relative z-10 flex items-center gap-1.5">
+                            {icon}
+                            <span className="hidden sm:inline">{label}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => setShowMethodology((v) => !v)}
+                      className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors whitespace-nowrap flex-shrink-0"
+                    >
+                      <Info className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="hidden sm:inline">How scores are calculated</span>
+                      <span className="sm:hidden">Scoring</span>
+                      <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${showMethodology ? 'rotate-180' : ''}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* RIGHT: home state widget — below left on mobile, stretches to match left height on desktop */}
+                <div className="lg:w-[340px] flex-shrink-0 mt-3 lg:mt-0 relative">
+                  {effectiveOriginStateData ? (
+                    <motion.div
+                      initial={{ opacity: 0, x: 8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="border border-slate-200 rounded-lg bg-white shadow-sm overflow-visible flex flex-col h-full"
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-b border-slate-100 rounded-t-lg">
+                        <div className="flex items-center gap-1.5">
+                          <Home className="w-3.5 h-3.5 text-blue-500" />
+                          <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Your Current State</span>
+                        </div>
+                        <button
+                          onClick={() => { setHomeStatePickerOpen((v) => !v); setHomeStateQuery(''); }}
+                          className="text-xs text-blue-500 hover:text-blue-700 font-medium transition-colors"
+                        >
+                          Change
+                        </button>
+                      </div>
+                      {/* Body */}
+                      <div className="flex items-center gap-3 px-4 flex-1 py-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-2.5">
+                            <span className="text-base font-bold text-slate-900">{effectiveOriginStateData.name}</span>
+                            <span className="text-xs text-slate-400 font-medium">{effectiveOriginStateData.abbreviation}</span>
+                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+                              effectiveOriginStateData.militaryPensionTax === 'No' ? 'bg-green-100 text-green-700' :
+                              effectiveOriginStateData.militaryPensionTax === 'Partial' ? 'bg-amber-100 text-amber-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {effectiveOriginStateData.militaryPensionTax === 'No' ? 'Tax-Free Pension' :
+                               effectiveOriginStateData.militaryPensionTax === 'Partial' ? 'Partial Pension Tax' : 'Pension Taxed'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-x-4 gap-y-2">
+                            {[
+                              { label: 'Income Tax', value: effectiveOriginStateData.stateIncomeTax === 0 ? 'None' : `${effectiveOriginStateData.stateIncomeTax}%`, color: effectiveOriginStateData.stateIncomeTax === 0 ? 'text-green-600' : 'text-slate-800' },
+                              { label: 'Cost of Living', value: `${effectiveOriginStateData.costOfLivingIndex}`, sub: ' avg=100', color: 'text-slate-800' },
+                              { label: 'Property Tax', value: effectiveOriginStateData.propertyTaxLevel, color: effectiveOriginStateData.propertyTaxLevel === 'Low' ? 'text-green-600' : effectiveOriginStateData.propertyTaxLevel === 'Medium' ? 'text-amber-600' : 'text-red-600' },
+                              { label: 'Sales Tax', value: effectiveOriginStateData.salesTax === 0 ? 'None' : `${effectiveOriginStateData.salesTax}%`, color: effectiveOriginStateData.salesTax === 0 ? 'text-green-600' : 'text-slate-800' },
+                              { label: 'VA Benefits', value: `${effectiveOriginStateData.veteranBenefitsScore}`, sub: '/100', color: 'text-slate-800' },
+                              { label: 'Avg Home', value: `$${Math.round(effectiveOriginStateData.avgHomeCost / 1000)}k`, color: 'text-slate-800' },
+                            ].map(({ label, value, sub, color }) => (
+                              <div key={label}>
+                                <div className="text-xs text-slate-400 mb-0.5">{label}</div>
+                                <div className={`text-sm font-semibold leading-none ${color}`}>
+                                  {value}{sub && <span className="text-xs font-normal text-slate-400">{sub}</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-full border-2 border-slate-100 bg-slate-50">
+                          <span className={`text-xl font-bold tabular-nums leading-none ${
+                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 90 ? 'text-green-600' :
+                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 80 ? 'text-blue-600' :
+                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 70 ? 'text-amber-600' :
+                            'text-slate-500'
+                          }`}>{effectiveOriginStateScore}</span>
+                          <span className="text-[10px] text-slate-400 leading-none mt-0.5">score</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.button
+                      initial={{ opacity: 0, x: 8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      onClick={() => { setHomeStatePickerOpen((v) => !v); setHomeStateQuery(''); }}
+                      className="w-full h-full flex items-center gap-3 bg-slate-50 border border-dashed border-slate-300 rounded-lg px-4 py-3 hover:bg-blue-50 hover:border-blue-300 transition-colors group text-left"
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center transition-colors">
+                        <MapPin className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-slate-700 group-hover:text-blue-700 transition-colors mb-0.5">Set your home state</div>
+                        <div className="text-xs text-slate-400 group-hover:text-blue-500 transition-colors leading-snug">Each state card will show how it compares to where you live now</div>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-blue-500 -rotate-90 flex-shrink-0 transition-colors" />
+                    </motion.button>
+                  )}
+
+                  {/* State picker dropdown */}
+                  <AnimatePresence>
+                    {homeStatePickerOpen && (
+                      <>
+                        {/* Backdrop */}
+                        <div className="fixed inset-0 z-20" onClick={() => setHomeStatePickerOpen(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute right-0 top-full mt-1.5 w-full z-30 border-2 border-blue-400 rounded-xl overflow-hidden shadow-xl bg-white"
+                        >
+                          <div className="p-3 border-b border-slate-100">
+                            <input
+                              autoFocus
+                              value={homeStateQuery}
+                              onChange={(e) => setHomeStateQuery(e.target.value)}
+                              placeholder="Search states..."
+                              className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+                            />
+                          </div>
+                          <div className="max-h-64 overflow-y-auto">
+                            {statesData
+                              .filter((s) =>
+                                !homeStateQuery ||
+                                s.name.toLowerCase().includes(homeStateQuery.toLowerCase()) ||
+                                s.abbreviation.toLowerCase().startsWith(homeStateQuery.toLowerCase())
+                              )
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((s) => {
+                                const sc = calculateCustomScore(s, { taxes: 40, cost: 30, benefits: 30 });
+                                const isActive = s.id === effectiveHomeStateId;
+                                return (
+                                  <button
+                                    key={s.id}
+                                    onClick={() => handleHomeStateChange(s.id)}
+                                    className={`w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors ${isActive ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
+                                  >
+                                    <span className={`text-sm font-medium ${isActive ? 'text-blue-700' : 'text-slate-700'}`}>{s.name}</span>
+                                    <div className="flex items-center gap-2">
+                                      <span className={`text-xs font-bold ${sc >= 90 ? 'text-green-600' : sc >= 80 ? 'text-blue-600' : sc >= 70 ? 'text-amber-600' : 'text-slate-500'}`}>{sc}</span>
+                                      <span className="text-xs text-slate-400">{s.abbreviation}</span>
+                                    </div>
+                                  </button>
+                                );
+                              })}
+                          </div>
+                          <button
+                            onClick={() => setHomeStatePickerOpen(false)}
+                            className="w-full px-4 py-2.5 text-xs text-slate-400 border-t border-slate-100 hover:bg-slate-50 transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </motion.div>
+                      </>
                     )}
                   </AnimatePresence>
                 </div>
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setIsSearching(true);
-                    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-                    searchTimerRef.current = setTimeout(() => setIsSearching(false), 600);
-                  }}
-                  placeholder="Search states by name or abbreviation — separate multiple with spaces or commas"
-                  className="pl-9 pr-9 h-10 bg-white border border-slate-300 rounded-lg shadow-sm placeholder:text-slate-400 focus-visible:border-blue-400 focus-visible:ring-2 focus-visible:ring-blue-100"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* View Toggle + Score Methodology button */}
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex bg-slate-100 rounded-lg p-1 max-w-xs w-full">
-                  {(
-                    [
-                      { value: 'cards', icon: <LayoutGrid className="w-4 h-4" />, label: 'Cards' },
-                      { value: 'table', icon: <TableIcon className="w-4 h-4" />, label: 'Table' },
-                      { value: 'map',   icon: <Map className="w-4 h-4" />,       label: 'Map'   },
-                    ] as const
-                  ).map(({ value, icon, label }) => (
-                    <button
-                      key={value}
-                      onClick={() => handleViewChange(value)}
-                      className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors z-10 ${
-                        view === value ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'
-                      }`}
-                    >
-                      {view === value && (
-                        <motion.div
-                          layoutId="view-tab-pill"
-                          className="absolute inset-0 bg-white rounded-md shadow-sm"
-                          transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                        />
-                      )}
-                      <span className="relative z-10 flex items-center gap-1.5">
-                        {icon}
-                        <span className="hidden sm:inline">{label}</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setShowMethodology((v) => !v)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors whitespace-nowrap flex-shrink-0"
-                >
-                  <Info className="w-3.5 h-3.5 flex-shrink-0" />
-                  <span className="hidden sm:inline">How scores are calculated</span>
-                  <span className="sm:hidden">Scoring</span>
-                  <ChevronDown className={`w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200 ${showMethodology ? 'rotate-180' : ''}`} />
-                </button>
               </div>
 
               {/* Inline Score Methodology Panel */}

@@ -413,11 +413,11 @@ export default function StateDetail() {
                 size="sm"
                 onClick={() => prevId && navToKeepScroll(prevId)}
                 disabled={!prevId}
-                className="h-7 px-1.5 shrink-0 flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                className="h-7 px-1.5 shrink-0 hidden sm:flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 {prevState && (
-                  <span className="text-[10px] font-semibold leading-none hidden sm:inline">
+                  <span className="text-[10px] font-semibold leading-none">
                     {prevState.abbreviation} <span className={getScoreColor(prevScore)}>{prevScore}</span>
                   </span>
                 )}
@@ -447,10 +447,10 @@ export default function StateDetail() {
                 size="sm"
                 onClick={() => nextId && navToKeepScroll(nextId)}
                 disabled={!nextId}
-                className="h-7 px-1.5 shrink-0 flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
+                className="h-7 px-1.5 shrink-0 hidden sm:flex items-center gap-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
               >
                 {nextState && (
-                  <span className="text-[10px] font-semibold leading-none hidden sm:inline">
+                  <span className="text-[10px] font-semibold leading-none">
                     <span className={getScoreColor(nextScore)}>{nextScore}</span> {nextState.abbreviation}
                   </span>
                 )}
