@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
         {/* Main grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
 
           {/* Brand + tagline */}
           <div>
@@ -63,6 +63,23 @@ export default function Footer() {
                 </button>
               </li>
             </ul>
+          </div>
+
+          {/* Support */}
+          <div>
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Support This Project</h3>
+            <p className="text-sm text-slate-400 leading-relaxed mb-4">
+              If this tool helped you plan your retirement, consider buying me a coffee. It helps keep the data updated and the site running.
+            </p>
+            <a
+              href="https://buymeacoffee.com/staymarinesim"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
+            >
+              <span>☕</span>
+              <span>Buy Me a Coffee</span>
+            </a>
           </div>
 
           {/* Disclaimer */}
