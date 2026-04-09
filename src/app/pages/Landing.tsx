@@ -207,16 +207,16 @@ export default function Landing() {
             </div>
             <GaugeDotSlider
               id="income"
-              min={20000}
-              max={150000}
+              min={0}
+              max={250000}
               step={1000}
               value={[retirementIncome]}
               onValueChange={(value: number[]) => { setRetirementIncome(value[0]); savePrefs({ retirementIncome: value[0] }); }}
               className="w-full"
             />
             <div className="flex justify-between text-xs text-slate-400">
-              <span>$20,000</span>
-              <span>$150,000</span>
+              <span>$0</span>
+              <span>$250,000</span>
             </div>
           </div>
         </div>
