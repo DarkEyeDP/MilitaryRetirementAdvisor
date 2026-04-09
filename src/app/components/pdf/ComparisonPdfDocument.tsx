@@ -16,6 +16,7 @@ import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { stateHousingData } from '../../data/housingData';
 import { stateClimateData, type RiskLevel } from '../../data/climateData';
 import { stateEmploymentData } from '../../data/employmentData';
+import { DATA_YEAR } from '../../data/siteConfig';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -60,7 +61,7 @@ function bestIdx(vals: (number | null)[], prefer: 'max' | 'min'): number {
 function PageFooter({ generated }: { generated: string }) {
   return (
     <View style={S.footer} fixed>
-      <Text style={S.footerText}>Military Retirement Advisor · State Comparison · 2026 Data</Text>
+      <Text style={S.footerText}>Military Retirement Advisor · State Comparison · {DATA_YEAR} Data</Text>
       <Link src="https://milretired.com">
         <Text style={[S.footerText, { color: C.blue }]}>milretired.com</Text>
       </Link>
@@ -141,7 +142,7 @@ export function ComparisonPdfDocument({ states, inputs, profile }: Props) {
     <Document
       title={`State Comparison — ${stateNames}`}
       author="Military Retirement Advisor"
-      subject="2026 State Comparison Report"
+      subject={`${DATA_YEAR} State Comparison Report`}
     >
       {/* ═══════════════════════════════════════════════════════════════════════
           PAGE 1 — Hero cards · Financial table · Scores
@@ -153,7 +154,7 @@ export function ComparisonPdfDocument({ states, inputs, profile }: Props) {
           <View>
             <Text style={S.headerTitle}>State Comparison Report</Text>
             <Text style={S.headerSubtitle}>
-              {stateNames} · Military Retirement Advisor · 2026 Data
+              {stateNames} · Military Retirement Advisor · {DATA_YEAR} Data
             </Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 4 }}>
@@ -302,7 +303,7 @@ export function ComparisonPdfDocument({ states, inputs, profile }: Props) {
 
         <View style={[S.headerBar, { paddingVertical: 8 }]}>
           <Text style={[S.headerTitle, { fontSize: 13 }]}>State Comparison — Detailed Data</Text>
-          <Text style={S.headerSubtitle}>{stateNames} · Military Retirement Advisor · 2026 Data</Text>
+          <Text style={S.headerSubtitle}>{stateNames} · Military Retirement Advisor · {DATA_YEAR} Data</Text>
         </View>
 
         {/* ── Housing Table ── */}

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { Shield } from 'lucide-react';
+import { DATA_YEAR, LAST_UPDATED } from '../data/siteConfig';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function Footer() {
               based on taxes, veteran benefits, cost of living, and more.
             </p>
             <span className="inline-block text-xs text-slate-500 border border-slate-700 px-2.5 py-1 rounded-full">
-              2026 Updated Data
+              {DATA_YEAR} Updated Data
             </span>
           </div>
 
@@ -91,7 +92,7 @@ export default function Footer() {
               change annually.
             </p>
             <p className="text-xs text-slate-600 mt-3 leading-relaxed">
-              VA disability rates sourced from VA.gov. State tax data reflects 2026 statutes.
+              VA disability rates sourced from VA.gov. State tax data reflects {DATA_YEAR} statutes.
               Cost of living data from the Council for Community and Economic Research (C2ER).
             </p>
           </div>
@@ -99,7 +100,7 @@ export default function Footer() {
 
         {/* Bottom bar */}
         <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-slate-600">
-          <span>© 2026 Military Retirement Advisor. Data updated annually.</span>
+          <span>© {DATA_YEAR} Military Retirement Advisor. Data updated {LAST_UPDATED}.</span>
           <span className="sm:text-right">
             Not affiliated with the U.S. Department of Defense or the Department of Veterans Affairs.
           </span>

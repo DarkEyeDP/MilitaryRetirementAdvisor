@@ -28,6 +28,7 @@ import type { FinancialInputs } from '../../data/financialReality';
 import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { militaryInstallations } from '../../data/militaryInstallations';
 import { getSpaceATerminalsByProximity } from '../../data/spaceATerminals';
+import { DATA_YEAR } from '../../data/siteConfig';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -77,7 +78,7 @@ function tierColor(score: number): string {
 function PageFooter({ stateName, generated }: { stateName: string; generated: string }) {
   return (
     <View style={S.footer} fixed>
-      <Text style={S.footerText}>Military Retirement Advisor · {stateName} · 2026 Data</Text>
+      <Text style={S.footerText}>Military Retirement Advisor · {stateName} · {DATA_YEAR} Data</Text>
       <Link src="https://milretired.com">
         <Text style={[S.footerText, { color: C.blue }]}>milretired.com</Text>
       </Link>
@@ -125,7 +126,7 @@ function SectionPageHeader({ title }: { title: string }) {
     <View break>
       <View style={[S.headerBar, { paddingVertical: 8 }]}>
         <Text style={[S.headerTitle, { fontSize: 13 }]}>{title}</Text>
-        <Text style={S.headerSubtitle}>Military Retirement Advisor · 2026 Data</Text>
+        <Text style={S.headerSubtitle}>Military Retirement Advisor · {DATA_YEAR} Data</Text>
       </View>
       <View style={{ height: 12 }} />
     </View>
@@ -203,7 +204,7 @@ export function StatePdfDocument({
     <Document
       title={`${state.name} Military Retirement Report`}
       author="Military Retirement Advisor"
-      subject={`2026 Retirement Profile — ${state.name}`}
+      subject={`${DATA_YEAR} Retirement Profile — ${state.name}`}
     >
       {/* ═══════════════════════════════════════════════════════════════════════
           PAGE 1 — Identity, Gauges, Financial Summary, Pros/Cons
@@ -214,7 +215,7 @@ export function StatePdfDocument({
         <View style={S.headerBar}>
           <View>
             <Text style={S.headerTitle}>{state.name}</Text>
-            <Text style={S.headerSubtitle}>Military Retirement Advisor · 2026 Data Report</Text>
+            <Text style={S.headerSubtitle}>Military Retirement Advisor · {DATA_YEAR} Data Report</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={[S.badge, { backgroundColor: taxBadge.bg, alignSelf: 'center' }]}>

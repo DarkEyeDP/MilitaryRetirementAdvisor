@@ -12,6 +12,7 @@ import { stateVeteranPerks } from '../data/veteranPerksData';
 import { stateVeteranUrls } from '../data/stateVeteranUrls';
 import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
+import { DATA_YEAR, LAST_UPDATED } from '../data/siteConfig';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -542,7 +543,7 @@ export default function StateDetail() {
                 )}
               </div>
               <div className="flex items-center gap-3 mb-4">
-                <p className="text-sm text-slate-400">{isSeparating ? 'Transitioning service member' : 'Military retirement profile'} · 2026 data</p>
+                <p className="text-sm text-slate-400">{isSeparating ? 'Transitioning service member' : 'Military retirement profile'} · {DATA_YEAR} data</p>
                 {stateVeteranUrls[state.id] && (
                   <a
                     href={stateVeteranUrls[state.id]}
@@ -1391,7 +1392,7 @@ export default function StateDetail() {
       <footer className="border-t bg-white mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-slate-500">
-            <p>Data last updated: March 2026</p>
+            <p>Data last updated: {LAST_UPDATED}</p>
             <p className="mt-1">
               Always verify current tax laws and benefits with official state resources and your tax
               advisor.

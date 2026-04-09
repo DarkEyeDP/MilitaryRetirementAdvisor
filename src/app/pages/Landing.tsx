@@ -12,6 +12,7 @@ import {
 } from '../components/ui/select';
 import { Shield, Plus, X, Briefcase } from 'lucide-react';
 import { statesData } from '../data/stateData';
+import { DATA_YEAR } from '../data/siteConfig';
 import type { AgeGroup, SecondaryIncomeSource } from '../data/financialReality';
 import { AGE_GROUP_LABELS } from '../data/financialReality';
 
@@ -457,7 +458,7 @@ export default function Landing() {
                 <div className="text-slate-500">Data Points</div>
               </div>
               <div>
-                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">2026</div>
+                <div className="font-bold text-3xl text-blue-600 leading-none mb-1">{DATA_YEAR}</div>
                 <div className="text-slate-500">Updated Data</div>
               </div>
             </div>
@@ -499,7 +500,7 @@ export default function Landing() {
             <p className="text-slate-500 text-sm mb-3">Trusted by thousands of transitioning service members</p>
             <div className="flex justify-center gap-8 text-sm">
               <div><div className="font-bold text-2xl text-blue-600">500+</div><div className="text-slate-500">Data Points</div></div>
-              <div><div className="font-bold text-2xl text-blue-600">2026</div><div className="text-slate-500">Updated Data</div></div>
+              <div><div className="font-bold text-2xl text-blue-600">{DATA_YEAR}</div><div className="text-slate-500">Updated Data</div></div>
             </div>
           </div>
         </div>

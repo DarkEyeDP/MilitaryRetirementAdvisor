@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
 import { statesData, calculateCustomScore } from '../data/stateData';
+import { DATA_YEAR, DATA_VINTAGES } from '../data/siteConfig';
 import { stateFinancialData } from '../data/financialData';
 import { stateHousingData } from '../data/housingData';
 import { stateClimateData } from '../data/climateData';
@@ -107,11 +108,18 @@ function MobileCardList({ rows, columns }: { rows: any[]; columns: MobileCol[] }
   );
 }
 
-function SourceNote({ children }: { children: React.ReactNode }) {
+function SourceNote({ children, vintage }: { children: React.ReactNode; vintage?: string }) {
   return (
-    <p className="text-xs text-slate-400 mt-4 px-1">
-      <span className="font-medium text-slate-500">Sources:</span> {children}
-    </p>
+    <div className="mt-4 px-1">
+      {vintage && (
+        <span className="inline-block text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full mb-1.5">
+          Data vintage: {vintage}
+        </span>
+      )}
+      <p className="text-xs text-slate-400">
+        <span className="font-medium text-slate-500">Sources:</span> {children}
+      </p>
+    </div>
   );
 }
 
@@ -394,8 +402,8 @@ function TaxesTab() {
         { label: 'Sales Tax', render: (s) => `${s.salesTax}%` },
         { label: 'Tax Score', render: (s) => <ScorePill score={s.taxScore} /> },
       ]} />
-      <SourceNote>
-        State tax laws (2026 tax year). Pension exemption status reflects enacted legislation as of 2026.
+      <SourceNote vintage={DATA_VINTAGES.stateTax}>
+        State tax laws ({DATA_YEAR} tax year). Pension exemption status reflects enacted legislation as of {DATA_YEAR}.
         Sales tax rates: Tax Foundation. Always verify with your state&apos;s Department of Revenue before filing.
       </SourceNote>
     </div>
@@ -475,7 +483,7 @@ function CostOfLivingTab() {
         { label: 'Avg Home', render: (s) => `$${s.avgHomeCost.toLocaleString()}` },
         { label: 'Sales Tax', render: (s) => `${s.salesTax}%` },
       ]} />
-      <SourceNote>
+      <SourceNote vintage={DATA_VINTAGES.costOfLiving}>
         COL Index: composite economic index where 100 = US national average. Home costs: Zillow/Census median home value estimates (2025).
         A COL Index above 100 means above-average cost; below 100 means below-average.
       </SourceNote>
@@ -553,7 +561,7 @@ function HousingTab() {
         { label: 'Median Rent/mo', render: (s) => s.medianRent ? `$${s.medianRent.toLocaleString()}/mo` : '—' },
         { label: 'Price Trend (YoY)', render: (s) => s.housingPriceTrend != null ? <span className={s.housingPriceTrend > 0 ? 'text-orange-600' : 'text-green-700'}>{s.housingPriceTrend > 0 ? '+' : ''}{s.housingPriceTrend}%</span> : '—' },
       ]} />
-      <SourceNote>
+      <SourceNote vintage={DATA_VINTAGES.housing}>
         Median rent and price trends: Zillow Research, Redfin Data Center (2024–2025 estimates).
         Avg home cost: Census Bureau ACS 2023 median home value. Trends are YoY % change in median sale price.
       </SourceNote>
@@ -642,9 +650,9 @@ function FinancialTab() {
         { label: 'Utilities/mo', render: (s) => { const f = stateFinancialData[s.id]; return f ? `$${f.avgMonthlyUtilities}/mo` : '—'; } },
         { label: 'Sales Tax', render: (s) => { const f = stateFinancialData[s.id]; return f ? `${f.salesTaxCombined}%` : '—'; } },
       ]} />
-      <SourceNote>
-        Property tax rates and combined sales tax: Tax Foundation (2026). Home insurance: Insurance.com state averages.
-        Auto insurance: ValuePenguin full-coverage estimates. Utilities: BLS Consumer Expenditure Survey, NerdWallet. Data year: 2026.
+      <SourceNote vintage={DATA_VINTAGES.stateTax}>
+        Property tax rates and combined sales tax: Tax Foundation ({DATA_YEAR}). Home insurance: Insurance.com state averages.
+        Auto insurance: ValuePenguin full-coverage estimates. Utilities: BLS Consumer Expenditure Survey, NerdWallet. Data year: {DATA_YEAR}.
       </SourceNote>
     </div>
     </AnimatedTabContent>
@@ -745,7 +753,7 @@ function ClimateTab() {
         { label: 'Cold Days <20°F', render: (s) => { const c = stateClimateData[s.id]; return c ? String(c.extremeColdDays) : '—'; } },
         { label: 'Disaster Risks', span2: true, render: (s) => { const c = stateClimateData[s.id]; if (!c) return '—'; return <div className="flex flex-wrap gap-1 mt-0.5"><RiskBadge level={c.disasterRisk.hurricane} label="Hurricane" /><RiskBadge level={c.disasterRisk.wildfire} label="Wildfire" /><RiskBadge level={c.disasterRisk.flood} label="Flood" /><RiskBadge level={c.disasterRisk.tornado} label="Tornado" /><RiskBadge level={c.disasterRisk.earthquake} label="Earthquake" /><RiskBadge level={c.disasterRisk.winterStorm} label="Winter Storm" /></div>; } },
       ]} />
-      <SourceNote>
+      <SourceNote vintage={`Climate: ${DATA_VINTAGES.climate} · Disaster Risk: ${DATA_VINTAGES.disasterRisk}`}>
         Temperature and precipitation: NOAA Climate Normals (1991–2020). Extreme heat/cold days: NWS historical averages.
         Disaster risk levels: FEMA National Risk Index, NIFC wildfire data. Verify current risks at ready.gov.
       </SourceNote>
@@ -834,7 +842,7 @@ function EmploymentTab() {
         { label: 'Median HH Income', render: (s) => { const e = stateEmploymentData[s.id]; return e ? `$${e.medianHouseholdIncome.toLocaleString()}` : '—'; } },
         { label: 'Defense', render: (s) => { const e = stateEmploymentData[s.id]; return e ? <DefenseBadge value={e.defenseContractorPresence} /> : '—'; } },
       ]} />
-      <SourceNote>
+      <SourceNote vintage={DATA_VINTAGES.employment}>
         Unemployment rates: BLS Local Area Unemployment Statistics (2024 annual avg). Job growth: BLS Quarterly Census of Employment and Wages (2024 YoY).
         Median household income: Census Bureau ACS 2023. Defense contractor presence tier: USASpending.gov DoD prime contract awards (FY2024).
       </SourceNote>
@@ -910,7 +918,7 @@ function VeteransTab() {
         { label: 'Pension Tax', render: (s) => <PensionBadge value={s.militaryPensionTax} /> },
         { label: 'Retirement Score', render: (s) => <ScorePill score={calculateCustomScore(s, { taxes: 40, cost: 30, benefits: 30 })} /> },
       ]} />
-      <SourceNote>
+      <SourceNote vintage={`Benefits: ${DATA_VINTAGES.veteranBenefits} · VA Facilities: ${DATA_VINTAGES.vaFacilities}`}>
         Veteran population: National Center for Veterans Analysis and Statistics (NCVAS), state-level estimates.
         VA facility counts: VA.gov facility locator (major VAMCs and CBOCs). Benefits score: curated index based on
         state DMV websites, State Departments of Veterans Affairs, Military.com, and VA state summaries (2024–2025).
@@ -942,7 +950,7 @@ function VADisabilityTab() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-slate-700 mb-3">Monthly Compensation by Rating &amp; Dependents (2026)</h3>
+        <h3 className="text-sm font-semibold text-slate-700 mb-3">Monthly Compensation by Rating &amp; Dependents ({DATA_YEAR})</h3>
         <div className="hidden md:block overflow-x-auto rounded-lg border border-slate-200">
           <Table>
             <TableHeader className="bg-slate-50">
@@ -1059,8 +1067,8 @@ function VADisabilityTab() {
         </div>
       </div>
 
-      <SourceNote>
-        Monthly compensation rates: VA.gov official 2026 rates, effective December 1, 2025 (2.8% COLA).
+      <SourceNote vintage={DATA_VINTAGES.vaRates}>
+        Monthly compensation rates: VA.gov official {DATA_YEAR} rates, effective December 1, 2025 (2.8% COLA).
         Source URL: va.gov/disability/compensation-rates/veteran-rates/.
         Tax exemption authority: 38 U.S.C. § 5301. Dependent supplement policy: 38 CFR Part 3.
         Note: Dependent parent supplements and Aid &amp; Attendance are not modeled (verify at VA.gov).
@@ -1103,7 +1111,7 @@ export default function Sources() {
             </div>
           </div>
           <span className="hidden sm:inline text-xs text-slate-400 border border-slate-200 px-2.5 py-1 rounded-full font-medium">
-            2026 Updated Data
+            {DATA_YEAR} Updated Data
           </span>
         </div>
       </header>
@@ -1113,7 +1121,7 @@ export default function Sources() {
         <p className="text-slate-500 text-sm mb-6">
           <span className="hidden md:inline">All 50 states + DC. Every number used to compute scores is shown below — click any column header to sort.
           Data is updated annually; always verify critical figures with official sources before making relocation decisions.</span>
-          <span className="md:hidden">Every number behind the retirement scores — all 50 states + DC, 2026 data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
+          <span className="md:hidden">Every number behind the retirement scores — all 50 states + DC, {DATA_YEAR} data. Tap a section to explore. Always verify critical figures with official sources before making relocation decisions.</span>
         </p>
 
         <Tabs defaultValue="scoring">

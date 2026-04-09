@@ -21,6 +21,7 @@ import { Button } from '@/app/components/ui/button';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
 import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { LAST_UPDATED } from '../data/siteConfig';
 import {
   calculateFinancialReality,
   fmt$,
@@ -851,7 +852,7 @@ export default function ComparisonPage() {
 
       <footer className="border-t bg-white mt-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-5 text-center text-xs text-slate-400">
-          Data updated March 2026 · Always verify tax laws and benefits with official state resources and your financial advisor.
+          Data updated {LAST_UPDATED} · Always verify tax laws and benefits with official state resources and your financial advisor.
         </div>
       </footer>
     </div>

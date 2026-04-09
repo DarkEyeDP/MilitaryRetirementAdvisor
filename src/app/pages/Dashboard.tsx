@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { statesData, calculateCustomScore, TERRITORY_IDS } from '../data/stateData';
+import { LAST_UPDATED } from '../data/siteConfig';
 import { stateEmploymentData } from '../data/employmentData';
 import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, fmt$ } from '../data/financialReality';
 import { stateFinancialData } from '../data/financialData';
@@ -1050,7 +1051,7 @@ export default function Dashboard() {
       <footer className="border-t bg-white mt-12">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-slate-500">
-            <p>Data last updated: March 2026</p>
+            <p>Data last updated: {LAST_UPDATED}</p>
             <p className="mt-1">
               Information compiled from state tax departments, VA facilities, and cost of living
               indices.
