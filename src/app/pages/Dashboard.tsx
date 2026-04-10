@@ -927,6 +927,7 @@ export default function Dashboard() {
                         resultIds={sortedStates.map((s) => s.id)}
                         currentStateId={currentStateId ?? undefined}
                         retirementIncome={financialInputs.retirementIncome}
+                        disabilityRating={financialInputs.disabilityRating}
                       />
                     ))}
                   </div>
@@ -946,6 +947,7 @@ export default function Dashboard() {
                     favorites={favorites}
                     onToggleFavorite={toggleFavorite}
                     customScores={customScores}
+                    disabilityRating={financialInputs.disabilityRating}
                   />
                 </motion.div>
               )}

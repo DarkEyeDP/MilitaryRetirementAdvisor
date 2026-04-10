@@ -441,6 +441,7 @@ export const vaFacilityLocations: Record<string, VAFacility[]> = {
     { name: 'St. Louis VA Medical Center (John Cochran)', lat: 38.642671, lon: -90.231527, address: '915 N Grand Blvd, St. Louis, MO 63106', phone: '(314) 652-4100', type: 'vamc' },
     { name: 'St. Louis VA Medical Center (Jefferson Barracks)', lat: 38.492742, lon: -90.281502, address: '1 Jefferson Barracks Dr, St. Louis, MO 63125', phone: '(314) 652-4100', type: 'vamc' },
     // VA Outpatient Clinics
+    { name: 'Branson VA Clinic', lat: 36.665973, lon: -93.251924, address: '5571 North Gretna Road, Branson, MO 65616', phone: '(417) 243-2300', type: 'clinic' },
     { name: 'Springfield VA Clinic', lat: 37.161465, lon: -93.244047, address: '2805 S Lone Pine Ave, Springfield, MO 65804', phone: '(417) 887-6600', type: 'clinic' },
     { name: 'Joplin VA Clinic', lat: 37.063070, lon: -94.507045, address: '2520 S Minnesota Ave, Joplin, MO 64804', phone: '(417) 782-3990', type: 'clinic' },
     { name: 'Cape Girardeau VA Clinic', lat: 37.346033, lon: -89.598589, address: '2420 Veterans Memorial Dr, Cape Girardeau, MO 63701', phone: '(573) 339-0270', type: 'clinic' },

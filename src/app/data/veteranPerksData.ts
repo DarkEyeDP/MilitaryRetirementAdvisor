@@ -11,6 +11,7 @@
 export interface VeteranPerksData {
   vehicleRegistrationBenefits: string[];
   medalBenefits: string[];
+  propertyTaxExemptions: string[];
   educationBenefits: {
     retiree: string[];
     family: string[];
@@ -30,6 +31,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free "Purple Heart" specialty plate, free hunting & fishing license',
       'POW/MIA: special "Ex-Prisoner of War" plate issued at no charge',
       'Combat veterans: reduced fee Combat Veteran plate available',
+    ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on primary residence for 100% P&T service-connected disabled veterans',
+      'No income limit — exemption applies regardless of home value',
+      'Surviving spouses retain the exemption after the veteran dies',
     ],
     educationBenefits: {
       retiree: [
@@ -57,6 +63,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW: free "POW/MIA" plate issued at no cost',
       'Disabled veterans: Gold Star and combat designation plates available',
     ],
+    propertyTaxExemptions: [
+      'Veterans with 50%+ disability: up to $150,000 of assessed value exempt',
+      'Full 100% disability rating qualifies for the maximum $150,000 exemption',
+      'Must be primary residence; apply through the borough/municipality assessor',
+    ],
     educationBenefits: {
       retiree: [
         'University of Alaska system offers reduced tuition for veterans with 181+ days honorable service',
@@ -82,6 +93,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free "Purple Heart" specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate, free state parks access',
       'Silver Star & Bronze Star: specialty plates available at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Property tax exemption up to approximately $4,873 of assessed value for qualifying disabled veterans',
+      'Amount prorated based on disability percentage (100% = maximum benefit)',
+      'Must be primary residence; income limits may apply in some counties',
     ],
     educationBenefits: {
       retiree: [
@@ -109,6 +125,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW: no-cost POW/MIA plate, expanded benefits through state DVA',
       'Combat veterans: Combat Veteran plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on homestead for 100% P&T service-connected disabled veterans',
+      'Exemption applies to the primary residence only',
+      'Surviving spouses may retain the exemption',
+    ],
     educationBenefits: {
       retiree: [
         'Military Service Members Tuition Discount at AR public colleges for active/retired military',
@@ -134,6 +155,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free "Purple Heart" specialty plate, reduced hunting & fishing fees',
       'POW/MIA: no-cost POW/MIA plate; additional state benefits through CalVet',
       'Combat service: Gold Star and Combat Veteran plates available',
+    ],
+    propertyTaxExemptions: [
+      'Disabled Veterans Exemption: up to $271,009 of assessed value exempt (low-income tier: up to $161,083)',
+      'Applies to veterans rated 100% or compensated at 100% for unemployability (IU)',
+      'Must be primary residence; apply through county assessor by February 15',
     ],
     educationBenefits: {
       retiree: [
@@ -161,6 +187,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: complimentary POW/MIA plate, additional veteran services priority',
       'Silver Star: specialty plate available at reduced cost',
     ],
+    propertyTaxExemptions: [
+      '50% reduction on first $200,000 of actual value of primary residence',
+      'Applies to veterans with 100% permanent and total disability rating',
+      'No income limit; surviving spouses retain the benefit',
+    ],
     educationBenefits: {
       retiree: [
         'CO National Guard Tuition Assistance covers 100% of tuition at CO public institutions',
@@ -187,6 +218,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW plate, expedited benefits processing',
       'Combat veterans: Combat Veteran plate available at reduced fee',
     ],
+    propertyTaxExemptions: [
+      'Full property tax exemption for 100% P&T service-connected disabled veterans (effective Oct. 1, 2024 via Public Act 24-46)',
+      'Previously a partial exemption — expanded to full by recent legislation',
+      'Apply through local town/city assessor with VA disability documentation',
+    ],
     educationBenefits: {
       retiree: [
         'CT Veterans\' Education Benefit: free tuition at CT state colleges/universities for veterans with 90+ days wartime service',
@@ -212,6 +248,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, reduced state service fees',
       'POW/MIA: complimentary POW/MIA plate',
       'All military retirees: priority services through Delaware DVA',
+    ],
+    propertyTaxExemptions: [
+      '100% credit toward non-vocational school district property tax for qualifying disabled veterans',
+      '3-year Delaware residency required prior to application',
+      'Apply through the Division of Veterans Affairs; credit offsets annual school tax bill',
     ],
     educationBenefits: {
       retiree: [
@@ -241,6 +282,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Silver Star & Bronze Star: specialty plates available; additional DVA benefits',
       'Combat veterans: free Combat Veteran plate; hunting/fishing license discounts',
     ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on homestead for 100% P&T service-connected disabled veterans',
+      'No income limit — exemption covers the full assessed value of primary residence',
+      'Surviving spouses of qualifying veterans retain the exemption',
+    ],
     educationBenefits: {
       retiree: [
         'FL Resident Veteran Tuition Waiver: honorably discharged veterans who are FL residents qualify for in-state tuition rates immediately upon enrollment',
@@ -266,6 +312,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW plate, priority veteran services',
       'Combat veterans: Bronze Star and Combat Veteran plate options',
+    ],
+    propertyTaxExemptions: [
+      'Property tax exemption on homestead up to $121,812 of fair market value (2025 threshold)',
+      'Applies to 100% service-connected disabled or unemployability (IU) rated veterans',
+      'Surviving spouses retain exemption; amount adjusts annually with federal poverty guidelines',
     ],
     educationBenefits: {
       retiree: [
@@ -293,6 +344,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: special designation available through state DVA',
       'Military retirees: priority access to state veteran services',
     ],
+    propertyTaxExemptions: [
+      'Totally disabled veterans may be exempt from property taxes except for a minimum tax',
+      'Amount and terms vary by county — Honolulu, Maui, Hawaii, and Kauai each set their own rates',
+      'Apply through county real property tax office with VA disability certification',
+    ],
     educationBenefits: {
       retiree: [
         'University of Hawaii system offers reduced tuition for veterans with 90+ days wartime service',
@@ -318,6 +374,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Property tax reduction of up to $1,500 for qualifying disabled veterans',
+      'Must be honorably discharged and have a service-connected disability',
+      'Income limits apply; apply through county assessor by April 15',
     ],
     educationBenefits: {
       retiree: [
@@ -345,6 +406,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW plate, expedited state benefits',
       'Combat veterans: Illinois Combat Veteran plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Veterans with 70%+ service-connected disability: first $250,000 of equalized assessed value exempt',
+      '100% disability qualifies for the full $250,000 exemption amount',
+      'Must be primary residence; apply through county assessor',
+    ],
     educationBenefits: {
       retiree: [
         'Illinois Veterans\' Grant (IVG): free tuition and certain fees at all IL public universities and community colleges for veterans with 1+ year active duty service',
@@ -370,6 +436,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate, additional DVA priority services',
       'Combat veterans: Combat Veteran plate available at reduced fee',
+    ],
+    propertyTaxExemptions: [
+      'Disabled veteran deductions: $14,000 deduction for 10%+ disability; $24,960 for total disability; max combined $38,960',
+      'Must have been honorably discharged; property must be primary residence',
+      'Apply through county auditor by December 31 of the assessment year',
     ],
     educationBenefits: {
       retiree: [
@@ -397,6 +468,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW plate, priority veteran services',
       'Combat veterans: specialty plate available at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Military Service Tax Exemption: 100% of property taxes credited for 100% P&T disabled veterans',
+      'Applies to all qualifying veterans with total and permanent service-connected disability',
+      'Must be primary residence; surviving spouses retain the credit',
+    ],
     educationBenefits: {
       retiree: [
         'IA Tuition Grant: veterans may qualify for Iowa Tuition Grant at IA private colleges',
@@ -422,6 +498,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Homestead Property Tax Refund Program: refund up to $700 for qualifying veterans',
+      'Income cap applies (generally under $36,600/year); home value limits also apply',
+      'Apply through Kansas Department of Revenue with income and disability documentation',
     ],
     educationBenefits: {
       retiree: [
@@ -449,6 +530,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate, priority DVA services',
       'Silver Star & Bronze Star: specialty plate options at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Homestead exemption of $49,100 deducted from assessed value for qualifying disabled veterans',
+      'Applies to veterans with 100% service-connected disability rating',
+      'Must be primary residence; apply through Property Valuation Administrator',
+    ],
     educationBenefits: {
       retiree: [
         'KY Veterans Tuition Waiver: free tuition (up to 36 credit hours/year) at KY public colleges for veterans with 181+ days honorable service',
@@ -474,6 +560,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate',
       'Combat veterans: Louisiana Combat Veteran plate available',
+    ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on homestead (up to $7,500 assessed value) for 100% disabled veterans',
+      'Some parishes extend the exemption beyond the base amount — check locally',
+      'Surviving spouses retain the exemption upon the veteran dies',
     ],
     educationBenefits: {
       retiree: [
@@ -501,6 +592,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW plate, priority veteran services',
       'Combat veterans: specialty plate available',
     ],
+    propertyTaxExemptions: [
+      'Exemption of $6,000 of property value for qualifying veterans (higher for specially adapted housing)',
+      'Must have wartime service; 100% disability qualifies for maximum benefit',
+      'Paraplegic veterans may receive additional exemptions; apply through municipality',
+    ],
     educationBenefits: {
       retiree: [
         'ME Veterans Dependents Education Benefits: Maine State Approving Agency coordinates all GI Bill-eligible programs',
@@ -526,6 +622,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, reduced hunting & fishing fees',
       'POW/MIA: complimentary POW/MIA plate, priority benefits processing',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on principal residence for 100% P&T service-connected disabled veterans',
+      'No income limit; exemption covers entire assessed value of primary home',
+      'Surviving spouses retain the exemption; apply through State Department of Assessments and Taxation',
     ],
     educationBenefits: {
       retiree: [
@@ -553,6 +654,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate, priority DVA services',
       'Combat veterans: specialty plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'No statewide property tax exemption specifically for 100% VA-disabled veterans',
+      'Some municipalities offer local exemptions — check with your city/town assessor',
+      'Veterans may qualify for general exemptions based on wartime service; contact local assessor',
+    ],
     educationBenefits: {
       retiree: [
         'MA Veterans Tuition Waiver: free tuition (not fees or room/board) at MA public colleges for Massachusetts-domiciled veterans',
@@ -578,6 +684,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW plate, priority services at state veteran offices',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on principal residence for 100% P&T service-connected disabled veterans',
+      'No income limit; applies to primary residence only',
+      'Surviving spouses retain exemption; apply through local assessing office',
     ],
     educationBenefits: {
       retiree: [
@@ -605,6 +716,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: complimentary POW/MIA plate, expedited benefits',
       'Combat veterans: specialty Combat Veteran plate available',
     ],
+    propertyTaxExemptions: [
+      'Market value exclusion up to $300,000 for 100% P&T service-connected disabled veterans',
+      'Surviving spouses may qualify for an exclusion up to $150,000',
+      'Apply through county assessor; no income limit for the veteran exclusion',
+    ],
     educationBenefits: {
       retiree: [
         'MN GI Bill: up to $3,000/year for eligible veterans at MN colleges and universities',
@@ -630,6 +746,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on homestead for 100% P&T service-connected disabled veterans',
+      'No income limit; exemption applies to primary residence',
+      'Apply through county tax assessor with VA disability documentation',
     ],
     educationBenefits: {
       retiree: [
@@ -657,6 +778,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW plate, priority veteran services',
       'Silver Star & Bronze Star: specialty plate options available',
     ],
+    propertyTaxExemptions: [
+      'Property Tax Credit (circuit breaker) program: credit up to $1,100 based on income and taxes paid',
+      'Must be 100% service-connected disabled; income limits apply (generally under $30,000)',
+      'Apply through Missouri Department of Revenue with MO-PTC form',
+    ],
     educationBenefits: {
       retiree: [
         'MO Returning Heroes Education Act: in-state tuition capped at the 2-year public institution rate for all honorably discharged veterans at MO public colleges',
@@ -682,6 +808,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Property tax reduction of 50–100% depending on income for qualifying disabled veterans',
+      '100% disability with income under threshold may qualify for full reduction',
+      'Apply through Montana Department of Revenue; income verification required annually',
     ],
     educationBenefits: {
       retiree: [
@@ -709,6 +840,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Homestead exemption for 100% service-connected disabled veterans — Category 4V',
+      'No income limit and no homestead value cap for qualifying veterans',
+      'Surviving spouses retain the exemption; apply through county assessor by June 30',
+    ],
     educationBenefits: {
       retiree: [
         'NE Waiver of Tuition for Veterans: free tuition at NE state colleges and University of Nebraska for veterans who served during wartime periods',
@@ -734,6 +870,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate, priority services',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Assessed value exemption of $35,400 for 100% service-connected disabled veterans',
+      'Additional exemptions may apply at the county level',
+      'Must be primary residence; apply through county assessor',
     ],
     educationBenefits: {
       retiree: [
@@ -761,6 +902,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate available at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Property tax credits and exemptions vary by municipality — no statewide mandate',
+      'Many towns offer full exemptions for 100% disabled veterans; contact local assessor',
+      'Some municipalities provide credits ranging from a few hundred to full exemption',
+    ],
     educationBenefits: {
       retiree: [
         'NH Veterans Tuition Credit: $500/semester tuition credit at NH postsecondary institutions for qualifying veterans',
@@ -786,6 +932,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate, priority DVA services',
       'Combat veterans: specialty plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on primary residence for veterans certified as 100% P&T disabled',
+      'No income limit; exemption covers entire property tax bill on primary home',
+      'Apply through local tax assessor with VA disability certification',
     ],
     educationBenefits: {
       retiree: [
@@ -813,6 +964,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: Combat Veteran plate available',
     ],
+    propertyTaxExemptions: [
+      'Property tax exemption available for 100% P&T service-connected disabled veterans on primary residence',
+      'Surviving spouses may retain exemption; details set by county assessors',
+      'Apply through county assessor office with VA disability documentation',
+    ],
     educationBenefits: {
       retiree: [
         'NM Vietnam Veterans Scholarship: up to $4,000/year for NM Vietnam veterans at NM state colleges',
@@ -838,6 +994,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license, state park discounts',
       'POW/MIA: no-cost POW plate, priority services across state agencies',
       'Combat veterans: specialty plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Alternative Veterans Exemption and Cold War Veterans Exemption available — amounts vary by municipality',
+      'Exemptions reduce assessed value by a set percentage; 100% disability may qualify for enhanced amounts',
+      'Check with local assessor — municipalities set their own exemption amounts within state limits',
     ],
     educationBenefits: {
       retiree: [
@@ -866,6 +1027,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: complimentary POW/MIA plate, priority DVA services',
       'Silver Star & Bronze Star: specialty plate options available',
     ],
+    propertyTaxExemptions: [
+      'Homestead exclusion of up to $45,000 of appraised value for qualifying disabled veterans',
+      'Must have 100% total and permanent service-connected disability',
+      'Apply through county tax assessor; surviving spouses may retain the benefit',
+    ],
     educationBenefits: {
       retiree: [
         'NC National Guard Tuition Assistance covers 100% of tuition at NC public institutions',
@@ -892,6 +1058,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Property tax credit based on disability percentage — 100% disability receives full credit amount',
+      'Credit offsets property taxes on primary residence; income limits may apply',
+      'Apply through county director of tax equalization',
+    ],
     educationBenefits: {
       retiree: [
         'ND Veterans\' Aid Fund: grants up to $1,500 for eligible ND veterans with financial need',
@@ -917,6 +1088,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate, priority veteran services',
       'Combat veterans: Combat Veteran and Silver Star plates available',
+    ],
+    propertyTaxExemptions: [
+      'Property tax reduction equal to taxes on up to $50,000 of homestead market value',
+      'Applies to 100% service-connected disabled veterans or surviving spouses',
+      'Apply through county auditor; no income limit',
     ],
     educationBenefits: {
       retiree: [
@@ -946,6 +1122,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Silver Star & Bronze Star: specialty plates available at reduced cost',
       'Combat veterans: Oklahoma Patriot plate available',
     ],
+    propertyTaxExemptions: [
+      'Full exemption of fair cash value of homestead for 100% P&T service-connected disabled veterans',
+      'No income limit — entire property tax bill on primary residence is eliminated',
+      'Surviving spouses retain the exemption; apply through county assessor',
+    ],
     educationBenefits: {
       retiree: [
         'OK Academic Scholars Program gives preference to veterans for merit awards',
@@ -971,6 +1152,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'No dedicated statewide property tax exemption specifically for 100% VA-disabled veterans',
+      'General senior/disabled deferral programs may be available based on income and age',
+      'Contact your county assessor for any locally available veteran property tax relief',
     ],
     educationBenefits: {
       retiree: [
@@ -999,6 +1185,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: complimentary POW/MIA plate, priority DVA services',
       'Combat veterans: Combat Veteran plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Disabled Veterans Real Estate Tax Exemption: full exemption on primary residence for 100% P&T disabled veterans',
+      'Income limit applies (combined income of veteran and spouse must not exceed $114,637)',
+      'Apply through county board of assessment; surviving spouses may retain the exemption',
+    ],
     educationBenefits: {
       retiree: [
         'PA Veterans Education Program: reduced tuition at Pennsylvania State System of Higher Education (PASSHE) schools',
@@ -1024,6 +1215,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate available',
+    ],
+    propertyTaxExemptions: [
+      'Property tax exemptions vary by municipality — no uniform statewide program',
+      'Many cities and towns offer exemptions for 100% disabled veterans; amounts vary widely',
+      'Contact your local tax assessor for current exemption amounts and application process',
     ],
     educationBenefits: {
       retiree: [
@@ -1051,6 +1247,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW plate, priority veteran services',
       'Combat veterans: specialty plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on home and up to five acres for 100% P&T service-connected disabled veterans',
+      'Extends to one personal vehicle as well; surviving spouses retain the exemption',
+      'Apply through county auditor with VA disability certification',
+    ],
     educationBenefits: {
       retiree: [
         'SC National Guard Scholarship covers tuition and fees at SC public colleges and universities',
@@ -1076,6 +1277,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate',
       'Combat veterans: specialty plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Exemption of $200,000 of full and true value of owner-occupied dwelling for 100% disabled veterans',
+      'Scaled exemptions available for lower disability ratings (50%, 70%, etc.)',
+      'Apply through county director of equalization; no income limit for 100% rating',
     ],
     educationBenefits: {
       retiree: [
@@ -1105,6 +1311,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Silver Star & Bronze Star: specialty plates available at reduced cost',
       'Combat veterans: Combat Veteran plate available',
     ],
+    propertyTaxExemptions: [
+      'Property tax relief based on county; maximum market value cap set by county (varies)',
+      'Qualifying disabled veterans may receive reimbursement for taxes paid on primary residence',
+      'Apply through county trustee office; income and property value caps apply',
+    ],
     educationBenefits: {
       retiree: [
         'TN Helping Heroes Grant: up to $2,000/year for eligible veterans at TN public colleges',
@@ -1133,6 +1344,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Silver Star & Bronze Star: specialty plates available; additional TXDVS benefits',
       'Combat veterans: Combat Veteran plate free of charge',
     ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on primary residence homestead for 100% P&T service-connected disabled veterans',
+      'No income limit — entire property tax bill is eliminated regardless of home value',
+      'Surviving spouses retain the exemption; also applies to donated homesteads (Tax Code §11.131)',
+    ],
     educationBenefits: {
       retiree: [
         'TX Hazlewood Act: up to 150 credit hours of tuition exemption at TX public colleges for veterans who were TX residents when they entered service',
@@ -1159,6 +1375,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: complimentary POW/MIA plate, priority veteran services',
       'Combat veterans: specialty plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      'Property tax abatement up to $521,620 of taxable value for qualifying disabled veterans',
+      'Benefit amount depends on disability percentage and unemployment status (IU may qualify)',
+      'Must be primary residence; apply through county assessor by September 1',
+    ],
     educationBenefits: {
       retiree: [
         'UT Tuition Waiver for Veterans: free tuition at UT public colleges for eligible veterans with 90+ days honorable service',
@@ -1184,6 +1405,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: specialty plate at reduced cost, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate',
       'Combat veterans: specialty plate available',
+    ],
+    propertyTaxExemptions: [
+      'Minimum exemption of $10,000 with potential for higher local exemptions',
+      'Municipalities may vote to increase the exemption amount above the state minimum',
+      'Apply through town listers office; wartime service and disability verification required',
     ],
     educationBenefits: {
       retiree: [
@@ -1213,6 +1439,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Silver Star & Bronze Star: specialty plates available; eligible for enhanced DVS services',
       'Combat veterans: Combat Veteran plate available, reduced licensing fees',
     ],
+    propertyTaxExemptions: [
+      'Full property tax exemption on principal residence for 100% P&T service-connected disabled veterans',
+      'Also applies to surviving spouses of qualifying veterans (as long as they do not remarry)',
+      'Exemption covers the primary home and up to one acre; apply through local commissioner of revenue',
+    ],
     educationBenefits: {
       retiree: [
         'Virginia public universities offer in-state tuition for all honorably discharged veterans',
@@ -1238,6 +1469,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate, priority Washington DVA services',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Property tax relief program based on income — amount depends on income tier and local levy rates',
+      'Veterans with 100% service-connected disability may qualify for larger relief amounts',
+      'Apply through county assessor; income verification required annually',
     ],
     educationBenefits: {
       retiree: [
@@ -1265,6 +1501,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: specialty plate at reduced cost',
     ],
+    propertyTaxExemptions: [
+      '$20,000 assessed value exemption on primary residence for 100% P&T disabled veterans',
+      'Separate income tax credit also available for property taxes paid',
+      'Apply through county assessor with VA disability documentation',
+    ],
     educationBenefits: {
       retiree: [
         'WV Veterans Re-Education Program: free tuition at WV public colleges for veterans with service in an armed conflict',
@@ -1291,6 +1532,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'POW/MIA: complimentary POW/MIA plate, priority DVA services',
       'Combat veterans: Wisconsin Combat Veteran plate available',
     ],
+    propertyTaxExemptions: [
+      'Property tax credit covering 100% of taxes paid on primary residence for qualifying disabled veterans',
+      'Applies to veterans with 100% P&T service-connected disability; no income limit',
+      'Surviving spouses retain the credit; apply through Wisconsin Department of Revenue',
+    ],
     educationBenefits: {
       retiree: [
         'WI GI Bill: free tuition and fees for 128 credits at UW System schools or WI Technical Colleges for eligible veterans (90+ days active duty)',
@@ -1316,6 +1562,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free specialty plate, free hunting & fishing license',
       'POW/MIA: no-cost POW/MIA plate',
       'Combat veterans: Combat Veteran plate at reduced cost',
+    ],
+    propertyTaxExemptions: [
+      'Annual property tax exemption of $6,000 of assessed value for qualifying veterans (effective 2025 tax year)',
+      'Applies to veterans with at least 10% service-connected disability; 100% maximizes benefit',
+      'Apply through county assessor; must be primary residence',
     ],
     educationBenefits: {
       retiree: [
@@ -1345,6 +1596,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free "Purple Heart" specialty license plate',
       'Puerto Rico Office of Veterans Affairs assists with available PR-level benefits',
     ],
+    propertyTaxExemptions: [
+      'No dedicated 100% VA disability property tax exemption program under Puerto Rico law',
+      'Federal veteran benefits still apply; contact local CRIM office for any available local relief',
+      'Puerto Rico has its own tax system — verify current rules with CRIM (Centro de Recaudación de Ingresos Municipales)',
+    ],
     educationBenefits: {
       retiree: [
         'University of Puerto Rico (UPR): waived tuition for eligible PR resident veterans under Act 135 and UPR regulations',
@@ -1369,6 +1625,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Medal of Honor: free vehicle registration and specialty plate',
       'Purple Heart: specialty license plate available',
       'Guam DVA assists recipients with local benefit coordination',
+    ],
+    propertyTaxExemptions: [
+      'No dedicated 100% VA disability property tax exemption program under Puerto Rico law',
+      'Federal veteran benefits still apply; contact local CRIM office for any available local relief',
+      'Puerto Rico has its own tax system — verify current rules with CRIM (Centro de Recaudación de Ingresos Municipales)',
     ],
     educationBenefits: {
       retiree: [
@@ -1395,6 +1656,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: specialty license plate recognition',
       'USVI Veterans Affairs assists Medal of Honor and Purple Heart recipients',
     ],
+    propertyTaxExemptions: [
+      'No specific 100% VA disability property tax exemption program under USVI law',
+      'Federal veteran benefits still apply; contact USVI Bureau of Internal Revenue for any local options',
+      'Verify current rules with local tax authorities',
+    ],
     educationBenefits: {
       retiree: [
         'University of the Virgin Islands (UVI): in-state tuition and fee waivers for eligible USVI resident veterans',
@@ -1418,6 +1684,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'American Samoa recognizes Medal of Honor and Purple Heart recipients through veteran services programs',
       'Local veteran ceremonies and recognition coordinated through the American Samoa Department of Human Resources',
     ],
+    propertyTaxExemptions: [
+      'No specific 100% VA disability property tax exemption program under American Samoa law',
+      'Federal veteran benefits still apply; contact local government for any available relief',
+      'Verify current rules with American Samoa tax authorities',
+    ],
     educationBenefits: {
       retiree: [
         'American Samoa Community College (ASCC): reduced tuition for eligible AS resident veterans',
@@ -1440,6 +1711,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
     medalBenefits: [
       'CNMI Board of Northern Marianas Veterans Affairs recognizes Medal of Honor and Purple Heart recipients',
       'Local veteran recognition programs coordinated through BNMVA',
+    ],
+    propertyTaxExemptions: [
+      'No specific 100% VA disability property tax exemption program under CNMI law',
+      'Federal veteran benefits still apply; contact CNMI Division of Revenue and Taxation for local options',
+      'Verify current rules with local tax authorities',
     ],
     educationBenefits: {
       retiree: [
@@ -1465,6 +1741,11 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Medal of Honor: free DC vehicle registration and free specialty plate',
       'Purple Heart: free "Purple Heart" specialty license plate',
       'DC Office of Veterans Affairs assists Medal of Honor and Purple Heart recipients with available DC benefits',
+    ],
+    propertyTaxExemptions: [
+      'Veterans with 100% service-connected disability may qualify for reduced property tax rate on primary residence',
+      'DC homestead deduction also applies; contact DC Office of Tax and Revenue for current details',
+      'Surviving spouses may retain benefits; contact DC Office of Tax and Revenue for details',
     ],
     educationBenefits: {
       retiree: [

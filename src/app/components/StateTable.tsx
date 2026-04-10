@@ -12,6 +12,7 @@ interface StateTableProps {
   favorites: string[];
   onToggleFavorite: (stateId: string) => void;
   customScores?: Record<string, number>;
+  disabilityRating?: string;
 }
 
 type SortField = 'name' | 'score' | 'tax' | 'stateIncomeTax' | 'propertyTax' | 'costOfLiving' | 'benefits';
@@ -57,6 +58,7 @@ export default function StateTable({
   favorites,
   onToggleFavorite,
   customScores,
+  disabilityRating,
 }: StateTableProps) {
   const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>('score');
@@ -153,7 +155,15 @@ export default function StateTable({
                       ? <span className="text-green-600 font-medium">None</span>
                       : `${state.stateIncomeTax}%`}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-slate-600">{state.propertyTaxLevel}</TableCell>
+                  <TableCell className="px-4 py-3 text-slate-600">
+                    <div>{state.propertyTaxLevel}</div>
+                    {disabilityRating === '100' && state.propertyTaxExemption100 === 'Full' && (
+                      <div className="text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full mt-0.5 leading-none inline-block whitespace-nowrap">Exempt at 100%</div>
+                    )}
+                    {disabilityRating === '100' && state.propertyTaxExemption100 === 'Partial' && (
+                      <div className="text-[10px] font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-1.5 py-0.5 rounded-full mt-0.5 leading-none inline-block whitespace-nowrap">Partial Exemption</div>
+                    )}
+                  </TableCell>
                   <TableCell className="px-4 py-3 text-slate-600">{state.costOfLivingIndex}</TableCell>
                   <TableCell className="px-4 py-3 text-slate-600">{state.veteranBenefitsScore}/100</TableCell>
                   <TableCell className="px-4 py-3">

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router';
-import { Shield } from 'lucide-react';
+import { SiteLogo } from './ui/SiteLogo';
 import { DATA_YEAR, LAST_UPDATED } from '../data/siteConfig';
 
 export default function Footer() {
@@ -15,7 +15,7 @@ export default function Footer() {
           {/* Brand + tagline */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Shield className="w-5 h-5 text-blue-400" />
+              <SiteLogo className="w-5 h-5" />
               <span className="font-semibold text-white text-base">Military Retirement Advisor</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
@@ -25,6 +25,15 @@ export default function Footer() {
             <span className="inline-block text-xs text-slate-500 border border-slate-700 px-2.5 py-1 rounded-full">
               {DATA_YEAR} Updated Data
             </span>
+            <div className="mt-4">
+              <p className="text-xs text-slate-500 mb-1">Data corrections, site feedback, or suggestions? Reach me at</p>
+              <a
+                href="mailto:darkeyegraphics@gmail.com"
+                className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                darkeyegraphics@gmail.com
+              </a>
+            </div>
           </div>
 
           {/* Quick links */}

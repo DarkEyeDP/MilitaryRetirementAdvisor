@@ -29,7 +29,6 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  Shield,
   Star,
   MapPin,
   TrendingUp,
@@ -56,6 +55,7 @@ import StateShapeMap from '../components/StateShapeMap';
 import ComparisonDrawer from '../components/ComparisonDrawer';
 import { pdf } from '@react-pdf/renderer';
 import { StatePdfDocument } from '../components/pdf/StatePdfDocument';
+import { SiteLogo } from '../components/ui/SiteLogo';
 
 function ScoreGauge({
   score,
@@ -64,7 +64,7 @@ function ScoreGauge({
 }: {
   score: number;
   label: string;
-  subItems: { label: string; value: string }[];
+  subItems: { label: string; value: string; badge?: { text: string; color: string } | null }[];
 }) {
   const cx = 60, cy = 56, r = 48, sw = 11;
   const arcLen = Math.PI * r;
@@ -146,9 +146,16 @@ function ScoreGauge({
       <p className="text-xs font-semibold text-slate-600 -mt-1 mb-2.5 text-center">{label}</p>
       <div className="w-full space-y-1.5">
         {subItems.map((it) => (
-          <div key={it.label} className="flex justify-between text-xs text-slate-400">
+          <div key={it.label} className="flex justify-between items-center text-xs text-slate-400 gap-1">
             <span>{it.label}</span>
-            <span className="font-semibold text-slate-600">{it.value}</span>
+            <div className="flex items-center gap-1">
+              <span className="font-semibold text-slate-600">{it.value}</span>
+              {it.badge && (
+                <span className={`text-[10px] font-semibold border px-1.5 py-0.5 rounded-full leading-none ${it.badge.color}`}>
+                  {it.badge.text}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
@@ -170,6 +177,7 @@ export default function StateDetail() {
     ?? (Number(localStorage.getItem('origin-retirement-income') || '0') || 60000);
   const userType = (localStorage.getItem('origin-user-type') ?? 'retiree') as 'retiree' | 'separating';
   const isSeparating = userType === 'separating';
+  const disabilityRating = localStorage.getItem('origin-disability-rating') ?? '';
 
   const currentIdx = resultIds.indexOf(stateId ?? '');
   const prevId = currentIdx > 0 ? resultIds[currentIdx - 1] : null;
@@ -473,7 +481,7 @@ export default function StateDetail() {
                 <IconReadOutlined className="w-4 h-4" />
                 <span className="hidden sm:inline">Sources</span>
               </Button>
-              <Shield className="hidden sm:block w-5 h-5 text-blue-600" />
+              <SiteLogo className="hidden sm:block w-5 h-5" />
               <span className="font-semibold hidden md:inline text-sm">Military Retirement Advisor</span>
             </div>
           </div>
@@ -631,12 +639,37 @@ export default function StateDetail() {
                         label: 'Income tax/yr',
                         value: incomeTax === 0 ? 'None' : `$${incomeTax.toLocaleString()}/yr`,
                       },
-                      { label: 'Property tax', value: state.propertyTaxLevel },
+                      {
+                        label: 'Property tax',
+                        value: state.propertyTaxLevel,
+                        badge: disabilityRating === '100'
+                          ? state.propertyTaxExemption100 === 'Full'
+                            ? { text: 'Exempt at 100%', color: 'text-green-700 bg-green-50 border-green-200' }
+                            : state.propertyTaxExemption100 === 'Partial'
+                            ? { text: 'Partial Exemption', color: 'text-yellow-700 bg-yellow-50 border-yellow-200' }
+                            : null
+                          : null,
+                      },
                       { label: 'Sales tax', value: state.salesTax === 0 ? 'None' : `${state.salesTax}%` },
                     ]}
                   />
                 );
               })()}
+              {disabilityRating === '100' && state.propertyTaxExemption100 !== 'None' && (
+                <div className={`mx-4 mb-2 px-4 py-3 rounded-lg border text-sm flex items-start gap-2 ${
+                  state.propertyTaxExemption100 === 'Full'
+                    ? 'bg-green-50 border-green-200 text-green-800'
+                    : 'bg-yellow-50 border-yellow-200 text-yellow-800'
+                }`}>
+                  <span className="text-base leading-none mt-0.5">{state.propertyTaxExemption100 === 'Full' ? '✓' : '◑'}</span>
+                  <span>
+                    <strong>100% VA Disability Property Tax Benefit:</strong>{' '}
+                    {state.propertyTaxExemption100 === 'Full'
+                      ? `${state.name} offers a full property tax exemption on your primary residence. See Veteran Perks below for details.`
+                      : `${state.name} offers a partial property tax exemption for 100% disabled veterans. See Veteran Perks below for details.`}
+                  </span>
+                </div>
+              )}
               <ScoreGauge
                 score={costScore}
                 label="Cost of Living"
@@ -689,7 +722,17 @@ export default function StateDetail() {
                   items: [
                     ...(!isSeparating ? [{ label: 'Pension tax', value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr` }] : []),
                     { label: 'Income tax', value: state.stateIncomeTax === 0 ? 'None' : `${state.stateIncomeTax}%` },
-                    { label: 'Property tax', value: state.propertyTaxLevel },
+                    {
+                      label: 'Property tax',
+                      value: state.propertyTaxLevel,
+                      badge: disabilityRating === '100'
+                        ? state.propertyTaxExemption100 === 'Full'
+                          ? { text: 'Exempt at 100%', color: 'text-green-700 bg-green-50 border-green-200' }
+                          : state.propertyTaxExemption100 === 'Partial'
+                          ? { text: 'Partial Exemption', color: 'text-yellow-700 bg-yellow-50 border-yellow-200' }
+                          : null
+                        : null,
+                    },
                     { label: 'Sales tax', value: state.salesTax === 0 ? 'None' : `${state.salesTax}%` },
                   ],
                 },
@@ -1263,17 +1306,18 @@ export default function StateDetail() {
             {stateVeteranPerks[state.id] && (() => {
               const perks = stateVeteranPerks[state.id];
               const sections = [
-                { value: 'dl',      label: "Driver's License & Vehicle Registration", items: perks.vehicleRegistrationBenefits, checkClass: 'text-green-600',   pillClass: 'bg-slate-50 text-slate-700'   },
-                { value: 'medal',   label: 'Military Medal & Honor Benefits',          items: perks.medalBenefits,               checkClass: 'text-yellow-500',  pillClass: 'bg-slate-50 text-slate-700'   },
-                { value: 'edu-r',   label: 'Education Benefits — Retiree',             items: perks.educationBenefits.retiree,   checkClass: 'text-blue-600',    pillClass: 'bg-blue-50 text-blue-900'     },
-                { value: 'edu-f',   label: 'Education Benefits — Spouse & Dependents', items: perks.educationBenefits.family,    checkClass: 'text-purple-600',  pillClass: 'bg-purple-50 text-purple-900' },
+                { value: 'prop-tax', label: 'Property Tax Exemption (100% VA Disability)', items: perks.propertyTaxExemptions,          checkClass: state.propertyTaxExemption100 === 'Full' ? 'text-green-600' : 'text-yellow-500', pillClass: state.propertyTaxExemption100 === 'Full' ? 'bg-green-50 text-green-900' : state.propertyTaxExemption100 === 'Partial' ? 'bg-yellow-50 text-yellow-900' : 'bg-slate-50 text-slate-700' },
+                { value: 'dl',       label: "Driver's License & Vehicle Registration",      items: perks.vehicleRegistrationBenefits,    checkClass: 'text-green-600',   pillClass: 'bg-slate-50 text-slate-700'   },
+                { value: 'medal',    label: 'Military Medal & Honor Benefits',               items: perks.medalBenefits,                  checkClass: 'text-yellow-500',  pillClass: 'bg-slate-50 text-slate-700'   },
+                { value: 'edu-r',    label: 'Education Benefits — Retiree',                  items: perks.educationBenefits.retiree,      checkClass: 'text-blue-600',    pillClass: 'bg-blue-50 text-blue-900'     },
+                { value: 'edu-f',    label: 'Education Benefits — Spouse & Dependents',      items: perks.educationBenefits.family,       checkClass: 'text-purple-600',  pillClass: 'bg-purple-50 text-purple-900' },
               ].filter((s) => s.items.length > 0);
               if (sections.length === 0) return null;
               return (
                 <Card>
                   <CardHeader className="border-b">
                     <CardTitle className="flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-blue-600" />
+                      <SiteLogo className="w-5 h-5" />
                       Veteran Perks &amp; Benefits
                     </CardTitle>
                   </CardHeader>

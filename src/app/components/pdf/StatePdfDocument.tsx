@@ -597,6 +597,17 @@ export function StatePdfDocument({
           <View style={S.section} wrap={false}>
             <SectionTitle>Veteran Perks & Benefits</SectionTitle>
 
+            {perks.propertyTaxExemptions.length > 0 && (
+              <View style={{ marginBottom: 12, padding: 8, borderRadius: 4, backgroundColor: state.propertyTaxExemption100 === 'Full' ? C.greenLight : state.propertyTaxExemption100 === 'Partial' ? C.amberLight : C.slate100 }}>
+                <Text style={[S.sectionSubHeading, { color: state.propertyTaxExemption100 === 'Full' ? C.green : state.propertyTaxExemption100 === 'Partial' ? C.amber : C.slate700, marginBottom: 6 }]}>
+                  Property Tax Exemption (100% VA Disability) — {state.propertyTaxExemption100 === 'Full' ? 'Full Exemption' : state.propertyTaxExemption100 === 'Partial' ? 'Partial Exemption' : 'No Exemption'}
+                </Text>
+                {perks.propertyTaxExemptions.map((b, i) => (
+                  <BulletItem key={i} text={b} color={state.propertyTaxExemption100 === 'Full' ? C.green : state.propertyTaxExemption100 === 'Partial' ? C.amber : C.slate500} />
+                ))}
+              </View>
+            )}
+
             {perks.vehicleRegistrationBenefits.length > 0 && (
               <View style={{ marginBottom: 12 }}>
                 <Text style={[S.sectionSubHeading, { color: C.navy }]}>

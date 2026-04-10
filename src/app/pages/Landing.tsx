@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Shield, Plus, X, Briefcase } from 'lucide-react';
+import { Plus, X, Briefcase } from 'lucide-react';
+import { SiteLogo } from '../components/ui/SiteLogo';
 import { statesData } from '../data/stateData';
 import { DATA_YEAR } from '../data/siteConfig';
 import type { AgeGroup, SecondaryIncomeSource } from '../data/financialReality';
@@ -415,7 +416,7 @@ export default function Landing() {
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center">
           <div className="flex items-center gap-2">
-            <Shield className="w-8 h-8 text-blue-600" />
+            <SiteLogo className="w-8 h-8" />
             <h1 className="font-semibold text-xl">Military Retirement Advisor</h1>
           </div>
         </div>

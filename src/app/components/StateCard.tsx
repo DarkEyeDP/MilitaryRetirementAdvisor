@@ -20,6 +20,7 @@ interface StateCardProps {
   resultIds?: string[];
   currentStateId?: string;
   retirementIncome?: number;
+  disabilityRating?: string;
 }
 
 export default function StateCard({
@@ -30,6 +31,7 @@ export default function StateCard({
   resultIds,
   currentStateId,
   retirementIncome = 60000,
+  disabilityRating,
 }: StateCardProps) {
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
@@ -170,6 +172,12 @@ export default function StateCard({
               <div>
                 <div className="text-xs text-slate-500">Property Tax</div>
                 <div className="font-medium">{state.propertyTaxLevel}</div>
+                {disabilityRating === '100' && state.propertyTaxExemption100 === 'Full' && (
+                  <div className="text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full mt-0.5 leading-none inline-block">Exempt at 100%</div>
+                )}
+                {disabilityRating === '100' && state.propertyTaxExemption100 === 'Partial' && (
+                  <div className="text-[10px] font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-1.5 py-0.5 rounded-full mt-0.5 leading-none inline-block">Partial Exemption</div>
+                )}
               </div>
             </div>
             <div className="flex items-center gap-2">

@@ -13,10 +13,11 @@ import {
   ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck,
   CheckCircle2, AlertCircle, XCircle, TrendingUp, TrendingDown,
   Home, Users, Thermometer, Wind, Flame, Waves, Snowflake,
-  TriangleAlert, Mountain, Shield, Briefcase, Plus, X, Download,
+  TriangleAlert, Mountain, Briefcase, Plus, X, Download,
 } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
 import { ComparisonPdfDocument } from '../components/pdf/ComparisonPdfDocument';
+import { SiteLogo } from '../components/ui/SiteLogo';
 import { Button } from '@/app/components/ui/button';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
@@ -289,7 +290,7 @@ function EmptyWithSlots({
       <div className="max-w-2xl mx-auto px-4 py-10 sm:py-14">
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-7 h-7 text-blue-400" />
+            <SiteLogo className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Compare States Side by Side</h1>
           <p className="text-slate-500 text-sm">
@@ -586,6 +587,11 @@ export default function ComparisonPage() {
               const cls = s.propertyTaxLevel === 'Low' ? 'bg-green-100 text-green-700' : s.propertyTaxLevel === 'Medium' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700';
               return <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${cls}`}>{s.propertyTaxLevel}</span>;
             })} bestIdx={bestIdx(states.map(s => s.propertyTaxLevel === 'Low' ? 2 : s.propertyTaxLevel === 'Medium' ? 1 : 0), 'max')} />
+            <Row n={n} label="100% VA Disability Exemption" values={states.map((s) => {
+              if (s.propertyTaxExemption100 === 'Full') return <span className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2.5 py-1 rounded-full">Full</span>;
+              if (s.propertyTaxExemption100 === 'Partial') return <span className="text-xs font-semibold text-yellow-700 bg-yellow-50 border border-yellow-200 px-2.5 py-1 rounded-full">Partial</span>;
+              return <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">None</span>;
+            })} bestIdx={bestIdx(states.map(s => s.propertyTaxExemption100 === 'Full' ? 2 : s.propertyTaxExemption100 === 'Partial' ? 1 : 0), 'max')} />
             <Row n={n} label="Cost of Living" divider values={states.map((s) => { const c = s.costOfLivingIndex; return <span className={c < 95 ? 'text-green-600 font-semibold' : c > 110 ? 'text-red-600 font-semibold' : 'text-yellow-600 font-semibold'}>{c}</span>; })} bestIdx={bestIdx(states.map(s => s.costOfLivingIndex), 'min')} />
             <Row n={n} label="VA Benefits Score" values={states.map((s) => <span className="font-semibold">{s.veteranBenefitsScore}<span className="text-xs font-normal text-slate-400">/100</span></span>)} bestIdx={bestIdx(states.map(s => s.veteranBenefitsScore), 'max')} />
             <Row n={n} label="Veteran Population" values={states.map((s) => fmtVetPop(s.veteranPopulation))} bestIdx={bestIdx(states.map(s => s.veteranPopulation), 'max')} />
