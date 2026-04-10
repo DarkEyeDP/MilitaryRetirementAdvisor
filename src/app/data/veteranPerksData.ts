@@ -1123,9 +1123,9 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Combat veterans: Oklahoma Patriot plate available',
     ],
     propertyTaxExemptions: [
-      'Full exemption of fair cash value of homestead for 100% P&T service-connected disabled veterans',
-      'No income limit — entire property tax bill on primary residence is eliminated',
-      'Surviving spouses retain the exemption; apply through county assessor',
+      'Full exemption of fair cash value of homestead for 100% P&T service-connected disabled veterans — entire property tax bill on primary residence eliminated, no income limit',
+      'Sales tax exemption card: 100% service-connected disabled veterans receive a permit exempting all qualifying purchases from Oklahoma sales tax, up to $25,000 per year — apply through the Oklahoma Tax Commission',
+      'Surviving spouse of a qualified 100% disabled veteran retains property tax exemption (if not remarried); also eligible for sales tax exemption on up to $1,000/yr in purchases',
     ],
     educationBenefits: {
       retiree: [
