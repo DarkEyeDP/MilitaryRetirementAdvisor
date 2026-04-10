@@ -61,7 +61,13 @@ npx ai-codex                     # Regenerate .ai-codex/lib.md codebase index
 src/
 ├── app/
 │   ├── components/
-│   │   ├── ui/                    # shadcn/ui primitives (do not modify directly)
+│   │   ├── ui/                        # shadcn/ui primitives (do not modify directly)
+│   │   │   └── SiteLogo.tsx           # Brand shield+star SVG logo
+│   │   ├── pdf/                       # PDF export components (@react-pdf/renderer)
+│   │   │   ├── StatePdfDocument.tsx   # State detail report
+│   │   │   ├── ComparisonPdfDocument.tsx
+│   │   │   ├── GaugeSvg.tsx
+│   │   │   └── pdfStyles.ts
 │   │   ├── FinancialRealityBanner.tsx
 │   │   ├── FilterPanel.tsx
 │   │   ├── MapView.tsx
@@ -71,24 +77,36 @@ src/
 │   │   ├── BudgetCustomizerPanel.tsx
 │   │   └── ComparisonDrawer.tsx
 │   ├── pages/
-│   │   ├── Landing.tsx            # /
-│   │   ├── Dashboard.tsx          # /dashboard
-│   │   ├── StateDetail.tsx        # /state/:stateId
-│   │   ├── ComparisonPage.tsx     # /compare
-│   │   └── Sources.tsx            # /sources
+│   │   ├── Landing.tsx                # /
+│   │   ├── Dashboard.tsx              # /dashboard
+│   │   ├── StateDetail.tsx            # /state/:stateId
+│   │   ├── ComparisonPage.tsx         # /compare
+│   │   ├── Sources.tsx                # /sources (shell — imports from sources/)
+│   │   └── sources/                   # Sources page tab modules
+│   │       ├── shared.tsx             # Shared helpers, badges, sort utilities
+│   │       ├── ScoringTab.tsx
+│   │       ├── TaxesTab.tsx
+│   │       ├── CostOfLivingTab.tsx
+│   │       ├── HousingTab.tsx
+│   │       ├── FinancialTab.tsx
+│   │       ├── ClimateTab.tsx
+│   │       ├── EmploymentTab.tsx
+│   │       ├── VeteransTab.tsx
+│   │       └── VADisabilityTab.tsx
 │   ├── data/
-│   │   ├── stateData.ts           # 50-state dataset + scoring algorithm
-│   │   ├── financialReality.ts    # Core financial calculation engine
-│   │   ├── vaRates.ts             # VA disability rate tables (update annually)
-│   │   ├── financialData.ts       # Per-state financial data
-│   │   ├── housingData.ts         # Per-state housing data
-│   │   ├── climateData.ts         # Per-state climate data
-│   │   ├── employmentData.ts      # Per-state employment data
-│   │   ├── vaFacilityLocations.ts # VA facility coordinates
+│   │   ├── siteConfig.ts              # DATA_YEAR, LAST_UPDATED, DATA_VINTAGES
+│   │   ├── stateData.ts               # 50-state dataset + scoring algorithm
+│   │   ├── financialReality.ts        # Core financial calculation engine
+│   │   ├── vaRates.ts                 # VA disability rate tables (update annually)
+│   │   ├── financialData.ts           # Per-state financial data
+│   │   ├── housingData.ts             # Per-state housing data
+│   │   ├── climateData.ts             # Per-state climate data
+│   │   ├── employmentData.ts          # Per-state employment data
+│   │   ├── vaFacilityLocations.ts     # VA facility coordinates
 │   │   ├── militaryInstallations.ts
 │   │   ├── spaceATerminals.ts
-│   │   ├── veteranPerksData.ts
-│   │   └── stateVeteranUrls.ts    # Official state veteran services URLs
+│   │   ├── veteranPerksData.ts        # License, medal, education, property tax perks
+│   │   └── stateVeteranUrls.ts        # Official state veteran services URLs
 │   ├── routes.tsx
 │   └── App.tsx
 ├── styles/
