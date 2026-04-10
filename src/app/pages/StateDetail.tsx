@@ -315,6 +315,7 @@ export default function StateDetail() {
   }, [prevId, nextId, headerScrolled]);
 
   const [pdfLoading, setPdfLoading] = useState(false);
+  const veteranPerksRef = useRef<HTMLDivElement>(null);
 
   const handleExportPdf = async () => {
     if (!state) return;
@@ -621,6 +622,26 @@ export default function StateDetail() {
 
           {/* Score Breakdown — Gauge Charts */}
           <div className="border-t border-slate-100 pt-5">
+            {/* 100% disability property tax callout — compact inline banner above gauges */}
+            {disabilityRating === '100' && state.propertyTaxExemption100 !== 'None' && (
+              <div className={`mx-4 mb-4 px-3 py-2 rounded-md border text-xs flex items-center gap-2 ${
+                state.propertyTaxExemption100 === 'Full'
+                  ? 'bg-green-50 border-green-200 text-green-800'
+                  : 'bg-yellow-50 border-yellow-200 text-yellow-800'
+              }`}>
+                <span className="text-sm leading-none shrink-0">{state.propertyTaxExemption100 === 'Full' ? '✓' : '◑'}</span>
+                <span>
+                  <strong>100% VA Disability:</strong>{' '}
+                  {state.propertyTaxExemption100 === 'Full'
+                    ? `${state.name} offers a full property tax exemption on your primary residence.`
+                    : `${state.name} offers a partial property tax exemption for 100% disabled veterans.`}
+                  {' '}<button
+                    onClick={() => veteranPerksRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                    className="underline underline-offset-2 opacity-70 hover:opacity-100 transition-opacity cursor-pointer text-[inherit] text-[length:inherit] leading-[inherit] font-[inherit]"
+                  >See Veteran Perks below.</button>
+                </span>
+              </div>
+            )}
             {/* Desktop: 3-column gauge layout */}
             <div className="hidden md:grid grid-cols-3 divide-x divide-slate-100">
               {taxScoreComponents && (() => {
@@ -655,21 +676,6 @@ export default function StateDetail() {
                   />
                 );
               })()}
-              {disabilityRating === '100' && state.propertyTaxExemption100 !== 'None' && (
-                <div className={`mx-4 mb-2 px-4 py-3 rounded-lg border text-sm flex items-start gap-2 ${
-                  state.propertyTaxExemption100 === 'Full'
-                    ? 'bg-green-50 border-green-200 text-green-800'
-                    : 'bg-yellow-50 border-yellow-200 text-yellow-800'
-                }`}>
-                  <span className="text-base leading-none mt-0.5">{state.propertyTaxExemption100 === 'Full' ? '✓' : '◑'}</span>
-                  <span>
-                    <strong>100% VA Disability Property Tax Benefit:</strong>{' '}
-                    {state.propertyTaxExemption100 === 'Full'
-                      ? `${state.name} offers a full property tax exemption on your primary residence. See Veteran Perks below for details.`
-                      : `${state.name} offers a partial property tax exemption for 100% disabled veterans. See Veteran Perks below for details.`}
-                  </span>
-                </div>
-              )}
               <ScoreGauge
                 score={costScore}
                 label="Cost of Living"
@@ -1314,6 +1320,7 @@ export default function StateDetail() {
               ].filter((s) => s.items.length > 0);
               if (sections.length === 0) return null;
               return (
+                <div ref={veteranPerksRef}>
                 <Card>
                   <CardHeader className="border-b">
                     <CardTitle className="flex items-center gap-2">
@@ -1357,6 +1364,7 @@ export default function StateDetail() {
                     </div>
                   </CardContent>
                 </Card>
+                </div>
               );
             })()}
 
