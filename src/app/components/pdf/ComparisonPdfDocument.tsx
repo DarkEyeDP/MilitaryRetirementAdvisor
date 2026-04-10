@@ -17,6 +17,7 @@ import { stateHousingData } from '../../data/housingData';
 import { stateClimateData, type RiskLevel } from '../../data/climateData';
 import { stateEmploymentData } from '../../data/employmentData';
 import { DATA_YEAR } from '../../data/siteConfig';
+import { getFlagUrl } from '../../lib/flagUrl';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -130,7 +131,7 @@ export function ComparisonPdfDocument({ states, inputs, profile }: Props) {
     : 0;
 
   const stateNames = states.map((s) => s.name).join(' vs. ');
-  const flagUrl = (abbr: string) => `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${abbr.toLowerCase()}.svg`;
+  const flagUrl = (abbr: string) => getFlagUrl(abbr);
 
   // State-color accents for columns: blue, green, amber
   const accentColors = [C.blue, C.green, C.amber];

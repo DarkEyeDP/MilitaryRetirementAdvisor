@@ -25,6 +25,7 @@ import { NATIONAL_EMPLOYMENT } from '../../data/employmentData';
 import type { StateClimateData, RiskLevel } from '../../data/climateData';
 import type { VeteranPerksData } from '../../data/veteranPerksData';
 import type { FinancialInputs } from '../../data/financialReality';
+import { getFlagUrl } from '../../lib/flagUrl';
 import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { militaryInstallations } from '../../data/militaryInstallations';
 import { getSpaceATerminalsByProximity } from '../../data/spaceATerminals';
@@ -178,7 +179,7 @@ export function StatePdfDocument({
 
   const taxBadge = pensionBadgeColors(state.militaryPensionTax);
   const generated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
+  const flagUrl = getFlagUrl(state.abbreviation);
 
   // Gauge sub-items
   const taxSubItems = [

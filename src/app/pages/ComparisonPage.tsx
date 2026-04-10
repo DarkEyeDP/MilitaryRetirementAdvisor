@@ -18,6 +18,7 @@ import {
 import { pdf } from '@react-pdf/renderer';
 import { ComparisonPdfDocument } from '../components/pdf/ComparisonPdfDocument';
 import { SiteLogo } from '../components/ui/SiteLogo';
+import { getFlagUrl } from '../lib/flagUrl';
 import { Button } from '@/app/components/ui/button';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
@@ -421,8 +422,7 @@ export default function ComparisonPage() {
     return <EmptyWithSlots navigate={navigate} onCompare={commitFavorites} />;
   }
 
-  const flagUrl = (abbr: string) =>
-    `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${abbr.toLowerCase()}.svg`;
+  const flagUrl = (abbr: string) => getFlagUrl(abbr);
 
   return (
     <div className="min-h-screen bg-slate-50">

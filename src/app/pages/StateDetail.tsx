@@ -56,6 +56,7 @@ import ComparisonDrawer from '../components/ComparisonDrawer';
 import { pdf } from '@react-pdf/renderer';
 import { StatePdfDocument } from '../components/pdf/StatePdfDocument';
 import { SiteLogo } from '../components/ui/SiteLogo';
+import { getFlagUrl } from '../lib/flagUrl';
 
 function ScoreGauge({
   score,
@@ -387,7 +388,7 @@ export default function StateDetail() {
 
   const taxBadge = getTaxBadge(state.militaryPensionTax);
   const TaxIcon = taxBadge.icon;
-  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
+  const flagUrl = getFlagUrl(state.abbreviation);
 
   const formatVeteranPop = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;

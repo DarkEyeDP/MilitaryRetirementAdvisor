@@ -5,6 +5,7 @@ import { StateData, statesData, scoreTier } from '../data/stateData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
 import { GitCompare, TrendingUp, TrendingDown, DollarSign, Home, Star, Building2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { getFlagUrl } from '../lib/flagUrl';
 
 function pensionTaxDollars(s: StateData, annualIncome: number): number {
   if (s.militaryPensionTax === 'No') return 0;
@@ -61,7 +62,7 @@ export default function StateCard({
     return 'bg-red-100 text-red-700';
   };
 
-  const flagUrl = `https://cdn.jsdelivr.net/gh/hayleox/flags@master/svg/us/${state.abbreviation.toLowerCase()}.svg`;
+  const flagUrl = getFlagUrl(state.abbreviation);
 
   return (
     <Card
