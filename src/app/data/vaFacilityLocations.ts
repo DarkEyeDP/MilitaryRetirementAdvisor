@@ -677,11 +677,11 @@ export const vaFacilityLocations: Record<string, VAFacility[]> = {
   ],
   maine: [
     // VA Medical Centers
-    { name: 'Togus VA Medical Center', lat: 44.324, lon: -69.72, address: '1 VA Center, Augusta, ME 04330', phone: '(207) 623-8411', type: 'vamc' },
+    { name: 'Togus VA Medical Center', lat: 44.280316, lon: -69.704237, address: '1 VA Ctr, Augusta, ME 04330', phone: '(207) 623-8411', type: 'vamc' },
     // VA Outpatient Clinics
-    { name: 'Portland VA Clinic', lat: 43.661197, lon: -70.246797, address: '144 Fore St, Portland, ME 04101', phone: '(207) 771-3500', type: 'clinic' },
-    { name: 'Bangor VA Clinic', lat: 44.801747, lon: -68.770984, address: '35 Hammond St, Bangor, ME 04401', phone: '(207) 561-3600', type: 'clinic' },
-    { name: 'Saco VA Clinic', lat: 43.515568, lon: -70.428639, address: '655 Main St, Saco, ME 04072', phone: '(207) 294-3100', type: 'clinic' },
+    { name: 'Bangor VA Clinic', lat: 44.815759, lon: -68.739376, address: '44 Hogan Rd, Bangor, ME 04401', phone: '(207) 941-3005', type: 'clinic' },
+    { name: 'Lewiston VA Clinic', lat: 44.070383, lon: -70.188499, address: '15 Challenger Dr, Lewiston, ME 04240', phone: '(877) 421-8263', type: 'clinic' },
+    { name: 'Portland VA Clinic', lat: 43.644530, lon: -70.268294, address: '141 W Commercial St, Portland, ME 04102', phone: '(877) 421-8263', type: 'clinic' },
   ],
   vermont: [
     // VA Medical Centers
