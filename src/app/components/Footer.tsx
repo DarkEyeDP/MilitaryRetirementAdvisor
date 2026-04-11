@@ -76,7 +76,7 @@ export default function Footer() {
           </div>
 
           {/* Support */}
-          <div>
+          <div className="order-first md:order-none">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Support This Project</h3>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
               If this tool helped you plan your retirement, consider buying me a coffee. It helps keep the data updated and the site running.
