@@ -96,12 +96,12 @@ export default function StateCard({
               {annualSavings !== null && annualSavings > 0 && (
                 <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
                   <TrendingDown className="w-3 h-3" />
-                  Save ${annualSavings.toLocaleString()}/yr tax
+                  Save ${annualSavings.toLocaleString()}/yr tax vs. {currentState!.abbreviation}
                 </Badge>
               )}
               {annualSavings !== null && annualSavings < 0 && (
                 <Badge className="bg-orange-100 text-orange-700 flex items-center gap-1">
-                  +${Math.abs(annualSavings).toLocaleString()}/yr more tax
+                  +${Math.abs(annualSavings).toLocaleString()}/yr more tax vs. {currentState!.abbreviation}
                 </Badge>
               )}
               {colDiffPct !== null && colDiffPct !== 0 && (
@@ -110,7 +110,7 @@ export default function StateCard({
                   : 'bg-slate-100 text-slate-500 flex items-center gap-1'
                 }>
                   {colDiffPct > 0 ? <TrendingDown className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
-                  COL {Math.abs(colDiffPct)}% {colDiffPct > 0 ? 'lower' : 'higher'}
+                  COL {Math.abs(colDiffPct)}% {colDiffPct > 0 ? 'lower' : 'higher'} vs. {currentState!.abbreviation}
                 </Badge>
               )}
             </div>

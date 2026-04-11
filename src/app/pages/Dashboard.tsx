@@ -866,7 +866,16 @@ export default function Dashboard() {
                         {
                           title: 'Veteran Benefits',
                           weight: weights.benefits,
-                          content: <p className="text-slate-500 leading-relaxed">VA facility quality, veteran services, and veteran-focused programs rated 0–100.</p>,
+                          content: (
+                            <p className="text-slate-500 leading-relaxed">
+                              VA facilities, installations, veteran services, and programs rated 0–100.
+                              Currently scoring facilities{' '}
+                              <span className="font-medium text-slate-600">
+                                {perCapita ? 'per 100k veterans' : 'by raw count'}
+                              </span>
+                              {' '}— toggle in filters above.
+                            </p>
+                          ),
                         },
                       ].map(({ title, weight, content }, i) => (
                         <motion.div

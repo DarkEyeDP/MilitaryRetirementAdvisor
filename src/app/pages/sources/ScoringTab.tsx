@@ -109,7 +109,9 @@ export function ScoringTab() {
             </div>
             <div className="space-y-2 text-sm text-slate-600">
               <p className="text-xs text-slate-500">
-                Facility and installation components are <span className="font-medium text-slate-600">normalized by veteran population</span> — scored per 100k veterans, not raw counts — so small states that proportionally serve veterans well aren't penalized against large-population states.
+                Facility and installation components can be scored two ways — toggled via the Dashboard filters.{' '}
+                <span className="font-medium text-slate-600">Per 100k veterans</span> (default) normalizes by veteran population so small states that proportionally serve veterans well aren't penalized against large-population states.{' '}
+                <span className="font-medium text-slate-600">Raw count</span> mode scores based on absolute facility numbers.
               </p>
               <div className="text-xs space-y-1 pt-1">
                 <div className="font-medium text-slate-600 mb-1.5">Formula components (max 100 pts):</div>

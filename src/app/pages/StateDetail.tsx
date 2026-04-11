@@ -798,7 +798,7 @@ export default function StateDetail() {
               <div className="flex items-start gap-1.5 text-xs text-slate-400">
                 <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <span>
-                  VA Benefits score uses{' '}
+                  VA Benefits score is currently using{' '}
                   {perCapita
                     ? <span className="text-slate-500 font-medium">facilities per 100k veterans</span>
                     : <span className="text-slate-500 font-medium">raw facility counts</span>
