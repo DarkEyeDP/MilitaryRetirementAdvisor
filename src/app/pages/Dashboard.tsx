@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
-import { statesData, calculateCustomScore, TERRITORY_IDS } from '../data/stateData';
+import { statesData, TERRITORY_IDS } from '../data/stateData';
+import { calculateScore as calculateCustomScore } from '../data/veteranScore';
 import { LAST_UPDATED } from '../data/siteConfig';
 import { stateEmploymentData } from '../data/employmentData';
 import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, fmt$ } from '../data/financialReality';
@@ -268,6 +269,10 @@ export default function Dashboard() {
     return { taxes: 2, cost: 2, benefits: 2 };
   });
 
+  const [perCapita, setPerCapita] = useState(() => {
+    return localStorage.getItem('va-scoring-per-capita') === 'true';
+  });
+
   const handleFilterChange = (key: string, value: boolean) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
@@ -278,6 +283,11 @@ export default function Dashboard() {
       try { localStorage.setItem('dashboard-weights', JSON.stringify(next)); } catch { /* ignore */ }
       return next;
     });
+  };
+
+  const handlePerCapitaChange = (value: boolean) => {
+    setPerCapita(value);
+    try { localStorage.setItem('va-scoring-per-capita', String(value)); } catch { /* ignore */ }
   };
 
   const handleReset = () => {
@@ -292,9 +302,11 @@ export default function Dashboard() {
       strongJobMarket: false,
     });
     setWeights({ taxes: 2, cost: 2, benefits: 2 });
+    setPerCapita(false);
     setExcludedStates([]);
     localStorage.removeItem('excluded-states');
     localStorage.removeItem('dashboard-weights');
+    localStorage.removeItem('va-scoring-per-capita');
   };
 
   const toggleFavorite = (stateId: string) => {
@@ -396,10 +408,10 @@ export default function Dashboard() {
   const customScores = useMemo(() => {
     const scores: Record<string, number> = {};
     filteredStates.forEach((state) => {
-      scores[state.id] = calculateCustomScore(state, weights);
+      scores[state.id] = calculateCustomScore(state, weights, perCapita);
     });
     return scores;
-  }, [filteredStates, weights]);
+  }, [filteredStates, weights, perCapita]);
 
   const sortedStates = useMemo(() => {
     return [...filteredStates].sort((a, b) => {
@@ -928,6 +940,7 @@ export default function Dashboard() {
                         currentStateId={currentStateId ?? undefined}
                         retirementIncome={financialInputs.retirementIncome}
                         disabilityRating={financialInputs.disabilityRating}
+                        perCapita={perCapita}
                       />
                     ))}
                   </div>
@@ -948,6 +961,7 @@ export default function Dashboard() {
                     onToggleFavorite={toggleFavorite}
                     customScores={customScores}
                     disabilityRating={financialInputs.disabilityRating}
+                    perCapita={perCapita}
                   />
                 </motion.div>
               )}
@@ -991,8 +1005,10 @@ export default function Dashboard() {
                   <FilterPanel
                     filters={filters}
                     weights={weights}
+                    perCapita={perCapita}
                     onFilterChange={handleFilterChange}
                     onWeightChange={handleWeightChange}
+                    onPerCapitaChange={handlePerCapitaChange}
                     onReset={handleReset}
                     onClose={() => setSidebarOpen(false)}
                     excludedStates={excludedStates}
@@ -1013,12 +1029,15 @@ export default function Dashboard() {
           <FilterPanel
             filters={filters}
             weights={weights}
+            perCapita={perCapita}
             onFilterChange={handleFilterChange}
             onWeightChange={handleWeightChange}
+            onPerCapitaChange={handlePerCapitaChange}
             onReset={handleReset}
             excludedStates={excludedStates}
             onExcludeState={handleExcludeState}
             onIncludeState={handleIncludeState}
+            onExcludeAll={handleExcludeAll}
           />
         </SheetContent>
       </Sheet>

@@ -1,0 +1,188 @@
+import type { VAFacility } from './types';
+
+export const westFacilities: Record<string, VAFacility[]> = {
+  california: [
+    // VA Medical Centers
+    { name: 'Fresno VA Medical Center', lat: 36.773207, lon: -119.779288, address: '2615 E Clinton Ave, Fresno, CA 93703', phone: '(559) 225-6100', type: 'vamc' },
+    { name: 'Livermore VA Medical Center', lat: 37.625461, lon: -121.764970, address: '4951 Arroyo Rd, Livermore, CA 94550', phone: '(925) 373-4700', type: 'vamc' },
+    { name: 'Loma Linda VA Medical Center (Jerry L. Pettis)', lat: 34.050230, lon: -117.250192, address: '11201 Benton St, Loma Linda, CA 92357', phone: '(909) 825-7084', type: 'vamc' },
+    { name: 'Long Beach VA Medical Center', lat: 33.777176, lon: -118.118231, address: '5901 E 7th St, Long Beach, CA 90822', phone: '(562) 826-8000', type: 'vamc' },
+    { name: 'Martinez VA Medical Center', lat: 37.993926, lon: -122.115331, address: '150 Muir Rd, Martinez, CA 94553', phone: '(925) 372-2000', type: 'vamc' },
+    { name: 'Palo Alto VA Medical Center', lat: 37.405554, lon: -122.140820, address: '3801 Miranda Ave, Palo Alto, CA 94304', phone: '(650) 493-5000', type: 'vamc' },
+    { name: 'Sacramento VA Medical Center (Mather)', lat: 38.572120, lon: -121.296867, address: '10535 Hospital Way, Mather, CA 95655', phone: '(916) 843-7000', type: 'vamc' },
+    { name: 'San Diego VA Medical Center', lat: 32.874812, lon: -117.232998, address: '3350 La Jolla Village Dr, San Diego, CA 92161', phone: '(858) 552-8585', type: 'vamc' },
+    { name: 'San Francisco VA Medical Center', lat: 37.782422, lon: -122.505409, address: '4150 Clement St, San Francisco, CA 94121', phone: '(415) 221-4810', type: 'vamc' },
+    { name: 'West Los Angeles VA Medical Center', lat: 34.065038, lon: -118.464427, address: '11301 Wilshire Blvd, Los Angeles, CA 90073', phone: '(310) 478-3711', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Merced Community Based Outpatient Clinic', lat: 37.3022, lon: -120.4830, address: '340 E Yosemite Ave, Merced, CA 95340', phone: '(209) 381-0105', type: 'clinic' },
+    { name: 'Monterey VA Outpatient Clinic', lat: 36.650480, lon: -121.802440, address: '3401 Engineer Ln, Seaside, CA 93955', phone: '(831) 883-3800', type: 'clinic' },
+    { name: 'Oxnard VA Outpatient Clinic', lat: 34.221038, lon: -119.146796, address: '2000 Outlet Center Dr, Oxnard, CA 93036', phone: '(805) 983-3845', type: 'clinic' },
+    { name: 'Redding VA Outpatient Clinic', lat: 40.5865, lon: -122.3917, address: '351 Hartnell Avenue, Redding, CA 96002', phone: '(800) 382-8387', type: 'clinic' },
+    { name: 'San Jose VA Outpatient Clinic', lat: 37.234258, lon: -121.777259, address: '80 Great Oaks Blvd, San Jose, CA 95119', phone: '(408) 363-3011', type: 'clinic' },
+    { name: 'San Luis Obispo Community Based Outpatient Clinic', lat: 35.2828, lon: -120.6596, address: '1288 Morro Street, Suite 200, San Luis Obispo, CA 93401', phone: '(805) 543-1233', type: 'clinic' },
+    { name: 'Santa Barbara Community Based Outpatient Clinic', lat: 34.4377, lon: -119.7751, address: '4440 Calle Real, Santa Barbara, CA 93110', phone: '(805) 683-1491', type: 'clinic' },
+    { name: 'Santa Maria Community Based Outpatient Clinic', lat: 34.9530, lon: -120.4357, address: '1550 East Main Street, Santa Maria, CA 93454', phone: '(805) 354-6000', type: 'clinic' },
+    { name: 'Sepulveda VA Ambulatory Care Center', lat: 34.246873, lon: -118.478274, address: '16111 Plummer St, North Hills, CA 91343', phone: '(818) 891-7711', type: 'clinic' },
+    { name: 'Tulare Community Based Outpatient Clinic', lat: 36.2177, lon: -119.3473, address: '1050 N. Cherry Street, Tulare, CA 93274', phone: '(559) 684-8703', type: 'clinic' },
+  ],
+  oregon: [
+    // VA Medical Centers
+    { name: 'Portland VA Medical Center', lat: 45.496, lon: -122.682, address: '3710 SW US Veterans Hospital Rd, Portland, OR 97239', phone: '(503) 220-8262', type: 'vamc' },
+    { name: 'Roseburg VA Medical Center', lat: 43.224798, lon: -123.367563, address: '913 NW Garden Valley Blvd, Roseburg, OR 97471', phone: '(541) 440-1000', type: 'vamc' },
+    { name: 'White City VA Medical Center (Southern Oregon Rehab)', lat: 42.441604, lon: -122.838711, address: '8495 Crater Lake Hwy, White City, OR 97503', phone: '(541) 826-2111', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Bend Community Based Outpatient Clinic', lat: 44.0582, lon: -121.3153, address: '2650 NE Courtney Drive, Bend, OR 97701', phone: '(541) 647-5200', type: 'clinic' },
+    { name: 'Boardman VA Outpatient Clinic', lat: 45.8388, lon: -119.7004, address: '2 Marine Drive, Suite 103, Boardman, OR 97818', phone: '(541) 481-2255', type: 'clinic' },
+    { name: 'Brookings Community Based Outpatient Clinic', lat: 42.0538, lon: -124.2841, address: '555 5th Street, Brookings, OR 97415', phone: '(541) 412-1152', type: 'clinic' },
+    { name: 'Burns VA Outpatient Clinic', lat: 43.5863, lon: -119.0543, address: '271 N Egan Ave, Burns, OR 97720', phone: '(541) 573-3339', type: 'clinic' },
+    { name: 'East Portland Community Based Outpatient Clinic', lat: 45.5228, lon: -122.5641, address: '10535 NE Glisan Street, 2nd Floor, Portland, OR 97220', phone: '(503) 273-5142', type: 'clinic' },
+    { name: 'Enterprise VA Outpatient Clinic', lat: 45.4257, lon: -117.2782, address: '401 NE 1st Street, Enterprise, OR 97828', phone: '(541) 426-0219', type: 'clinic' },
+    { name: 'Eugene VA Outpatient Clinic', lat: 44.088287, lon: -123.052531, address: '3355 Chad Dr, Eugene, OR 97408', phone: '(541) 465-6918', type: 'clinic' },
+    { name: 'Grants Pass Community Based Outpatient Clinic', lat: 42.4392, lon: -123.3284, address: '1877 Williams Hwy, Grants Pass, OR 97527', phone: '(541) 955-5551', type: 'clinic' },
+    { name: 'Hillsboro Community Based Outpatient Clinic', lat: 45.5231, lon: -122.9388, address: '1925 Amber Glen Parkway Suite 300, Hillsboro, OR 97006', phone: '(503) 906-5000', type: 'clinic' },
+    { name: 'Klamath Falls Community Based Outpatient Clinic', lat: 42.2249, lon: -121.7817, address: '2225 North El Dorado Blvd., Klamath Falls, OR 97601', phone: '(541) 273-6206', type: 'clinic' },
+    { name: 'La Grande Community Based Outpatient Clinic', lat: 45.3246, lon: -118.0877, address: '202 12th Street, La Grande, OR 97850', phone: '(541) 963-0627', type: 'clinic' },
+    { name: 'Newport Community Based Outpatient Clinic', lat: 44.6365, lon: -124.0534, address: '1010 SW Coast Highway, Newport, OR 97365', phone: '(541) 265-4182', type: 'clinic' },
+    { name: 'North Bend Community Based Outpatient Clinic', lat: 43.4065, lon: -124.2243, address: '2191 Marion Street, North Bend, OR 97459', phone: '(541) 756-8002', type: 'clinic' },
+    { name: 'North Coast Community Based Outpatient Clinic', lat: 46.1654, lon: -123.9230, address: '91400 N. Neacoxie Street, Bldg 7315, Warrenton, OR 97146', phone: '(503) 220-8262', type: 'clinic' },
+    { name: 'Salem VA Outpatient Clinic', lat: 44.929972, lon: -123.023414, address: '1660 Oak St SE, Salem, OR 97301', phone: '(503) 362-9911', type: 'clinic' },
+    { name: 'The Dalles VA Outpatient Clinic', lat: 45.5946, lon: -121.1787, address: '704 Veterans Drive, The Dalles, OR 97058', phone: '(541) 296-3937', type: 'clinic' },
+    { name: 'West Linn Community Based Outpatient Clinic', lat: 45.3654, lon: -122.6371, address: '1750 SW Blankenship Rd Suite 300, West Linn, OR 97068', phone: '(503) 210-4900', type: 'clinic' },
+  ],
+  washington: [
+    // VA Medical Centers
+    { name: 'American Lake VA Medical Center (Tacoma)', lat: 47.135050, lon: -122.575309, address: '9600 Veterans Dr SW, Tacoma, WA 98493', phone: '(253) 582-8440', type: 'vamc' },
+    { name: 'Seattle VA Medical Center (VA Puget Sound)', lat: 47.563082, lon: -122.306893, address: '1660 S Columbian Way, Seattle, WA 98108', phone: '(206) 762-1010', type: 'vamc' },
+    { name: 'Spokane VA Medical Center (Mann-Grandstaff)', lat: 47.703514, lon: -117.478057, address: '4815 N Assembly St, Spokane, WA 99205', phone: '(509) 434-7000', type: 'vamc' },
+    { name: 'Walla Walla VA Medical Center (Jonathan M. Wainwright)', lat: 46.053864, lon: -118.355609, address: '77 Wainwright Dr, Walla Walla, WA 99362', phone: '(509) 525-5200', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Bellevue Community Based Outpatient Clinic', lat: 47.6101, lon: -122.1535, address: '13033 Bel-Red Road Suite 210, Bellevue, WA 98005', phone: '(425) 214-1055', type: 'clinic' },
+    { name: 'Bremerton Community Based Outpatient Clinic', lat: 47.5651, lon: -122.6329, address: '925 Adele Avenue, Bremerton, WA 98312', phone: '(360) 782-0129', type: 'clinic' },
+    { name: 'Chehalis VA Outpatient Clinic', lat: 46.6625, lon: -122.9621, address: '151 NE Hampe Way, Chehalis, WA 98532', phone: '(360) 748-3049', type: 'clinic' },
+    { name: 'Colville VA Rural Health Clinic', lat: 48.5421, lon: -117.9068, address: '1200 E Columbia, Colville, WA 99114', phone: '(509) 684-3701', type: 'clinic' },
+    { name: 'Federal Way Community Based Outpatient Clinic', lat: 47.2973, lon: -122.3209, address: '34617 11th Place South Suite 301, Federal Way, WA 98003', phone: '(253) 336-4142', type: 'clinic' },
+    { name: 'Kennewick VA Outpatient Clinic', lat: 46.203223, lon: -119.158704, address: '615 S Ely St, Kennewick, WA 99336', phone: '(509) 783-1111', type: 'clinic' },
+    { name: 'Mount Vernon Community Based Outpatient Clinic', lat: 48.4249, lon: -122.3213, address: '307 S. 13th St., Suite 200, Mount Vernon, WA 98274', phone: '(360) 848-8500', type: 'clinic' },
+    { name: 'North Seattle Community Based Outpatient Clinic', lat: 47.7218, lon: -122.2863, address: '12360 Lake City Way NE, Suite 200, Seattle, WA 98125', phone: '(206) 384-4382', type: 'clinic' },
+    { name: 'Port Angeles VA Outpatient Clinic', lat: 48.1183, lon: -123.4307, address: '1114 Georgiana St, Port Angeles, WA 98362', phone: '(360) 565-7420', type: 'clinic' },
+    { name: 'Republic VA Rural Health Clinic', lat: 48.6488, lon: -118.7365, address: '36 North Klondike Road, Republic, WA 99166', phone: '(509) 775-3153', type: 'clinic' },
+    { name: 'Richland Community Based Outpatient Clinic', lat: 46.2788, lon: -119.2896, address: '825 Jadwin Ave., Suite 250, Richland, WA 99352', phone: '(509) 946-1020', type: 'clinic' },
+    { name: 'Tonasket VA Rural Health Clinic', lat: 48.7054, lon: -119.4407, address: '203 S. Western Ave., Tonasket, WA 98855', phone: '(509) 486-2151', type: 'clinic' },
+    { name: 'Vancouver VA Outpatient Clinic', lat: 45.639, lon: -122.671, address: '1601 E 4th Plain Blvd, Vancouver, WA 98661', phone: '(360) 696-4061', type: 'clinic' },
+    { name: 'Yakima Community Based Outpatient Clinic', lat: 46.5924, lon: -120.5298, address: '717 Fruitvale Blvd., Yakima, WA 98902', phone: '(509) 966-0199', type: 'clinic' },
+  ],
+  alaska: [
+    // VA Medical Centers
+    { name: 'Anchorage VA Medical Center', lat: 61.232771, lon: -149.744210, address: '1201 N Muldoon Rd, Anchorage, AK 99504', phone: '(907) 257-4700', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Fairbanks VA Outpatient Clinic', lat: 64.841855, lon: -147.715152, address: '540 Noble St, Fairbanks, AK 99701', phone: '(907) 456-4218', type: 'clinic' },
+    { name: 'Fort Wainwright VA Community Based Outpatient Clinic', lat: 64.8297, lon: -147.6406, address: 'Bldg 4076, Neeley Road, Fort Wainwright, AK 99703', phone: '(907) 361-6370', type: 'clinic' },
+    { name: 'Juneau VA Community Based Outpatient Clinic', lat: 58.3005, lon: -134.4197, address: '709 West 9th Street, STE 150, Juneau, AK 99801', phone: '(907) 796-4300', type: 'clinic' },
+    { name: 'Kenai VA Community Based Outpatient Clinic', lat: 60.5544, lon: -151.2583, address: '11312 Kenai Spur Highway #39, Kenai, AK 99669', phone: '(907) 395-4100', type: 'clinic' },
+    { name: 'Wasilla VA Community Based Outpatient Clinic', lat: 61.5814, lon: -149.4394, address: '865 N Seward Meridian Parkway, STE 105, Wasilla, AK 99654', phone: '(907) 631-3100', type: 'clinic' },
+  ],
+  hawaii: [
+    // VA Medical Centers
+    { name: 'Honolulu VA Medical Center (Spark M. Matsunaga)', lat: 21.361343, lon: -157.889402, address: '459 Patterson Rd, Honolulu, HI 96819', phone: '(808) 433-0600', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Hilo VA Outpatient Clinic (Big Island)', lat: 19.717302, lon: -155.113912, address: '1285 Waianuenue Ave, Hilo, HI 96720', phone: '(808) 935-3781', type: 'clinic' },
+    { name: 'Lihue VA Outpatient Clinic (Kauai)', lat: 21.978, lon: -159.37, address: '3-3367 Kuhio Hwy, Lihue, HI 96766', phone: '(808) 246-0497', type: 'clinic' },
+    { name: 'Maui VA Outpatient Clinic', lat: 20.887276, lon: -156.463469, address: "203 Ho'ohana St, Kahului, HI 96732", phone: '(808) 871-2454', type: 'clinic' },
+  ],
+  nevada: [
+    // VA Medical Centers
+    { name: 'Las Vegas VA Medical Center (VA Southern Nevada)', lat: 36.285310, lon: -115.094037, address: '6900 N Pecos Rd, North Las Vegas, NV 89086', phone: '(702) 791-9000', type: 'vamc' },
+    { name: 'Reno VA Medical Center (Sierra Nevada)', lat: 39.516233, lon: -119.798272, address: '975 Kirman Ave, Reno, NV 89502', phone: '(775) 786-7200', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Carson Valley Community Based Outpatient Clinic', lat: 38.9547, lon: -119.7659, address: '1330 Waterloo Lane, Suite 101, Minden, NV 89410', phone: '(775) 782-5265', type: 'clinic' },
+    { name: 'Elko VA Outreach Clinic', lat: 40.8324, lon: -115.7631, address: '2719 Argent Ave. #9, Elko, NV 89801', phone: '(775) 738-0188', type: 'clinic' },
+    { name: 'Ely Community Based Outpatient Clinic', lat: 39.2477, lon: -114.8936, address: '6 Steptoe Circle, Ely, NV 89301', phone: '(775) 289-3612', type: 'clinic' },
+    { name: 'Fallon VA Outpatient Clinic', lat: 39.4735, lon: -118.7774, address: '345 West A Street, Fallon, NV 89406', phone: '(775) 428-6161', type: 'clinic' },
+    { name: 'Henderson VA Outpatient Clinic', lat: 36.076241, lon: -115.081015, address: '2920 N Green Valley Pkwy, Henderson, NV 89014', phone: '(702) 791-9000', type: 'clinic' },
+    { name: 'Las Vegas Northeast Primary Clinic', lat: 36.1619, lon: -115.0714, address: '4461 E Charleston Blvd, Las Vegas, NV 89104', phone: '(702) 791-9050', type: 'clinic' },
+    { name: 'Las Vegas Northwest Primary Clinic', lat: 36.2422, lon: -115.1932, address: '3968 N Rancho Dr, Las Vegas, NV 89130', phone: '(702) 791-9020', type: 'clinic' },
+    { name: 'Las Vegas Southeast Primary Clinic', lat: 36.0379, lon: -114.9820, address: '1020 S Boulder, Henderson, NV 89015', phone: '(702) 791-9030', type: 'clinic' },
+    { name: 'Las Vegas Southwest Primary Clinic', lat: 36.0586, lon: -115.2683, address: '7235 South Buffalo Drive, Las Vegas, NV 89113', phone: '(702) 791-9040', type: 'clinic' },
+    { name: 'Pahrump VA Outpatient Clinic', lat: 36.208, lon: -115.984, address: '2100 E Calvada Blvd, Pahrump, NV 89048', phone: '(775) 751-2053', type: 'clinic' },
+  ],
+  idaho: [
+    // VA Medical Centers
+    { name: 'Boise VA Medical Center', lat: 43.620845, lon: -116.190599, address: '500 W Fort St, Boise, ID 83702', phone: '(208) 422-1000', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Caldwell VA Clinic', lat: 43.6629, lon: -116.6874, address: '4521 Thomas Jefferson Drive, Caldwell, ID 83605', phone: '(208) 454-4820', type: 'clinic' },
+    { name: 'Idaho Falls VA Outreach Clinic', lat: 43.4917, lon: -112.0408, address: '640 South Woodruff Ave, Idaho Falls, ID 83404', phone: '(208) 522-2922', type: 'clinic' },
+    { name: 'Lewiston Community Based Outpatient Clinic', lat: 46.4144, lon: -117.0188, address: '1630 23rd Avenue, Building 2, Lewiston, ID 83501', phone: '(208) 746-7784', type: 'clinic' },
+    { name: 'Nampa VA Outpatient Clinic', lat: 43.565, lon: -116.559, address: '2725 E Deer Flat Rd, Nampa, ID 83687', phone: '(208) 463-9471', type: 'clinic' },
+    { name: 'Pocatello VA Outpatient Clinic', lat: 42.870414, lon: -112.417189, address: '444 Hospital Way, Pocatello, ID 83201', phone: '(208) 232-6214', type: 'clinic' },
+    { name: 'Twin Falls VA Outpatient Clinic', lat: 42.561, lon: -114.46, address: '260 Second Ave E, Twin Falls, ID 83301', phone: '(208) 732-0584', type: 'clinic' },
+  ],
+  montana: [
+    // VA Medical Centers
+    { name: 'Fort Harrison VA Medical Center (Montana)', lat: 46.618708, lon: -112.102290, address: '3687 Veterans Dr, Fort Harrison, MT 59636', phone: '(406) 442-6410', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Anaconda VA Outpatient Clinic', lat: 46.1283, lon: -112.9424, address: '118 East 7th St., Suite 2A, Anaconda, MT 59711', phone: '(406) 496-3000', type: 'clinic' },
+    { name: 'Billings VA Outpatient Clinic', lat: 45.755109, lon: -108.575302, address: '2345 King Ave W, Billings, MT 59102', phone: '(406) 373-3600', type: 'clinic' },
+    { name: 'Bozeman VA Outpatient Clinic', lat: 45.6770, lon: -111.0429, address: '300 N. Wilson, Suite 703G, Bozeman, MT 59715', phone: '(406) 582-5300', type: 'clinic' },
+    { name: 'Cut Bank VA Outpatient Clinic', lat: 48.6328, lon: -112.3247, address: '8 2nd Ave SE, Cut Bank, MT 59427', phone: '(406) 873-9047', type: 'clinic' },
+    { name: 'Glasgow VA Outpatient Clinic', lat: 48.1952, lon: -106.6376, address: '630 Second Ave. South, Suite A, Glasgow, MT 59230', phone: '(406) 228-4101', type: 'clinic' },
+    { name: 'Glendive Community Based Outpatient Clinic', lat: 47.1050, lon: -104.7125, address: '2000 Montana Ave., Glendive, MT 59330', phone: '(406) 377-4755', type: 'clinic' },
+    { name: 'Great Falls VA Outpatient Clinic', lat: 47.504, lon: -111.301, address: '621 Grand Blvd, Great Falls, MT 59405', phone: '(406) 761-5900', type: 'clinic' },
+    { name: 'Hamilton VA Outpatient Clinic', lat: 46.2430, lon: -114.1601, address: '299 Fairgrounds Suite A, Hamilton, MT 59840', phone: '(406) 363-3352', type: 'clinic' },
+    { name: 'Havre VA Outreach Clinic', lat: 48.5498, lon: -109.6840, address: '130 13th Street, Suite 1, Havre, MT 59501', phone: '(406) 265-4304', type: 'clinic' },
+    { name: 'Kalispell VA Outpatient Clinic', lat: 48.1920, lon: -114.3168, address: '31 Three Mile Dr Suite 102, Kalispell, MT 59901', phone: '(406) 758-2700', type: 'clinic' },
+    { name: 'Lewistown VA Primary Care Clinic', lat: 47.0641, lon: -109.4283, address: '629 NE Main Street, Suite 1, Lewistown, MT 59457', phone: '(406) 535-4790', type: 'clinic' },
+    { name: 'Libby VA Rural Health Clinic', lat: 48.3883, lon: -115.5562, address: '211 E. Second St., Libby, MT 59923', phone: '(406) 293-8711', type: 'clinic' },
+    { name: 'Miles City VA Outpatient Clinic', lat: 46.406200, lon: -105.828697, address: '210 S Winchester Ave, Miles City, MT 59301', phone: '(406) 874-5600', type: 'clinic' },
+    { name: 'Missoula VA Outpatient Clinic', lat: 46.882, lon: -114.016, address: '3770 Brook St, Missoula, MT 59801', phone: '(406) 327-1450', type: 'clinic' },
+    { name: 'Plentywood VA Outpatient Clinic', lat: 48.7739, lon: -104.5627, address: '440 West Laurel Avenue, Plentywood, MT 59254', phone: '(406) 765-3718', type: 'clinic' },
+  ],
+  utah: [
+    // VA Medical Centers
+    { name: 'Salt Lake City VA Medical Center (George E. Wahlen)', lat: 40.755565, lon: -111.838682, address: '500 Foothill Dr, Salt Lake City, UT 84148', phone: '(801) 582-1565', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Ogden VA Outpatient Clinic', lat: 41.167396, lon: -111.959851, address: '930 W Chambers St, Ogden, UT 84404', phone: '(801) 479-4105', type: 'clinic' },
+    { name: 'Orem Community Based Outpatient Clinic', lat: 40.2969, lon: -111.6946, address: '1443 West 800 North, Suite 302, Orem, UT 84057', phone: '(801) 235-0953', type: 'clinic' },
+    { name: 'Price Community Based Outpatient Clinic', lat: 39.5997, lon: -110.8107, address: '189 South 600 West, Suite B, Price, UT 84501', phone: '(435) 613-0342', type: 'clinic' },
+    { name: 'Provo VA Outpatient Clinic', lat: 40.233, lon: -111.658, address: '1506 N Technology Ave, Provo, UT 84606', phone: '(801) 377-8898', type: 'clinic' },
+    { name: 'Roosevelt Community Based Outpatient Clinic', lat: 40.2994, lon: -110.0085, address: '245 West 200 North, Roosevelt, UT 84066', phone: '(435) 725-1050', type: 'clinic' },
+    { name: 'St. George VA Outpatient Clinic', lat: 37.108212, lon: -113.586729, address: '1067 E Tabernacle St, St. George, UT 84770', phone: '(435) 634-7608', type: 'clinic' },
+    { name: 'West Valley City Community Based Outpatient Clinic', lat: 40.6916, lon: -112.0110, address: '2750 South 5600 West, West Valley City, UT 84120', phone: '(801) 417-5734', type: 'clinic' },
+  ],
+  wyoming: [
+    // VA Medical Centers
+    { name: 'Cheyenne VA Medical Center', lat: 41.147696, lon: -104.786089, address: '2360 E Pershing Blvd, Cheyenne, WY 82001', phone: '(307) 778-7550', type: 'vamc' },
+    { name: 'Sheridan VA Medical Center', lat: 44.828871, lon: -106.983393, address: '1898 Fort Rd, Sheridan, WY 82801', phone: '(307) 672-3473', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Afton VA Outreach Clinic', lat: 42.7278, lon: -110.9302, address: '125 South Washington, Afton, WY 83110', phone: '(307) 886-5266', type: 'clinic' },
+    { name: 'Casper VA Outpatient Clinic', lat: 42.854, lon: -106.313, address: '2620 C.Y. Ave, Casper, WY 82604', phone: '(307) 232-0007', type: 'clinic' },
+    { name: 'Evanston VA Outpatient Clinic', lat: 41.2686, lon: -110.9634, address: '1565 South Highway 150 #E, Evanston, WY 82930', phone: '(877) 733-6128', type: 'clinic' },
+    { name: 'Gillette VA Outpatient Clinic', lat: 44.241000, lon: -105.466606, address: '1816 S Douglas Hwy, Gillette, WY 82718', phone: '(307) 685-0676', type: 'clinic' },
+    { name: 'Laramie VA Mobile Telehealth Clinic', lat: 41.3114, lon: -105.5911, address: '112 South 5th Street, Laramie, WY 82070', phone: '(888) 483-9127', type: 'clinic' },
+    { name: 'Newcastle Community Based Outpatient Clinic', lat: 43.8541, lon: -104.1927, address: '1124 Washington Blvd., Newcastle, WY 82701', phone: '(307) 746-3221', type: 'clinic' },
+    { name: 'Powell VA Outpatient Clinic', lat: 44.7541, lon: -108.7546, address: '777 Avenue H, Powell, WY 82435', phone: '(307) 754-7257', type: 'clinic' },
+    { name: 'Rawlins VA Outpatient Clinic', lat: 41.7911, lon: -107.2387, address: '1809 East Daley Street, Rawlins, WY 82301', phone: '(307) 324-5578', type: 'clinic' },
+    { name: 'Riverton VA Outpatient Clinic', lat: 43.0247, lon: -108.3805, address: '2300 Rose Lane, Riverton, WY 82501', phone: '(307) 857-1211', type: 'clinic' },
+    { name: 'Rock Springs VA Outpatient Clinic', lat: 41.5875, lon: -109.2029, address: '1401 Gateway, Rock Springs, WY 82901', phone: '(307) 362-6641', type: 'clinic' },
+    { name: 'Torrington VA Mobile Clinic', lat: 42.0633, lon: -104.1838, address: '2908 West 25th Ave., Torrington, WY 82240', phone: '(888) 483-9127', type: 'clinic' },
+    { name: 'Wheatland VA Mobile Clinic', lat: 42.0541, lon: -104.9529, address: '759 East Cole Street, Wheatland, WY 82201', phone: '(888) 483-9127', type: 'clinic' },
+    { name: 'Worland VA Outpatient Clinic', lat: 44.0180, lon: -107.9571, address: '510 South 15th., Suite D, Worland, WY 82401', phone: '(877) 483-0370', type: 'clinic' },
+  ],
+  colorado: [
+    // VA Medical Centers
+    { name: 'Eastern Colorado VA Medical Center (Denver)', lat: 39.732552, lon: -104.935172, address: '1055 Clermont St, Denver, CO 80220', phone: '(303) 399-8020', type: 'vamc' },
+    { name: 'Grand Junction VA Medical Center', lat: 39.075671, lon: -108.541485, address: '2121 North Ave, Grand Junction, CO 81501', phone: '(970) 242-0731', type: 'vamc' },
+    { name: 'Pueblo VA Medical Center (Southern Colorado)', lat: 38.299564, lon: -104.635081, address: '3001 Baltimore Ave, Pueblo, CO 81003', phone: '(719) 553-1000', type: 'vamc' },
+    { name: 'Rocky Mountain Regional VA Medical Center (Aurora)', lat: 39.744578, lon: -104.830875, address: '1700 N Wheeling St, Aurora, CO 80045', phone: '(720) 723-7000', type: 'vamc' },
+    // VA Outpatient Clinics
+    { name: 'Alamosa VA Clinic', lat: 37.4695, lon: -105.8700, address: '622 Del Sol Drive, Alamosa, CO 81101', phone: '(719) 587-6800', type: 'clinic' },
+    { name: 'Burlington VA Outreach Clinic', lat: 39.3050, lon: -102.2731, address: '1177 Rose Avenue, Burlington, CO 80807', phone: '(719) 346-5239', type: 'clinic' },
+    { name: 'Colorado Springs VA Outpatient Clinic', lat: 38.857026, lon: -104.757476, address: '1785 N Academy Blvd, Colorado Springs, CO 80909', phone: '(719) 327-5660', type: 'clinic' },
+    { name: 'Craig Community Based Outpatient Clinic', lat: 40.5153, lon: -107.5462, address: '785 Russell Street, Craig, CO 81625', phone: '(970) 824-6721', type: 'clinic' },
+    { name: 'Fort Collins VA Outpatient Clinic', lat: 40.553735, lon: -105.087849, address: '2509 Research Blvd, Fort Collins, CO 80526', phone: '(970) 224-1550', type: 'clinic' },
+    { name: 'Golden VA Outpatient Clinic', lat: 39.7555, lon: -105.2211, address: '1020 Johnson Road, Golden, CO 80401', phone: '(303) 914-2680', type: 'clinic' },
+    { name: 'Greeley VA Outpatient Clinic', lat: 40.4233, lon: -104.7091, address: '2001 70th Ave Suite 200, Greeley, CO 80631', phone: '(970) 313-0027', type: 'clinic' },
+    { name: 'La Junta VA Outpatient Clinic', lat: 37.9847, lon: -103.5435, address: '1100 Carson Ave., Suite 104, La Junta, CO 81050', phone: '(719) 383-5195', type: 'clinic' },
+    { name: 'Lamar VA Outpatient Clinic', lat: 38.0872, lon: -102.6207, address: '1401 South Main Street, Suite 2, Lamar, CO 81052', phone: '(719) 336-0315', type: 'clinic' },
+    { name: 'Montrose VA Outpatient Clinic', lat: 38.4783, lon: -107.8762, address: '154 Colorado Avenue, Montrose, CO 81401', phone: '(970) 249-7791', type: 'clinic' },
+  ],
+};

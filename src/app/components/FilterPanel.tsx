@@ -22,8 +22,10 @@ interface FilterPanelProps {
     cost: number;
     benefits: number;
   };
+  perCapita: boolean;
   onFilterChange: (key: string, value: boolean) => void;
   onWeightChange: (key: string, value: number) => void;
+  onPerCapitaChange: (value: boolean) => void;
   onReset: () => void;
   onClose?: () => void;
   excludedStates: string[];
@@ -35,8 +37,10 @@ interface FilterPanelProps {
 export default function FilterPanel({
   filters,
   weights,
+  perCapita,
   onFilterChange,
   onWeightChange,
+  onPerCapitaChange,
   onReset,
   onClose,
   excludedStates,
@@ -149,6 +153,38 @@ export default function FilterPanel({
               Strong Job Market (&lt;4% unemployment)
             </Label>
           </div>
+        </div>
+      </div>
+
+      {/* VA Scoring Method */}
+      <div className="space-y-3 pt-4 border-t border-slate-200">
+        <h4 className="font-medium text-sm text-slate-700">VA Benefits Scoring</h4>
+        <p className="text-xs text-slate-400">How VA facility and installation counts are weighted.</p>
+        <div className="flex rounded-full bg-slate-100 p-0.5 text-xs font-medium">
+          {([
+            { value: false, label: 'Raw Count',  hint: 'Total facilities'  },
+            { value: true,  label: 'Per Capita', hint: 'Per 100k veterans' },
+          ] as const).map(({ value, label, hint }) => {
+            const active = perCapita === value;
+            return (
+              <button
+                key={label}
+                onClick={() => onPerCapitaChange(value)}
+                className={`relative flex-1 px-3 py-1.5 rounded-full transition-colors z-10 flex flex-col items-center leading-tight ${active ? 'text-white' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                {active && (
+                  <motion.div
+                    layoutId="va-scoring-pill"
+                    className="absolute inset-0 bg-blue-600 rounded-full shadow-sm"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    style={{ zIndex: -1 }}
+                  />
+                )}
+                <span>{label}</span>
+                <span className={`text-[10px] font-normal ${active ? 'text-blue-100' : 'text-slate-400'}`}>{hint}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import { statesData, calculateCustomScore } from '../../data/stateData';
+import { statesData } from '../../data/stateData';
+import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore, getVAStats } from '../../data/veteranScore';
 import { DATA_VINTAGES } from '../../data/siteConfig';
 import { Table, TableHeader, TableBody, TableRow, TableCell } from '../../components/ui/table';
 import {
@@ -50,8 +51,8 @@ export function VeteransTab() {
               >
                 <TableCell className="font-medium text-slate-800 whitespace-nowrap">{s.name}</TableCell>
                 <TableCell className="tabular-nums">{s.veteranPopulation.toLocaleString()}</TableCell>
-                <TableCell className="tabular-nums">{s.vaFacilities}</TableCell>
-                <TableCell><ScorePill score={s.veteranBenefitsScore} /></TableCell>
+                <TableCell className="tabular-nums">{getVAStats(s.id).totalFacilities}</TableCell>
+                <TableCell><ScorePill score={computeVeteranBenefitsScore(s)} /></TableCell>
                 <TableCell><PensionBadge value={s.militaryPensionTax} /></TableCell>
                 <TableCell><ScorePill score={calculateCustomScore(s, { taxes: 40, cost: 30, benefits: 30 })} /></TableCell>
               </MotionTr>
@@ -61,8 +62,8 @@ export function VeteransTab() {
       </div>
       <MobileCardList rows={rows} columns={[
         { label: 'Veteran Population', render: (s) => s.veteranPopulation.toLocaleString() },
-        { label: 'VA Facilities', render: (s) => String(s.vaFacilities) },
-        { label: 'Benefits Score', render: (s) => <ScorePill score={s.veteranBenefitsScore} /> },
+        { label: 'VA Facilities', render: (s) => String(getVAStats(s.id).totalFacilities) },
+        { label: 'Benefits Score', render: (s) => <ScorePill score={computeVeteranBenefitsScore(s)} /> },
         { label: 'Pension Tax', render: (s) => <PensionBadge value={s.militaryPensionTax} /> },
         { label: 'Retirement Score', render: (s) => <ScorePill score={calculateCustomScore(s, { taxes: 40, cost: 30, benefits: 30 })} /> },
       ]} />

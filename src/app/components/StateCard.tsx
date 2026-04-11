@@ -6,6 +6,7 @@ import { vaFacilityLocations } from '../data/vaFacilityLocations';
 import { GitCompare, TrendingUp, TrendingDown, DollarSign, Home, Star, Building2, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { getFlagUrl } from '../lib/flagUrl';
+import { computeVeteranBenefitsScore } from '../data/veteranScore';
 
 function pensionTaxDollars(s: StateData, annualIncome: number): number {
   if (s.militaryPensionTax === 'No') return 0;
@@ -22,6 +23,7 @@ interface StateCardProps {
   currentStateId?: string;
   retirementIncome?: number;
   disabilityRating?: string;
+  perCapita?: boolean;
 }
 
 export default function StateCard({
@@ -33,6 +35,7 @@ export default function StateCard({
   currentStateId,
   retirementIncome = 60000,
   disabilityRating,
+  perCapita = false,
 }: StateCardProps) {
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
@@ -162,7 +165,7 @@ export default function StateCard({
               <Star className="w-4 h-4 text-slate-400" />
               <div>
                 <div className="text-xs text-slate-500">VA Benefits</div>
-                <div className="font-medium">{state.veteranBenefitsScore}/100</div>
+                <div className="font-medium">{computeVeteranBenefitsScore(state, perCapita)}/100</div>
               </div>
             </div>
           </div>

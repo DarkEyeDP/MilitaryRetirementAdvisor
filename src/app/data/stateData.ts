@@ -44,7 +44,6 @@ export const statesData: StateData[] = [
     pros: [
       'No state income tax on military retirement',
       'Large veteran community',
-      'Numerous VA facilities',
       'Warm climate',
     ],
     cons: [
@@ -140,7 +139,7 @@ export const statesData: StateData[] = [
       'No tax on military retirement',
       'Beautiful scenery',
     ],
-    cons: ['Fewer VA facilities', 'Higher sales tax', 'Limited public transit'],
+    cons: ['Higher sales tax', 'Limited public transit'],
     coordinates: { x: 65, y: 58 },
   },
   {
@@ -170,7 +169,7 @@ export const statesData: StateData[] = [
       'Growing veteran services',
       'Entertainment options',
     ],
-    cons: ['Limited VA facilities', 'Desert climate', 'Higher property values'],
+    cons: ['Desert climate', 'Higher property values'],
     coordinates: { x: 15, y: 50 },
   },
   {
@@ -194,7 +193,7 @@ export const statesData: StateData[] = [
     vaFacilities: 4,
     veteranPopulation: 486753,
     avgHomeCost: 575000,
-    pros: ['No state income tax', 'Beautiful scenery', 'Strong job market', 'Good VA facilities'],
+    pros: ['No state income tax', 'Beautiful scenery', 'Strong job market', 'Multiple military installations'],
     cons: ['High cost of living', 'Expensive housing', 'Rainy weather'],
     coordinates: { x: 12, y: 20 },
   },
@@ -225,7 +224,7 @@ export const statesData: StateData[] = [
       'Outdoor lifestyle',
       'Strong military presence',
     ],
-    cons: ['Very high cost of living', 'Remote location', 'Harsh winters', 'Limited VA facilities'],
+    cons: ['Very high cost of living', 'Remote location', 'Harsh winters'],
     coordinates: { x: 5, y: 10 },
   },
   {
@@ -250,7 +249,7 @@ export const statesData: StateData[] = [
     veteranPopulation: 43608,
     avgHomeCost: 295000,
     pros: ['No state income tax', 'Low cost of living', 'Beautiful landscapes', 'Low property tax'],
-    cons: ['Very limited VA facilities', 'Harsh winters', 'Remote locations', 'Small population'],
+    cons: ['Harsh winters', 'Remote locations', 'Small population'],
     coordinates: { x: 30, y: 35 },
   },
   {
@@ -280,7 +279,7 @@ export const statesData: StateData[] = [
       'Low crime rate',
       'Affordable housing',
     ],
-    cons: ['Limited VA facilities', 'Cold winters', 'Rural areas', 'Limited entertainment'],
+    cons: ['Cold winters', 'Rural areas', 'Limited entertainment'],
     coordinates: { x: 40, y: 35 },
   },
   {
@@ -390,7 +389,6 @@ export const statesData: StateData[] = [
     veteranPopulation: 1337852,
     avgHomeCost: 775000,
     pros: [
-      'Excellent VA system',
       'Great climate',
       'Diverse opportunities',
       'Strong veteran services network',
@@ -510,7 +508,7 @@ export const statesData: StateData[] = [
       'Outdoor recreation',
       'Affordable (compared to neighbors)',
     ],
-    cons: ['Limited VA facilities', 'Rapidly increasing home prices', 'Cold winters'],
+    cons: ['Rapidly increasing home prices', 'Cold winters'],
     coordinates: { x: 18, y: 30 },
   },
   {
@@ -535,7 +533,7 @@ export const statesData: StateData[] = [
     veteranPopulation: 84570,
     avgHomeCost: 485000,
     pros: ['No sales tax', 'Beautiful scenery', 'Outdoor lifestyle', 'Low population density'],
-    cons: ['Military retirement fully taxed at 6.75%', 'Limited VA facilities', 'Harsh winters', 'Remote locations'],
+    cons: ['Military retirement fully taxed at 6.75%', 'Harsh winters', 'Remote locations'],
     coordinates: { x: 25, y: 22 },
   },
   {
@@ -560,7 +558,7 @@ export const statesData: StateData[] = [
     veteranPopulation: 124531,
     avgHomeCost: 500000,
     pros: ['Growing economy', 'Outdoor recreation', 'Low property tax', 'Safe communities'],
-    cons: ['Limited VA facilities', 'State income tax exists', 'Rapidly rising home prices'],
+    cons: ['State income tax exists', 'Rapidly rising home prices'],
     coordinates: { x: 22, y: 48 },
   },
   {
@@ -1048,7 +1046,6 @@ export const statesData: StateData[] = [
       'Military retirement exemption available',
       'Excellent healthcare',
       'Proximity to DC',
-      'Good VA facilities',
     ],
     cons: ['High cost of living', 'Expensive housing', 'Traffic', 'State income tax'],
     coordinates: { x: 80, y: 52 },
@@ -1080,7 +1077,7 @@ export const statesData: StateData[] = [
       'Very affordable housing',
       'Beautiful mountains',
     ],
-    cons: ['Limited job market', 'Limited VA facilities', 'Rural areas', 'Aging population'],
+    cons: ['Limited job market', 'Rural areas', 'Aging population'],
     coordinates: { x: 74, y: 52 },
   },
   {
@@ -1225,7 +1222,7 @@ export const statesData: StateData[] = [
     veteranPopulation: 193543,
     avgHomeCost: 205000,
     pros: ['Military retirement fully exempt from state tax', 'Low cost of living', 'Natural beauty', 'Mild winters'],
-    cons: ['Limited VA facilities', 'Some rural areas', 'Limited metro area options'],
+    cons: ['Some rural areas', 'Limited metro area options'],
     coordinates: { x: 55, y: 62 },
   },
   {
@@ -1280,7 +1277,7 @@ export const statesData: StateData[] = [
     veteranPopulation: 100177,
     avgHomeCost: 375000,
     pros: ['Beautiful scenery', 'Safe communities', 'Quality of life', 'Four seasons', 'Military pension fully tax-free'],
-    cons: ['High cost of living', 'High state income tax on other income', 'Very cold winters', 'Limited VA facilities'],
+    cons: ['High cost of living', 'High state income tax on other income', 'Very cold winters'],
     coordinates: { x: 90, y: 25 },
   },
   {
@@ -1305,7 +1302,7 @@ export const statesData: StateData[] = [
     veteranPopulation: 35275,
     avgHomeCost: 385000,
     pros: ['Beautiful scenery', 'Safe communities', 'Quality of life', 'Four seasons'],
-    cons: ['High taxes', 'High cost of living', 'Very cold winters', 'Very limited VA facilities'],
+    cons: ['High taxes', 'High cost of living', 'Very cold winters'],
     coordinates: { x: 86, y: 32 },
   },
   {
@@ -1447,7 +1444,6 @@ export const statesData: StateData[] = [
     ],
     cons: [
       'Very cold winters',
-      'Limited VA facilities',
       'Rural and remote',
       'Limited entertainment options',
     ],

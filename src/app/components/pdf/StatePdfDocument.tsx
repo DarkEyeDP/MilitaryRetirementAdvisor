@@ -17,7 +17,8 @@ import {
 import { S, C } from './pdfStyles';
 import { GaugeSvg } from './GaugeSvg';
 import type { StateData } from '../../data/stateData';
-import { calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../../data/stateData';
+import { DEFAULT_SCORE_WEIGHTS, scoreTier } from '../../data/stateData';
+import { calculateScore as calculateCustomScore } from '../../data/veteranScore';
 import type { HousingData } from '../../data/housingData';
 import { NATIONAL_HOUSING } from '../../data/housingData';
 import type { StateEmploymentData } from '../../data/employmentData';
@@ -172,9 +173,9 @@ export function StatePdfDocument({
     : null;
 
   const facilities = vaFacilityLocations[state.id] ?? [];
-  const vamcs   = facilities.filter((f) => f.type !== 'clinic');
-  const clinics = facilities.filter((f) => f.type === 'clinic');
-  const installations = militaryInstallations.filter((i) => i.stateId === state.id);
+  const vamcs   = facilities.filter((f) => f.type !== 'clinic').sort((a, b) => a.name.localeCompare(b.name));
+  const clinics = facilities.filter((f) => f.type === 'clinic').sort((a, b) => a.name.localeCompare(b.name));
+  const installations = militaryInstallations.filter((i) => i.stateId === state.id).sort((a, b) => a.name.localeCompare(b.name));
   const { inState: spaceAInState, bordering: spaceABordering } = getSpaceATerminalsByProximity(state.id);
 
   const taxBadge = pensionBadgeColors(state.militaryPensionTax);

@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { GitCompare, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { computeVeteranBenefitsScore } from '../data/veteranScore';
 
 interface StateTableProps {
   states: StateData[];
@@ -13,6 +14,7 @@ interface StateTableProps {
   onToggleFavorite: (stateId: string) => void;
   customScores?: Record<string, number>;
   disabilityRating?: string;
+  perCapita?: boolean;
 }
 
 type SortField = 'name' | 'score' | 'tax' | 'stateIncomeTax' | 'propertyTax' | 'costOfLiving' | 'benefits';
@@ -59,6 +61,7 @@ export default function StateTable({
   onToggleFavorite,
   customScores,
   disabilityRating,
+  perCapita = false,
 }: StateTableProps) {
   const navigate = useNavigate();
   const [sortField, setSortField] = useState<SortField>('score');
@@ -85,7 +88,7 @@ export default function StateTable({
       case 'stateIncomeTax': aVal = a.stateIncomeTax; bVal = b.stateIncomeTax; break;
       case 'propertyTax':  aVal = propertyTaxOrder[a.propertyTaxLevel] ?? 1; bVal = propertyTaxOrder[b.propertyTaxLevel] ?? 1; break;
       case 'costOfLiving': aVal = a.costOfLivingIndex; bVal = b.costOfLivingIndex; break;
-      case 'benefits':     aVal = a.veteranBenefitsScore; bVal = b.veteranBenefitsScore; break;
+      case 'benefits':     aVal = computeVeteranBenefitsScore(a, perCapita); bVal = computeVeteranBenefitsScore(b, perCapita); break;
     }
     if (typeof aVal === 'string') return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
     return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
@@ -165,7 +168,7 @@ export default function StateTable({
                     )}
                   </TableCell>
                   <TableCell className="px-4 py-3 text-slate-600">{state.costOfLivingIndex}</TableCell>
-                  <TableCell className="px-4 py-3 text-slate-600">{state.veteranBenefitsScore}/100</TableCell>
+                  <TableCell className="px-4 py-3 text-slate-600">{computeVeteranBenefitsScore(state, perCapita)}/100</TableCell>
                   <TableCell className="px-4 py-3">
                     <Badge className={getScoreBadge(displayScore)}>{displayScore}</Badge>
                   </TableCell>

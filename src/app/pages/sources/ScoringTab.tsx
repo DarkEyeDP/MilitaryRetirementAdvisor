@@ -108,14 +108,40 @@ export function ScoringTab() {
               <span className="font-semibold text-slate-800">Benefits Score (0–100)</span>
             </div>
             <div className="space-y-2 text-sm text-slate-600">
-              <p className="text-xs text-slate-500">A curated 0–100 score reflecting the quality and breadth of state-level veteran benefits.</p>
-              <div className="text-xs text-slate-500 space-y-1 pt-1">
-                <div className="font-medium text-slate-600 mb-1">Factors considered:</div>
-                <div>• VA medical facility availability</div>
-                <div>• License plate & registration perks</div>
-                <div>• Tuition assistance programs</div>
-                <div>• Property/vehicle tax exemptions</div>
-                <div>• Medal & disability honors</div>
+              <p className="text-xs text-slate-500">
+                Facility and installation components are <span className="font-medium text-slate-600">normalized by veteran population</span> — scored per 100k veterans, not raw counts — so small states that proportionally serve veterans well aren't penalized against large-population states.
+              </p>
+              <div className="text-xs space-y-1 pt-1">
+                <div className="font-medium text-slate-600 mb-1.5">Formula components (max 100 pts):</div>
+                <div className="flex justify-between border-b border-slate-100 pb-1">
+                  <span className="text-slate-500">VA Medical Centers <span className="text-slate-400">(per 100k vets × 12)</span></span>
+                  <span className="font-mono text-slate-500">cap 30</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-1">
+                  <span className="text-slate-500">VA Clinics <span className="text-slate-400">(per 100k vets × 6)</span></span>
+                  <span className="font-mono text-slate-500">cap 15</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-1">
+                  <span className="text-slate-500">Military Installations <span className="text-slate-400">(per 100k vets × 6)</span></span>
+                  <span className="font-mono text-slate-500">cap 10</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-1">
+                  <span className="text-slate-500">Reg. & license perks <span className="text-slate-400">(count × 2)</span></span>
+                  <span className="font-mono text-slate-500">cap 10</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-1">
+                  <span className="text-slate-500">Medal & disability honors <span className="text-slate-400">(count × 2)</span></span>
+                  <span className="font-mono text-slate-500">cap 10</span>
+                </div>
+                <div className="flex justify-between border-b border-slate-100 pb-1">
+                  <span className="text-slate-500">Education programs <span className="text-slate-400">(count × 2)</span></span>
+                  <span className="font-mono text-slate-500">cap 15</span>
+                </div>
+                <div className="flex justify-between pt-0.5">
+                  <span className="text-slate-500">Property tax exemption <span className="text-slate-400">(100% disabled)</span></span>
+                  <span className="font-mono text-slate-500">0 / 6 / 10</span>
+                </div>
+                <div className="pl-2 text-[11px] text-slate-400 mt-0.5">None = 0 · Partial = 6 · Full = 10</div>
               </div>
             </div>
           </div>

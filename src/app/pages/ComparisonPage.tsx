@@ -22,7 +22,8 @@ import { getFlagUrl } from '../lib/flagUrl';
 import { Button } from '@/app/components/ui/button';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
-import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { statesData, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../data/veteranScore';
 import { LAST_UPDATED } from '../data/siteConfig';
 import {
   calculateFinancialReality,
@@ -159,6 +160,7 @@ function StateSlot({
   onCloseSearch,
   onAdd,
   onRemove,
+  perCapita = true,
 }: {
   selected: (typeof statesData)[0] | null;
   takenIds: string[];
@@ -167,6 +169,7 @@ function StateSlot({
   onCloseSearch: () => void;
   onAdd: (id: string) => void;
   onRemove: () => void;
+  perCapita?: boolean;
 }) {
   const [query, setQuery] = useState('');
 
@@ -181,7 +184,7 @@ function StateSlot({
     .sort((a, b) => a.name.localeCompare(b.name));
 
   if (selected) {
-    const score = calculateCustomScore(selected, DEFAULT_SCORE_WEIGHTS);
+    const score = calculateCustomScore(selected, DEFAULT_SCORE_WEIGHTS, perCapita);
     return (
       <div className="relative border-2 border-slate-200 rounded-xl p-4 bg-white min-h-36 flex flex-col items-center justify-center">
         <button
@@ -226,7 +229,7 @@ function StateSlot({
               <p className="text-xs text-slate-400 px-4 py-3 text-center">No states found</p>
             )}
             {filtered.map((s) => {
-              const sc = calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS);
+              const sc = calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS, perCapita);
               return (
                 <button
                   key={s.id}
@@ -313,6 +316,7 @@ function EmptyWithSlots({
                 onCloseSearch={() => setActiveSlot(null)}
                 onAdd={(id) => addAt(i, id)}
                 onRemove={() => removeAt(i)}
+                perCapita={perCapita}
               />
             );
           })}
@@ -401,6 +405,7 @@ export default function ComparisonPage() {
     hasSpouse: localStorage.getItem('origin-has-spouse') === 'true',
     dependentChildren: parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10),
   };
+  const perCapita = localStorage.getItem('va-scoring-per-capita') === 'true';
 
   const userCostProfile: UserCostProfile =
     JSON.parse(localStorage.getItem('budget-profile') ?? 'null') ?? DEFAULT_USER_COST_PROFILE;
@@ -409,7 +414,7 @@ export default function ComparisonPage() {
   const stateEntries = states.map((s, idx) => ({ ...s, idx }));
 
   const breakdowns = states.map((s) => calculateFinancialReality(s, financialInputs, userCostProfile));
-  const scores = states.map((s) => calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS));
+  const scores = states.map((s) => calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS, perCapita));
 
   const anyGroceries = breakdowns.some((b) => b.groceryMonthly > 0);
   const anyCustom = breakdowns.some((b) => b.customExpensesMonthly > 0);
@@ -593,7 +598,7 @@ export default function ComparisonPage() {
               return <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">None</span>;
             })} bestIdx={bestIdx(states.map(s => s.propertyTaxExemption100 === 'Full' ? 2 : s.propertyTaxExemption100 === 'Partial' ? 1 : 0), 'max')} />
             <Row n={n} label="Cost of Living" divider values={states.map((s) => { const c = s.costOfLivingIndex; return <span className={c < 95 ? 'text-green-600 font-semibold' : c > 110 ? 'text-red-600 font-semibold' : 'text-yellow-600 font-semibold'}>{c}</span>; })} bestIdx={bestIdx(states.map(s => s.costOfLivingIndex), 'min')} />
-            <Row n={n} label="VA Benefits Score" values={states.map((s) => <span className="font-semibold">{s.veteranBenefitsScore}<span className="text-xs font-normal text-slate-400">/100</span></span>)} bestIdx={bestIdx(states.map(s => s.veteranBenefitsScore), 'max')} />
+            <Row n={n} label="VA Benefits Score" values={states.map((s) => <span className="font-semibold">{computeVeteranBenefitsScore(s, perCapita)}<span className="text-xs font-normal text-slate-400">/100</span></span>)} bestIdx={bestIdx(states.map(s => computeVeteranBenefitsScore(s, perCapita)), 'max')} />
             <Row n={n} label="Veteran Population" values={states.map((s) => fmtVetPop(s.veteranPopulation))} bestIdx={bestIdx(states.map(s => s.veteranPopulation), 'max')} />
           </CTable>
         </Section>

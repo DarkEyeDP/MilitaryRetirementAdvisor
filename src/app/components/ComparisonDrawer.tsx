@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { StateData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS } from '../data/stateData';
+import { StateData, DEFAULT_SCORE_WEIGHTS } from '../data/stateData';
+import { calculateScore as calculateCustomScore } from '../data/veteranScore';
 import { Sheet, SheetContent } from './ui/sheet';
 import { X, ExternalLink, ArrowUpRight, DollarSign, Home, ShieldCheck, TrendingUp, Users, Building2, MapPin, GitCompare, Plus, Search } from 'lucide-react';
 import { useNavigate } from 'react-router';

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useParams, useNavigate, useLocation } from 'react-router';
-import { statesData, calculateCustomScore, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { statesData, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../data/veteranScore';
 import type { StateData } from '../data/stateData';
 import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
@@ -48,6 +49,7 @@ import {
   Plane,
   ExternalLink,
   Download,
+  Info,
 } from 'lucide-react';
 import IconReadOutlined from '../components/ui/IconReadOutlined';
 import { toast } from 'sonner';
@@ -179,6 +181,7 @@ export default function StateDetail() {
   const userType = (localStorage.getItem('origin-user-type') ?? 'retiree') as 'retiree' | 'separating';
   const isSeparating = userType === 'separating';
   const disabilityRating = localStorage.getItem('origin-disability-rating') ?? '';
+  const perCapita = localStorage.getItem('va-scoring-per-capita') === 'true';
 
   const currentIdx = resultIds.indexOf(stateId ?? '');
   const prevId = currentIdx > 0 ? resultIds[currentIdx - 1] : null;
@@ -397,12 +400,13 @@ export default function StateDetail() {
   };
 
   const allFacilities = vaFacilityLocations[state.id] ?? [];
-  const vamcs = allFacilities.filter((f) => f.type !== 'clinic');
-  const clinics = allFacilities.filter((f) => f.type === 'clinic');
-  const stateInstallations = militaryInstallations.filter((i) => i.stateId === state.id);
+  const vamcs = allFacilities.filter((f) => f.type !== 'clinic').sort((a, b) => a.name.localeCompare(b.name));
+  const clinics = allFacilities.filter((f) => f.type === 'clinic').sort((a, b) => a.name.localeCompare(b.name));
+  const stateInstallations = militaryInstallations.filter((i) => i.stateId === state.id).sort((a, b) => a.name.localeCompare(b.name));
 
-  // Shared height for the map+directory row — grows with facility count
-  const facilityPanelHeight = allFacilities.length > 20 ? 560 : allFacilities.length > 10 ? 460 : 380;
+  // Map height + legend section (~80px) = total column height both panels share
+  const facilityPanelHeight = 520;
+  const directoryHeight = facilityPanelHeight + 80;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -703,7 +707,7 @@ export default function StateDetail() {
                 const regCount = perks ? perks.vehicleRegistrationBenefits.length : 0;
                 return (
                   <ScoreGauge
-                    score={state.veteranBenefitsScore}
+                    score={computeVeteranBenefitsScore(state, perCapita)}
                     label="Veteran Benefits"
                     subItems={[
                       { label: 'VA facilities', value: `${vamcs.length} VAMC · ${clinics.length} clinic` },
@@ -755,7 +759,7 @@ export default function StateDetail() {
                 },
                 {
                   label: 'Veteran Benefits',
-                  score: state.veteranBenefitsScore,
+                  score: computeVeteranBenefitsScore(state, perCapita),
                   items: [
                     { label: 'VA facilities', value: `${vamcs.length} VAMC · ${clinics.length} clinic` },
                     { label: 'Veterans', value: formatVeteranPop(state.veteranPopulation) },
@@ -790,6 +794,27 @@ export default function StateDetail() {
                 </div>
               );
             })()}
+
+            {/* Score methodology note */}
+            <div className="px-4 pt-3 pb-1 mt-1 border-t border-slate-100">
+              <div className="flex items-start gap-1.5 text-xs text-slate-400">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                <span>
+                  VA Benefits score uses{' '}
+                  {perCapita
+                    ? <span className="text-slate-500 font-medium">facilities per 100k veterans</span>
+                    : <span className="text-slate-500 font-medium">raw facility counts</span>
+                  }.{' '}
+                  Toggle this in Dashboard filters.{' '}
+                  <button
+                    onClick={() => navigate('/sources?tab=scoring')}
+                    className="underline underline-offset-2 hover:text-slate-600 transition-colors text-[length:inherit] leading-[inherit] font-[inherit]"
+                  >
+                    See full methodology →
+                  </button>
+                </span>
+              </div>
+            </div>
           </div>
           </div>{/* end hero card flex-1 */}
 
@@ -848,7 +873,7 @@ export default function StateDetail() {
           </div>
 
           {/* Facility Directory — tabbed */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col h-full">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col" style={{ height: directoryHeight }}>
             <h2 className="text-sm font-semibold text-slate-700 flex items-center gap-2 pb-3 mb-3 border-b border-slate-200 flex-shrink-0 -mx-4 px-4">
               <MapPin className="w-4 h-4 text-blue-600" />
               Military Resources
