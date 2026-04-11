@@ -556,7 +556,7 @@ export default function StateDetail() {
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-4">
                 <p className="text-sm text-slate-400">{isSeparating ? 'Transitioning service member' : 'Military retirement profile'} · {DATA_YEAR} data</p>
                 {stateVeteranUrls[state.id] && (
                   <a
@@ -773,21 +773,19 @@ export default function StateDetail() {
               return (
                 <div className="md:hidden space-y-3">
                   {sections.map((sec) => (
-                    <div key={sec.label} className="flex items-start gap-4 py-3 border-t border-slate-100 first:border-t-0">
-                      <div className="flex-shrink-0 flex flex-col items-center w-14">
-                        <span className="text-3xl font-bold tabular-nums" style={{ color: scoreColor(sec.score) }}>{sec.score}</span>
-                        <span className="text-[9px] text-slate-400 uppercase tracking-wide leading-tight text-center">/ 100</span>
+                    <div key={sec.label} className="py-3 border-t border-slate-100 first:border-t-0">
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-2xl font-bold tabular-nums leading-none" style={{ color: scoreColor(sec.score) }}>{sec.score}</span>
+                        <span className="text-[9px] text-slate-400 uppercase tracking-wide">/100</span>
+                        <span className="text-xs font-semibold text-slate-700 ml-1">{sec.label}</span>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-700 mb-1.5">{sec.label}</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                          {sec.items.map((it) => (
-                            <div key={it.label} className="flex justify-between text-xs gap-1">
-                              <span className="text-slate-400 whitespace-nowrap">{it.label}</span>
-                              <span className="font-semibold text-slate-700 text-right">{it.value}</span>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                        {sec.items.map((it) => (
+                          <div key={it.label} className="flex justify-between items-baseline text-xs gap-1 min-w-0">
+                            <span className="text-slate-400 shrink-0">{it.label}</span>
+                            <span className="font-semibold text-slate-700 text-right">{it.value}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   ))}
@@ -1259,9 +1257,9 @@ export default function StateDetail() {
                 </CardHeader>
                 <CardContent className="space-y-5">
                   {/* Three key stats */}
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Unemployment</div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-slate-50 rounded-xl p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 leading-tight">Unemployment</div>
                       <div className={`text-xl font-bold ${employment.unemploymentRate < 4 ? 'text-green-600' : employment.unemploymentRate < 6 ? 'text-yellow-600' : 'text-red-600'}`}>
                         {employment.unemploymentRate}%
                       </div>
@@ -1270,8 +1268,8 @@ export default function StateDetail() {
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Job Growth</div>
+                    <div className="bg-slate-50 rounded-xl p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 leading-tight">Job Growth</div>
                       <div className={`text-xl font-bold flex items-center justify-center gap-1 ${employment.jobGrowthRate > 0 ? 'text-green-600' : 'text-red-600'}`}>
                         {employment.jobGrowthRate > 0
                           ? <TrendingUp className="w-4 h-4" />
@@ -1281,8 +1279,8 @@ export default function StateDetail() {
                       <div className="text-xs text-slate-400 mt-1">year over year</div>
                     </div>
 
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Median Income</div>
+                    <div className="bg-slate-50 rounded-xl p-2 sm:p-3 text-center">
+                      <div className="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1 leading-tight">Median Income</div>
                       <div className={`text-xl font-bold ${employment.medianHouseholdIncome >= NATIONAL_EMPLOYMENT.medianHouseholdIncome ? 'text-green-600' : 'text-slate-800'}`}>
                         ${(employment.medianHouseholdIncome / 1000).toFixed(0)}k
                       </div>
