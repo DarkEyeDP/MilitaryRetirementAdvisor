@@ -25,6 +25,7 @@ export const southFacilities: Record<string, VAFacility[]> = {
     { name: 'Hollywood VA Community Based Outpatient Clinic', lat: 26.0122, lon: -80.1897, address: '3702 Washington St., Suite 201, Hollywood, FL 33021', phone: '(954) 986-1811', type: 'clinic' },
     { name: 'Homestead Community Based Outpatient Clinic', lat: 25.4687, lon: -80.4776, address: '950 Krome Ave., Suite 401, Homestead, FL 33030', phone: '(305) 248-0874', type: 'clinic' },
     { name: 'Jacksonville VA Clinic', lat: 30.346818, lon: -81.661087, address: '1833 Boulevard, Jacksonville, FL 32206', phone: '(904) 475-2000', type: 'clinic' },
+    { name: 'Jacksonville North VA Clinic', lat: 30.493093, lon: -81.628773, address: '145 Heron Bay Rd, Jacksonville, FL 32218', phone: '(904) 470-6900', type: 'clinic' },
     { name: 'Jacksonville North Jefferson VA Clinic', lat: 30.3310, lon: -81.6628, address: '1536 N Jefferson St, Jacksonville, FL 32209', phone: '(904) 475-5800', type: 'clinic' },
     { name: 'Key Largo Community Based Outpatient Clinic', lat: 25.1055, lon: -80.4476, address: '105662 Overseas Highway, Key Largo, FL 33037', phone: '(305) 451-0164', type: 'clinic' },
     { name: 'Key West Community Based Outpatient Clinic', lat: 24.5657, lon: -81.7548, address: '1300 Douglas Circle, Building L-15, Key West, FL 33040', phone: '(305) 293-4863', type: 'clinic' },
