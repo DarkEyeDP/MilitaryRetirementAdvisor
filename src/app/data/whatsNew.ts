@@ -27,7 +27,7 @@ export const whatsNewEntries: WhatsNewEntry[] = [
   {
     badge: 'new',
     title: 'Per-Capita VA Facility Scoring',
-    body: 'The VA Benefits score now rates facilities per 100k veterans by default — so small states that actually serve their veterans well score accurately against large states. Toggle between per-capita and raw counts in Dashboard filters.',
+    body: 'The VA Benefits score can now rate facilities per 100k veterans instead of raw counts — so small states that actually serve their veterans well score accurately against large states. Enable it via the per-capita toggle in Dashboard filters.',
   },
   {
     badge: 'data',
