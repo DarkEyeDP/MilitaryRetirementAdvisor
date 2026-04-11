@@ -15,7 +15,7 @@ import { calculateFinancialReality, type FinancialInputs, type UserCostProfile }
 import { getVAMonthlyPay } from '../../data/vaRates';
 import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { stateHousingData } from '../../data/housingData';
-import { stateClimateData, type RiskLevel } from '../../data/climateData';
+import { stateClimateData } from '../../data/climateData';
 import { stateEmploymentData } from '../../data/employmentData';
 import { DATA_YEAR } from '../../data/siteConfig';
 import { getFlagUrl } from '../../lib/flagUrl';
@@ -36,11 +36,6 @@ function pensionBadge(tax: StateData['militaryPensionTax']): { bg: string; text:
   return                        { bg: C.redLight,   text: C.red,   label: 'Taxed' };
 }
 
-function riskColor(level: RiskLevel): string {
-  if (level === 'None' || level === 'Low') return C.green;
-  if (level === 'Moderate') return C.amber;
-  return C.red;
-}
 
 function tierColor(score: number): string {
   if (score >= 95) return C.green;

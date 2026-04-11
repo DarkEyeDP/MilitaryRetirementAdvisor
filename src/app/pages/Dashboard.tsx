@@ -103,8 +103,6 @@ export default function Dashboard() {
     return localStorage.getItem('origin-state-id') ?? null;
   })();
   const originStateName = currentStateId ? statesData.find((s) => s.id === currentStateId)?.name ?? null : null;
-  const originStateData = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
-  const originStateScore = originStateData ? calculateCustomScore(originStateData, { taxes: 40, cost: 30, benefits: 30 }) : null;
 
   const [homeStatePickerOpen, setHomeStatePickerOpen] = useState(false);
   const [homeStateQuery, setHomeStateQuery] = useState('');

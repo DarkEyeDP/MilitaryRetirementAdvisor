@@ -20,7 +20,6 @@ import type { StateData } from '../../data/stateData';
 import { DEFAULT_SCORE_WEIGHTS, scoreTier } from '../../data/stateData';
 import { calculateScore as calculateCustomScore } from '../../data/veteranScore';
 import type { HousingData } from '../../data/housingData';
-import { NATIONAL_HOUSING } from '../../data/housingData';
 import type { StateEmploymentData } from '../../data/employmentData';
 import { NATIONAL_EMPLOYMENT } from '../../data/employmentData';
 import type { StateClimateData, RiskLevel } from '../../data/climateData';

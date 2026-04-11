@@ -59,7 +59,7 @@ export function WhatsNewModal() {
               <div className="px-5 pt-5 pb-3 border-b border-slate-100 flex-shrink-0">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-semibold bg-slate-900 text-white px-2 py-0.5 rounded uppercase tracking-wide">What's New</span>
+                    <span className="text-[10px] font-semibold bg-slate-900 text-white px-2 py-0.5 rounded uppercase tracking-wide">What&apos;s New</span>
                     <span className="text-xs text-slate-400">{whatsNewReleaseLabel}</span>
                   </div>
                   <button
@@ -114,7 +114,7 @@ export function WhatsNewModal() {
                   onClick={dismiss}
                   className="w-full bg-slate-900 hover:bg-slate-700 text-white font-semibold text-xs py-2 rounded-lg transition-colors"
                 >
-                  Got it, let's go
+                  Got it, let&apos;s go
                 </button>
               </div>
 
