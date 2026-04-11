@@ -1465,7 +1465,7 @@ export default function StateDetail() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t bg-white mt-12">
+      <footer className="border-t bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-sm text-slate-500">
             <p>Data last updated: {LAST_UPDATED}</p>
