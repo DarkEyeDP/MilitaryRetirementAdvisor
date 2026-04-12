@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { useParams, useNavigate, useLocation } from 'react-router';
-import { statesData, DEFAULT_SCORE_WEIGHTS, scoreTier } from '../data/stateData';
+import { statesData, scoreTier } from '../data/stateData';
 import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../data/veteranScore';
 import type { StateData } from '../data/stateData';
 import { stateHousingData, NATIONAL_HOUSING } from '../data/housingData';
@@ -209,11 +209,20 @@ export default function StateDetail() {
     ? Math.round(((originState.costOfLivingIndex - state.costOfLivingIndex) / originState.costOfLivingIndex) * 100)
     : null;
 
+  // Read the same weights the user has set on the Dashboard so scores match across pages.
+  const scoreWeights = (() => {
+    try {
+      const saved = localStorage.getItem('dashboard-weights');
+      if (saved) return JSON.parse(saved) as { taxes: number; cost: number; benefits: number };
+    } catch { /* ignore */ }
+    return { taxes: 2, cost: 2, benefits: 2 };
+  })();
+
   const prevState = prevId ? statesData.find((s) => s.id === prevId) ?? null : null;
   const nextState = nextId ? statesData.find((s) => s.id === nextId) ?? null : null;
-  const prevScore = prevState ? calculateCustomScore(prevState, DEFAULT_SCORE_WEIGHTS) : 0;
-  const nextScore = nextState ? calculateCustomScore(nextState, DEFAULT_SCORE_WEIGHTS) : 0;
-  const computedScore = state ? calculateCustomScore(state, DEFAULT_SCORE_WEIGHTS) : 0;
+  const prevScore = prevState ? calculateCustomScore(prevState, scoreWeights, perCapita) : 0;
+  const nextScore = nextState ? calculateCustomScore(nextState, scoreWeights, perCapita) : 0;
+  const computedScore = state ? calculateCustomScore(state, scoreWeights, perCapita) : 0;
 
   // Hover state for map marker highlight (must be before early return)
   const [hoveredFacilityName, setHoveredFacilityName] = useState<string | null>(null);
