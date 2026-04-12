@@ -364,42 +364,36 @@ export function StatePdfDocument({
         {/* ── VA Facilities ── */}
         <View style={S.section}>
           <SectionTitle>VA Medical Facilities</SectionTitle>
-          <View style={S.row}>
-            {/* VAMCs */}
-            <View style={S.col}>
-              <Text style={[S.sectionSubHeading, { color: C.blue }]}>
-                VA Medical Centers ({vamcs.length})
-              </Text>
-              {vamcs.length > 0
-                ? vamcs.map((f, i) => (
-                    <BulletLink
-                      key={i}
-                      text={f.name + (f.address ? ' — ' + f.address : '')}
-                      url={`https://www.google.com/maps?q=${f.lat},${f.lon}`}
-                      color={C.blue}
-                    />
-                  ))
-                : <Text style={{ fontSize: 8, color: C.slate400 }}>None in state</Text>
-              }
-            </View>
-            {/* Clinics */}
-            <View style={S.col}>
-              <Text style={[S.sectionSubHeading, { color: C.green }]}>
-                VA Outpatient Clinics ({clinics.length})
-              </Text>
-              {clinics.length > 0
-                ? clinics.map((f, i) => (
-                    <BulletLink
-                      key={i}
-                      text={f.name + (f.address ? ' — ' + f.address : '')}
-                      url={`https://www.google.com/maps?q=${f.lat},${f.lon}`}
-                      color={C.green}
-                    />
-                  ))
-                : <Text style={{ fontSize: 8, color: C.slate400 }}>None in state</Text>
-              }
-            </View>
-          </View>
+          {/* VAMCs */}
+          <Text style={[S.sectionSubHeading, { color: C.blue, marginBottom: 3 }]}>
+            VA Medical Centers ({vamcs.length})
+          </Text>
+          {vamcs.length > 0
+            ? vamcs.map((f, i) => (
+                <BulletLink
+                  key={i}
+                  text={f.name + (f.address ? ' — ' + f.address : '')}
+                  url={`https://www.google.com/maps?q=${f.lat},${f.lon}`}
+                  color={C.blue}
+                />
+              ))
+            : <Text style={{ fontSize: 8, color: C.slate400, marginBottom: 4 }}>None in state</Text>
+          }
+          {/* Clinics */}
+          <Text style={[S.sectionSubHeading, { color: C.green, marginTop: 8, marginBottom: 3 }]}>
+            VA Outpatient Clinics ({clinics.length})
+          </Text>
+          {clinics.length > 0
+            ? clinics.map((f, i) => (
+                <BulletLink
+                  key={i}
+                  text={f.name + (f.address ? ' — ' + f.address : '')}
+                  url={`https://www.google.com/maps?q=${f.lat},${f.lon}`}
+                  color={C.green}
+                />
+              ))
+            : <Text style={{ fontSize: 8, color: C.slate400 }}>None in state</Text>
+          }
         </View>
 
         {/* ── Military Installations ── */}
