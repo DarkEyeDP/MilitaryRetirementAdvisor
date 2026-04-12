@@ -564,7 +564,7 @@ export default function Dashboard() {
             />
 
             {/* Results Summary */}
-            <div className="mb-6 pt-5 border-t border-slate-200 mx-4 md:mx-0 md:bg-white md:rounded-lg md:border md:border-slate-200 md:p-6">
+            <div className="mb-3 pt-5 border-t border-slate-200 mx-4 md:mx-0 md:bg-white md:rounded-lg md:border md:border-slate-200 md:p-6">
 
               {/* Two-column layout on desktop: left = title+search+toggle, right = home state widget */}
               <div className="flex flex-col lg:flex-row lg:gap-5 lg:items-stretch">
