@@ -24,7 +24,7 @@ export const C = {
 export const S = StyleSheet.create({
   // Pages
   page: {
-    paddingTop: 0,
+    paddingTop: 36,
     paddingBottom: 36,
     paddingHorizontal: 0,
     fontSize: 9,

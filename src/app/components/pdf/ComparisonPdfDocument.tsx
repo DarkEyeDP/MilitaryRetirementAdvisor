@@ -150,7 +150,7 @@ export function ComparisonPdfDocument({ states, inputs, profile, scoreWeights = 
       <Page size="LETTER" style={S.page}>
 
         {/* ── Header ── */}
-        <View style={S.headerBar}>
+        <View style={[S.headerBar, { marginTop: -36 }]}>
           <View>
             <Text style={S.headerTitle}>State Comparison Report</Text>
             <Text style={S.headerSubtitle}>
@@ -301,7 +301,7 @@ export function ComparisonPdfDocument({ states, inputs, profile, scoreWeights = 
       ═══════════════════════════════════════════════════════════════════════ */}
       <Page size="LETTER" style={S.page}>
 
-        <View style={[S.headerBar, { paddingVertical: 8 }]}>
+        <View style={[S.headerBar, { paddingVertical: 8, marginTop: -36 }]}>
           <Text style={[S.headerTitle, { fontSize: 13 }]}>State Comparison — Detailed Data</Text>
           <Text style={S.headerSubtitle}>{stateNames} · Military Retirement Advisor · {DATA_YEAR} Data</Text>
         </View>

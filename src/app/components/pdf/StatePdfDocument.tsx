@@ -125,7 +125,7 @@ function BulletLink({ text, url, color }: { text: string; url: string; color?: s
 function SectionPageHeader({ title }: { title: string }) {
   return (
     <View break>
-      <View style={[S.headerBar, { paddingVertical: 8 }]}>
+      <View style={[S.headerBar, { paddingVertical: 8, marginTop: -36 }]}>
         <Text style={[S.headerTitle, { fontSize: 13 }]}>{title}</Text>
         <Text style={S.headerSubtitle}>Military Retirement Advisor · {DATA_YEAR} Data</Text>
       </View>
@@ -219,7 +219,7 @@ export function StatePdfDocument({
       <Page size="LETTER" style={S.page}>
 
         {/* ── Header bar ── */}
-        <View style={S.headerBar}>
+        <View style={[S.headerBar, { marginTop: -36 }]}>
           <View>
             <Text style={S.headerTitle}>{state.name}</Text>
             <Text style={S.headerSubtitle}>Military Retirement Advisor · {DATA_YEAR} Data Report</Text>
