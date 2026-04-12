@@ -9,8 +9,8 @@ import { Document, Page, View, Text, Image, Link } from '@react-pdf/renderer';
 import { S, C } from './pdfStyles';
 import { GaugeSvg } from './GaugeSvg';
 import type { StateData } from '../../data/stateData';
-import { DEFAULT_SCORE_WEIGHTS, scoreTier } from '../../data/stateData';
-import { calculateScore as calculateCustomScore } from '../../data/veteranScore';
+import { scoreTier } from '../../data/stateData';
+import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../../data/veteranScore';
 import { calculateFinancialReality, type FinancialInputs, type UserCostProfile } from '../../data/financialReality';
 import { getVAMonthlyPay } from '../../data/vaRates';
 import { vaFacilityLocations } from '../../data/vaFacilityLocations';
@@ -110,13 +110,16 @@ interface Props {
   states: StateData[];
   inputs: FinancialInputs;
   profile: UserCostProfile;
+  scoreWeights?: { taxes: number; cost: number; benefits: number };
+  perCapita?: boolean;
 }
 
-export function ComparisonPdfDocument({ states, inputs, profile }: Props) {
+export function ComparisonPdfDocument({ states, inputs, profile, scoreWeights = { taxes: 2, cost: 2, benefits: 2 }, perCapita = false }: Props) {
   if (states.length === 0) return <Document><Page size="LETTER" style={S.page}><Text>No states selected.</Text></Page></Document>;
 
   const n = states.length;
-  const scores = states.map((s) => calculateCustomScore(s, DEFAULT_SCORE_WEIGHTS));
+  const liveStates = states.map((s) => ({ ...s, veteranBenefitsScore: computeVeteranBenefitsScore(s, perCapita) }));
+  const scores = liveStates.map((s) => calculateCustomScore(s, scoreWeights, perCapita));
   const breakdowns = states.map((s) => calculateFinancialReality(s, inputs, profile));
   const generated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   const isSeparating = inputs.userType === 'separating';
@@ -285,7 +288,7 @@ export function ComparisonPdfDocument({ states, inputs, profile }: Props) {
             <CRow alt label="Sales Tax" values={states.map((s) => s.salesTax === 0 ? 'None' : s.salesTax + '%')} bestIndex={bestIdx(states.map((s) => s.salesTax), 'min')} />
             <CRow label="Property Tax" values={states.map((s) => s.propertyTaxLevel)} />
             <CRow alt label="Cost of Living Index" values={states.map((s) => String(s.costOfLivingIndex))} bestIndex={bestIdx(states.map((s) => s.costOfLivingIndex), 'min')} />
-            <CRow label="VA Benefits Score" values={states.map((s) => String(s.veteranBenefitsScore) + '/100')} bestIndex={bestIdx(states.map((s) => s.veteranBenefitsScore), 'max')} />
+            <CRow label="VA Benefits Score" values={liveStates.map((s) => String(s.veteranBenefitsScore) + '/100')} bestIndex={bestIdx(liveStates.map((s) => s.veteranBenefitsScore), 'max')} />
             <CRow alt label="Veteran Population" values={states.map((s) => fmtVetPop(s.veteranPopulation))} />
           </View>
         </View>

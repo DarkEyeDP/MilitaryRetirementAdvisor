@@ -17,8 +17,8 @@ import {
 import { S, C } from './pdfStyles';
 import { GaugeSvg } from './GaugeSvg';
 import type { StateData } from '../../data/stateData';
-import { DEFAULT_SCORE_WEIGHTS, scoreTier } from '../../data/stateData';
-import { calculateScore as calculateCustomScore } from '../../data/veteranScore';
+import { scoreTier } from '../../data/stateData';
+import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../../data/veteranScore';
 import type { HousingData } from '../../data/housingData';
 import type { StateEmploymentData } from '../../data/employmentData';
 import { NATIONAL_EMPLOYMENT } from '../../data/employmentData';
@@ -144,6 +144,8 @@ interface Props {
   climateData: StateClimateData | null;
   perks: VeteranPerksData | null;
   originState: StateData | null;
+  scoreWeights?: { taxes: number; cost: number; benefits: number };
+  perCapita?: boolean;
 }
 
 export function StatePdfDocument({
@@ -154,8 +156,12 @@ export function StatePdfDocument({
   climateData,
   perks,
   originState,
+  scoreWeights = { taxes: 2, cost: 2, benefits: 2 },
+  perCapita = false,
 }: Props) {
-  const score = calculateCustomScore(state, DEFAULT_SCORE_WEIGHTS);
+  const liveVeteranScore = computeVeteranBenefitsScore(state, perCapita);
+  const liveState = { ...state, veteranBenefitsScore: liveVeteranScore };
+  const score = calculateCustomScore(liveState, scoreWeights, perCapita);
   const tier  = scoreTier(score);
   const taxComps = taxScoreComponents(state);
   const costScore = colScore(state);
@@ -289,7 +295,7 @@ export function StatePdfDocument({
               ))}
             </View>
             <View style={S.gaugeCellLast}>
-              <GaugeSvg score={state.veteranBenefitsScore} size={90} />
+              <GaugeSvg score={liveVeteranScore} size={90} />
               <Text style={S.gaugeLabel}>Veteran Benefits</Text>
               {benefitSubItems.map((it) => (
                 <View key={it.label} style={S.gaugeSubItem}>

@@ -354,6 +354,14 @@ export default function ComparisonPage() {
 
   const handleExportPdf = async () => {
     setPdfLoading(true);
+    const pdfScoreWeights = (() => {
+      try {
+        const saved = localStorage.getItem('dashboard-weights');
+        if (saved) return JSON.parse(saved) as { taxes: number; cost: number; benefits: number };
+      } catch { /* ignore */ }
+      return { taxes: 2, cost: 2, benefits: 2 };
+    })();
+    const pdfPerCapita = localStorage.getItem('va-scoring-per-capita') === 'true';
     try {
       const stateNames = states.map((s) => s.abbreviation).join('-');
       const blob = await pdf(
@@ -361,6 +369,8 @@ export default function ComparisonPage() {
           states={states}
           inputs={financialInputs}
           profile={userCostProfile}
+          scoreWeights={pdfScoreWeights}
+          perCapita={pdfPerCapita}
         />
       ).toBlob();
       const url = URL.createObjectURL(blob);

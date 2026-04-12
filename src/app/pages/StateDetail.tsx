@@ -343,6 +343,8 @@ export default function StateDetail() {
           climateData={stateClimateData[state.id] ?? null}
           perks={stateVeteranPerks[state.id] ?? null}
           originState={originState}
+          scoreWeights={scoreWeights}
+          perCapita={perCapita}
         />
       ).toBlob();
       const url = URL.createObjectURL(blob);
