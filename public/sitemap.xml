@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Core pages -->
+  <url>
+    <loc>https://milretired.com/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://milretired.com/dashboard</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://milretired.com/compare</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://milretired.com/sources</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- State & Territory detail pages -->
+  <url><loc>https://milretired.com/state/florida</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/texas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/virginia</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/tennessee</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/north-carolina</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/georgia</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/oklahoma</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/arkansas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/south-carolina</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/alabama</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/mississippi</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/louisiana</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/maryland</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/west-virginia</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/kentucky</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/nevada</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/washington</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/alaska</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/wyoming</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/california</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/arizona</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/colorado</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/oregon</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/idaho</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/montana</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/utah</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/new-mexico</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/hawaii</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/south-dakota</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/north-dakota</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/missouri</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/kansas</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/nebraska</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/iowa</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/minnesota</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/wisconsin</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/michigan</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/illinois</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/indiana</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/ohio</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/new-hampshire</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/pennsylvania</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/new-york</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/new-jersey</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/delaware</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/maine</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/vermont</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/massachusetts</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/connecticut</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/rhode-island</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://milretired.com/state/dc</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://milretired.com/state/puerto-rico</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://milretired.com/state/guam</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://milretired.com/state/us-virgin-islands</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://milretired.com/state/american-samoa</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://milretired.com/state/northern-mariana-islands</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+</urlset>
