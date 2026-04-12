@@ -276,7 +276,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
             );
           })()}
           <span>across</span>
-          <span className="text-slate-900 font-medium">{results.length} states</span>
+          <span className="text-slate-900 font-medium">50 States &amp; Territories</span>
         </p>
       </div>
 
