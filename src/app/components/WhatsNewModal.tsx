@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Coffee } from 'lucide-react';
+import { X } from 'lucide-react';
+
+function CrayonIcon({ className }: { className?: string }) {
+  return <img src="/emojione-monotone--crayon.png" alt="" aria-hidden="true" className={className} />;
+}
 import { WHATS_NEW_VERSION } from '../data/siteConfig';
 import { whatsNewEntries, whatsNewReleaseLabel, type BadgeType } from '../data/whatsNew';
 
@@ -98,7 +102,7 @@ export function WhatsNewModal() {
               <div className="px-5 pb-5 pt-3 border-t border-slate-100 flex-shrink-0 space-y-2.5">
                 <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 space-y-2">
                   <p className="text-[11px] text-slate-600 leading-relaxed">
-                    <span className="font-semibold text-slate-800">Thank you to everyone who has supported this project.</span> Your contributions directly fund data maintenance, hosting, and new features — this site exists because of you.
+                    <span className="font-semibold text-slate-800">Thank you to everyone who has supported this project.</span> Every crayon counts — your contributions directly fund data maintenance, hosting, and new features.
                   </p>
                   <a
                     href="https://buymeacoffee.com/staymarinesim"
@@ -106,8 +110,8 @@ export function WhatsNewModal() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-[11px] px-2.5 py-1.5 rounded-md transition-colors"
                   >
-                    <Coffee className="w-3 h-3" />
-                    Buy Me a Coffee
+                    <CrayonIcon className="w-3 h-3" />
+                    Buy Me a Crayon
                   </a>
                 </div>
                 <button

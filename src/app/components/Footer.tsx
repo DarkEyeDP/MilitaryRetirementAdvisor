@@ -1,5 +1,9 @@
 import { useNavigate } from 'react-router';
 import { SiteLogo } from './ui/SiteLogo';
+
+function CrayonIcon({ className }: { className?: string }) {
+  return <img src="/emojione-monotone--crayon.png" alt="" aria-hidden="true" className={className} />;
+}
 import { DATA_YEAR, LAST_UPDATED } from '../data/siteConfig';
 
 export default function Footer() {
@@ -79,7 +83,7 @@ export default function Footer() {
           <div className="order-first md:order-none">
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Support This Project</h3>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
-              If this tool helped you plan your retirement, consider buying me a coffee. It helps keep the data updated and the site running.
+              If this tool helped you plan your retirement, consider buying me a crayon. It helps keep the data updated and the site running.
             </p>
             <a
               href="https://buymeacoffee.com/staymarinesim"
@@ -87,8 +91,8 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
             >
-              <span>☕</span>
-              <span>Buy Me a Coffee</span>
+              <CrayonIcon className="w-4 h-4" />
+              <span>Buy Me a Crayon</span>
             </a>
           </div>
 
