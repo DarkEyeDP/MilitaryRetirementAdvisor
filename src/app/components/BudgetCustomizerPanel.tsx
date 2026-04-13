@@ -257,7 +257,7 @@ export default function BudgetCustomizerPanel({
                           type="text"
                           value={src.label}
                           onChange={(e) => updateSecondaryLabel(src.id, e.target.value)}
-                          className="flex-1 h-8 text-sm"
+                          className="flex-1 h-8 text-base md:text-sm"
                           placeholder="Income label"
                         />
                         <div className="relative flex items-center w-28 shrink-0">
@@ -268,7 +268,7 @@ export default function BudgetCustomizerPanel({
                             step={100}
                             value={src.annualAmount > 0 ? String(Math.round(src.annualAmount / 12)) : ''}
                             onChange={(e) => updateSecondaryAmount(src.id, Math.max(0, parseFloat(e.target.value) || 0) * 12)}
-                            className="h-8 text-sm text-right pl-5"
+                            className="h-8 text-base md:text-sm text-right pl-5"
                             placeholder="Monthly"
                           />
                         </div>
@@ -347,7 +347,7 @@ export default function BudgetCustomizerPanel({
                           placeholder={field.avg !== null ? String(Math.round(field.avg)) : '0'}
                           value={field.value !== null ? String(field.value) : ''}
                           onChange={(e) => update({ [field.key]: parseOverride(e.target.value) })}
-                          className="w-28 text-right h-8 text-sm pl-5"
+                          className="w-28 text-right h-8 text-base md:text-sm pl-5"
                         />
                       </div>
                     </div>
@@ -385,7 +385,7 @@ export default function BudgetCustomizerPanel({
                       <select
                         value={member.ageGroup}
                         onChange={(e) => updateMemberAge(member.id, e.target.value as AgeGroup)}
-                        className="flex-1 border border-slate-300 rounded-md px-2 py-1 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+                        className="flex-1 border border-slate-300 rounded-md px-2 py-1 text-base md:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
                       >
                         {(Object.keys(AGE_GROUP_LABELS) as AgeGroup[]).map((key) => (
                           <option key={key} value={key}>
@@ -428,7 +428,7 @@ export default function BudgetCustomizerPanel({
                         }
                         value={profile.groceryOverride !== null ? String(profile.groceryOverride) : ''}
                         onChange={(e) => update({ groceryOverride: parseOverride(e.target.value) })}
-                        className="w-28 text-right h-8 text-sm pl-5"
+                        className="w-28 text-right h-8 text-base md:text-sm pl-5"
                       />
                     </div>
                   </div>
@@ -453,7 +453,7 @@ export default function BudgetCustomizerPanel({
                         placeholder="Expense label"
                         value={item.label}
                         onChange={(e) => updateLineItem(item.id, { label: e.target.value })}
-                        className="flex-1 h-8 text-sm"
+                        className="flex-1 h-8 text-base md:text-sm"
                       />
                       <div className="relative flex items-center w-24 shrink-0">
                         <span className="absolute left-2 text-xs text-slate-400">$</span>
@@ -467,7 +467,7 @@ export default function BudgetCustomizerPanel({
                               amount: Math.max(0, parseFloat(e.target.value) || 0),
                             })
                           }
-                          className="w-24 text-right h-8 text-sm pl-5"
+                          className="w-24 text-right h-8 text-base md:text-sm pl-5"
                         />
                       </div>
                       <button

@@ -266,6 +266,7 @@ function EmptyWithSlots({
 }) {
   const [pending, setPending] = useState<(string | null)[]>([null, null, null]);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
+  const perCapita = localStorage.getItem('va-scoring-per-capita') === 'true';
 
   const filledIds = pending.filter((id): id is string => id !== null);
 

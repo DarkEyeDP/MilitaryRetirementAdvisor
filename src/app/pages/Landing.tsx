@@ -231,7 +231,7 @@ export default function Landing() {
               VA Disability <span className="text-slate-400 text-xs font-normal normal-case tracking-normal">(Optional)</span>
             </Label>
             <Select value={disabilityRating} onValueChange={(v) => { setDisabilityRating(v); savePrefs({ disabilityRating: v }); }}>
-              <SelectTrigger id="disability" className="h-9 text-sm"><SelectValue placeholder="Select rating" /></SelectTrigger>
+              <SelectTrigger id="disability" className="h-9 text-base md:text-sm"><SelectValue placeholder="Select rating" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
                 {['10','20','30','40','50','60','70','80','90','100'].map((r) => (
@@ -248,7 +248,7 @@ export default function Landing() {
               value={currentStateId}
               onValueChange={(v) => { setCurrentStateId(v === 'none' ? '' : v); savePrefs({ currentStateId: v === 'none' ? '' : v }); }}
             >
-              <SelectTrigger id="currentState" className="h-9 text-sm"><SelectValue placeholder="Where you live" /></SelectTrigger>
+              <SelectTrigger id="currentState" className="h-9 text-base md:text-sm"><SelectValue placeholder="Where you live" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Not specified</SelectItem>
                 {statesSorted.map((s) => (
@@ -287,7 +287,7 @@ export default function Landing() {
                     value={member.ageGroup}
                     onValueChange={(v) => updateMemberAge(member.id, v as AgeGroup)}
                   >
-                    <SelectTrigger className="h-6 flex-1 text-xs border-0 bg-transparent p-0 min-w-0">
+                    <SelectTrigger className="h-6 flex-1 text-base md:text-xs border-0 bg-transparent p-0 min-w-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -360,7 +360,7 @@ export default function Landing() {
                         const n = parseFloat(val);
                         if (!isNaN(n)) updateSecondaryAmount(src.id, n * 12);
                       }}
-                      className="w-full text-xs font-semibold text-slate-800 bg-transparent border-b border-slate-200 focus:border-blue-400 focus:outline-none"
+                      className="w-full text-base md:text-xs font-semibold text-slate-800 bg-transparent border-b border-slate-200 focus:border-blue-400 focus:outline-none"
                     />
                     <span className="text-xs text-slate-400 shrink-0">/mo</span>
                   </div>

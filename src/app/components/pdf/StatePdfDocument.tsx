@@ -11,7 +11,6 @@ import {
   Page,
   View,
   Text,
-  Image,
   Link,
 } from '@react-pdf/renderer';
 import { S, C } from './pdfStyles';
@@ -25,7 +24,6 @@ import { NATIONAL_EMPLOYMENT } from '../../data/employmentData';
 import type { StateClimateData, RiskLevel } from '../../data/climateData';
 import type { VeteranPerksData } from '../../data/veteranPerksData';
 import type { FinancialInputs } from '../../data/financialReality';
-import { getFlagUrl } from '../../lib/flagUrl';
 import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { militaryInstallations } from '../../data/militaryInstallations';
 import { getSpaceATerminalsByProximity } from '../../data/spaceATerminals';
@@ -185,8 +183,6 @@ export function StatePdfDocument({
 
   const taxBadge = pensionBadgeColors(state.militaryPensionTax);
   const generated = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  const flagUrl = getFlagUrl(state.abbreviation);
-
   // Gauge sub-items
   const taxSubItems = [
     ...(!isSeparating ? [{ label: 'Pension tax/yr', value: annualPensionTax === 0 ? '$0 — exempt' : fmt$(annualPensionTax) + '/yr' }] : []),
@@ -224,11 +220,8 @@ export function StatePdfDocument({
             <Text style={S.headerTitle}>{state.name}</Text>
             <Text style={S.headerSubtitle}>Military Retirement Advisor · {DATA_YEAR} Data Report</Text>
           </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={[S.badge, { backgroundColor: taxBadge.bg, alignSelf: 'center' }]}>
-              <Text style={[S.badgeText, { color: taxBadge.text }]}>{taxBadge.label}</Text>
-            </View>
-            <Image src={flagUrl} style={{ width: 40, height: 24, borderRadius: 2 }} />
+          <View style={[S.badge, { backgroundColor: taxBadge.bg, alignSelf: 'center' }]}>
+            <Text style={[S.badgeText, { color: taxBadge.text }]}>{taxBadge.label}</Text>
           </View>
         </View>
 

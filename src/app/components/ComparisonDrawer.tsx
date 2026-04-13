@@ -112,7 +112,7 @@ function StatePickerSlot({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search states…"
-          className="w-full pl-8 pr-3 py-2 text-xs bg-transparent placeholder:text-slate-400 focus:outline-none"
+          className="w-full pl-8 pr-3 py-2 text-base md:text-xs bg-transparent placeholder:text-slate-400 focus:outline-none"
         />
       </div>
       <div className="max-h-40 overflow-y-auto">

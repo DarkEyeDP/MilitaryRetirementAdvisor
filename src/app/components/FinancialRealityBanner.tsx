@@ -202,7 +202,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
                   if (e.key === 'Enter') saveIncome();
                   if (e.key === 'Escape') setEditingIncome(false);
                 }}
-                className="w-20 text-sm font-medium text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
+                className="w-20 text-base md:text-sm font-medium text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
               />
               <span className="text-slate-900 font-medium">/mo {incomeLabel}</span>
               <span className="text-xs text-slate-400 ml-1">(Enter to save)</span>
@@ -223,7 +223,7 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
                   {fmt$(topState.breakdown.monthlyDisabilityPay)}/mo VA disability ({onChangeInputs ? (<select
                       value={inputs.disabilityRating}
                       onChange={handleDisabilityChange}
-                      className="text-sm font-medium text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer transition-colors appearance-none"
+                      className="text-base md:text-sm font-medium text-slate-900 bg-transparent border-b border-dotted border-slate-400 hover:border-blue-400 focus:border-blue-500 focus:outline-none cursor-pointer transition-colors appearance-none"
                       style={{ width: `${inputs.disabilityRating?.length ?? 2}ch`, padding: 0 }}
                     >{DISABILITY_RATINGS.map((r) => (<option key={r} value={r}>{r}</option>))}</select>) : inputs.disabilityRating}%)
                   {onChangeInputs && (
