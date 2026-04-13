@@ -221,7 +221,7 @@ function StateSlot({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search states..."
-              className="w-full text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
+              className="w-full text-base md:text-sm px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-400 transition-colors"
             />
           </div>
           <div className="max-h-64 overflow-y-auto">
