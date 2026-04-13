@@ -8,6 +8,7 @@ import ErrorPage from './pages/ErrorPage';
 import Sources from './pages/Sources';
 import Sitemap from './pages/Sitemap';
 import Footer from './components/Footer';
+import { trackPageView } from './lib/analytics';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -17,6 +18,10 @@ function ScrollToTop() {
       return;
     }
     window.scrollTo(0, 0);
+  }, [pathname]);
+
+  useEffect(() => {
+    trackPageView(pathname);
   }, [pathname]);
   return (
     <>

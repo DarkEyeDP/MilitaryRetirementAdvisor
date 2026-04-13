@@ -19,6 +19,7 @@ import { pdf } from '@react-pdf/renderer';
 import { ComparisonPdfDocument } from '../components/pdf/ComparisonPdfDocument';
 import { SiteLogo } from '../components/ui/SiteLogo';
 import { getFlagUrl } from '../lib/flagUrl';
+import { trackEvent } from '../lib/analytics';
 import { Button } from '@/app/components/ui/button';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Badge } from '@/app/components/ui/badge';
@@ -380,6 +381,7 @@ export default function ComparisonPage() {
       a.download = `State-Comparison-${stateNames}-Military-Retirement.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      trackEvent('pdf_export', { pdf_type: 'comparison_report', states: stateNames });
     } finally {
       setPdfLoading(false);
     }

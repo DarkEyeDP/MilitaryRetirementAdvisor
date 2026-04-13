@@ -59,6 +59,7 @@ import { pdf } from '@react-pdf/renderer';
 import { StatePdfDocument } from '../components/pdf/StatePdfDocument';
 import { SiteLogo } from '../components/ui/SiteLogo';
 import { getFlagUrl } from '../lib/flagUrl';
+import { trackEvent } from '../lib/analytics';
 
 function ScoreGauge({
   score,
@@ -353,6 +354,7 @@ export default function StateDetail() {
       a.download = `${state.name.replace(/\s+/g, '-')}-Military-Retirement-Report.pdf`;
       a.click();
       URL.revokeObjectURL(url);
+      trackEvent('pdf_export', { pdf_type: 'state_report', state_name: state.name });
     } finally {
       setPdfLoading(false);
     }

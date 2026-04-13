@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router';
 import { SiteLogo } from './ui/SiteLogo';
+import { trackEvent } from '../lib/analytics';
 
 function CrayonIcon({ className }: { className?: string }) {
   return <img src="/emojione-monotone--crayon.png" alt="" aria-hidden="true" className={className} />;
@@ -34,6 +35,7 @@ export default function Footer() {
               <a
                 href="mailto:darkeyegraphics@gmail.com"
                 className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                onClick={() => trackEvent('footer_click', { link_label: 'email' })}
               >
                 darkeyegraphics@gmail.com
               </a>
@@ -46,7 +48,7 @@ export default function Footer() {
             <ul className="space-y-3">
               <li>
                 <button
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => { navigate('/dashboard'); trackEvent('footer_click', { link_label: 'state_comparison_dashboard' }); }}
                   className="text-sm text-slate-300 hover:text-white transition-colors"
                 >
                   State Comparison Dashboard
@@ -54,7 +56,7 @@ export default function Footer() {
               </li>
               <li>
                 <button
-                  onClick={() => navigate('/compare')}
+                  onClick={() => { navigate('/compare'); trackEvent('footer_click', { link_label: 'compare_states' }); }}
                   className="text-sm text-slate-300 hover:text-white transition-colors"
                 >
                   Compare States Side-by-Side
@@ -62,7 +64,7 @@ export default function Footer() {
               </li>
               <li>
                 <button
-                  onClick={() => navigate('/sources')}
+                  onClick={() => { navigate('/sources'); trackEvent('footer_click', { link_label: 'data_sources' }); }}
                   className="text-sm text-slate-300 hover:text-white transition-colors"
                 >
                   Data Sources &amp; Methodology
@@ -70,7 +72,7 @@ export default function Footer() {
               </li>
               <li>
                 <button
-                  onClick={() => navigate('/sitemap')}
+                  onClick={() => { navigate('/sitemap'); trackEvent('footer_click', { link_label: 'sitemap' }); }}
                   className="text-sm text-slate-300 hover:text-white transition-colors"
                 >
                   Site Map
@@ -90,6 +92,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
+              onClick={() => trackEvent('footer_click', { link_label: 'buy_me_a_crayon' })}
             >
               <CrayonIcon className="w-4 h-4" />
               <span>Buy Me a Crayon</span>
