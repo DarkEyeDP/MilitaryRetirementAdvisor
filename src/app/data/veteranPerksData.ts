@@ -457,10 +457,10 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
   },
   'iowa': {
     vehicleRegistrationBenefits: [
-      'Free veteran designation on driver\'s license',
-      '100% service-connected disabled veterans: registration fee reduction',
-      'Veteran specialty plates including Purple Heart at reduced or no cost',
-      'Military retirees: expedited license renewal at DVA offices',
+      'Veteran designation on Iowa driver\'s license or state ID; $10 duplicate fee; requires DD-214',
+      'Specialty license plates for honorably discharged veterans per Iowa Code §35.1; options vary by branch of service',
+      'Personalized veteran plate available with applicable personalized plate fee',
+      'Lifetime hunting and fishing license for $7 for Iowa resident veterans with active federal service',
     ],
     medalBenefits: [
       'Medal of Honor: free hunting & fishing license, free state park annual pass',
@@ -469,20 +469,20 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Combat veterans: specialty plate available at reduced cost',
     ],
     propertyTaxExemptions: [
-      'Military Service Tax Exemption: 100% of property taxes credited for 100% P&T disabled veterans',
-      'Applies to all qualifying veterans with total and permanent service-connected disability',
-      'Must be primary residence; surviving spouses retain the credit',
+      'Disabled Veteran\'s Homestead Tax Credit: 100% property tax exemption for 100% P&T disabled veterans and DIC recipients; must be primary residence; surviving spouses retain the credit',
+      'Military Service Tax Exemption: reduces assessed home value by up to $4,000 for property tax purposes; requires 18+ months active duty service',
+      'Apply through your County Assessor and County VSO; eligibility and property limitations may apply',
     ],
     educationBenefits: {
       retiree: [
-        'IA Tuition Grant: veterans may qualify for Iowa Tuition Grant at IA private colleges',
         'Iowa Board of Regents schools offer in-state tuition for all honorably discharged veterans',
+        'Iowa Tuition Grant: veterans may qualify at IA private colleges',
         'Iowa National Guard Scholarship covers full tuition at IA public institutions',
       ],
       family: [
+        'Children of the Fallen (Branstad-Reynolds) Scholarship Fund: college education assistance for children of post-9/11 service members who died while on active military status',
         'IA Surviving Spouse & Dependent Educational Assistance: free tuition at IA Board of Regents schools for children of veterans who died in service or are 100% P&T disabled',
         'Surviving spouses of service members who died on active duty qualify for in-state tuition rates',
-        'Iowa College Student Aid Commission coordinates all dependent veteran education benefits',
       ],
     },
   },

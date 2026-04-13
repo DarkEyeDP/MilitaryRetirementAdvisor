@@ -1101,7 +1101,7 @@ export default function StateDetail() {
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: idx * 0.05, duration: 0.2 }}
-                      className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200 transition-colors"
+                      className="flex items-start gap-3 px-0 py-1.5 sm:p-3 sm:rounded-lg sm:border sm:border-slate-100 sm:bg-white sm:hover:bg-slate-50 sm:hover:border-slate-200 transition-colors"
                     >
                       <div className="w-1 self-stretch rounded-full bg-blue-400 flex-shrink-0" />
                       <CheckCircle2 className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
