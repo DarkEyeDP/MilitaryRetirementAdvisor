@@ -445,11 +445,11 @@ export default function ComparisonPage() {
       {/* Sticky Header */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-sm border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <button onClick={() => navigate('/dashboard')} className="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-600 flex items-center justify-center transition-colors flex-shrink-0">
               <ArrowLeft className="w-4 h-4" />
             </button>
-            <span className="font-bold text-slate-900 flex-shrink-0">State Comparison</span>
+            <span className="font-bold text-slate-900 truncate">State Comparison</span>
             <div className="hidden sm:flex items-center divide-x divide-slate-200">
               {states.map((s) => (
                 <span key={s.id} className="px-3 first:pl-3 text-sm font-medium text-slate-700">{s.name}</span>
