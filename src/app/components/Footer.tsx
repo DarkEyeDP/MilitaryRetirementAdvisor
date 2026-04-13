@@ -117,6 +117,15 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="border-t border-slate-800 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-slate-600">
           <span>© {DATA_YEAR} Military Retirement Advisor. Data updated {LAST_UPDATED}.</span>
+          <span className="text-center">
+            This site uses Google Analytics to understand usage patterns. No personally identifiable information is collected.{' '}
+            <button
+              onClick={() => { navigate('/privacy', { replace: true }); trackEvent('footer_click', { link_label: 'privacy_policy' }); }}
+              className="text-xs text-slate-300 hover:text-white transition-colors"
+            >
+              Privacy Policy
+            </button>
+          </span>
           <span className="sm:text-right">
             Not affiliated with the U.S. Department of Defense or the Department of Veterans Affairs.
           </span>

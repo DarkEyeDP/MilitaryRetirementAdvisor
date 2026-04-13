@@ -8,6 +8,7 @@ import ErrorPage from './pages/ErrorPage';
 import Sources from './pages/Sources';
 import Sitemap from './pages/Sitemap';
 import Footer from './components/Footer';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import { trackPageView } from './lib/analytics';
 
 function ScrollToTop() {
@@ -42,6 +43,7 @@ export const router = createHashRouter([
       { path: '/compare', Component: ComparisonPage },
       { path: '/sources', Component: Sources },
       { path: '/sitemap', Component: Sitemap },
+      { path: '/privacy', Component: PrivacyPolicy },
       { path: '*', Component: ErrorPage },
     ],
   },

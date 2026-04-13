@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import { ArrowLeft, LayoutDashboard, GitCompare, BookOpen, MapPin, Globe } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, GitCompare, BookOpen, MapPin, Globe, Shield } from 'lucide-react';
 import { statesData, TERRITORY_IDS } from '../data/stateData';
 
 const states = statesData.filter((s) => !TERRITORY_IDS.has(s.id)).sort((a, b) => a.name.localeCompare(b.name));
@@ -11,6 +11,7 @@ const MAIN_PAGES = [
   { label: 'State Comparison Dashboard', path: '/dashboard', description: 'Browse, filter, and rank all 50 states + DC & territories', icon: LayoutDashboard },
   { label: 'Compare States Side-by-Side', path: '/compare', description: 'Compare up to 3 states with a full financial breakdown', icon: GitCompare },
   { label: 'Data Sources & Methodology', path: '/sources', description: 'How retirement scores are calculated and where data comes from', icon: BookOpen },
+  { label: 'Privacy Policy', path: '/privacy', description: 'How this site handles analytics data and browser storage', icon: Shield },
 ];
 
 const fadeUp = (delay: number) => ({
