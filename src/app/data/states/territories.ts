@@ -41,15 +41,17 @@ export const territories: StateData[] = [
     name: 'Puerto Rico',
     abbreviation: 'PR',
     militaryPensionTax: 'No',
-    stateIncomeTax: 29.0,
+    stateIncomeTax: 29.0, // Top marginal rate; effective rate much lower due to progressive brackets
     propertyTaxLevel: 'Low',
     propertyTaxExemption100: 'None',
     costOfLivingIndex: 82,
     veteranBenefitsScore: 72,
     retirementScore: 79,
     salesTax: 11.5,
+    prFederalExemption: true, // IRC §933: non-pension income earned in PR is exempt from federal income tax
     militaryBenefits: [
       'Military retirement pension fully exempt from Puerto Rico income tax (Act 135-2014)',
+      'Non-pension income earned in PR is exempt from federal income tax (IRC §933) — a major financial advantage',
       'VA Caribbean Healthcare System — full-service VAMC in San Juan',
       'Fort Buchanan commissary and exchange access',
       'In-state tuition at University of Puerto Rico for eligible veterans',
@@ -59,12 +61,15 @@ export const territories: StateData[] = [
     avgHomeCost: 190000,
     pros: [
       'Military pension exempt from Puerto Rico income tax',
+      'Non-pension income earned in PR is federally tax-free (IRC §933) — can save $30k–$50k+/year',
+      'Progressive local income tax — effective rate far lower than 29% top bracket',
       'Very affordable cost of living vs US mainland',
       'World-class VA Caribbean Healthcare System in San Juan',
       'Warm tropical climate year-round',
     ],
     cons: [
-      'High secondary income tax rate (up to 29%)',
+      'Local income tax on non-pension income (up to 33% marginal, but progressive — see financial breakdown)',
+      'Military pension is still subject to US federal income tax (US-source income per IRC §933)',
       'Major hurricane risk — Category 4–5 storms possible',
       'Limited employment outside federal and healthcare sectors',
       'Power grid reliability issues',

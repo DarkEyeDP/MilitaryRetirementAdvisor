@@ -14,6 +14,7 @@ import { stateVeteranUrls } from '../data/stateVeteranUrls';
 import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
 import { DATA_YEAR, LAST_UPDATED } from '../data/siteConfig';
+import { stateTaxBrackets, calculateProgressiveTax, getEffectiveTaxRate } from '../data/stateTaxBrackets';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
@@ -201,7 +202,7 @@ export default function StateDetail() {
   function pensionTaxDollars(s: StateData): number {
     if (s.militaryPensionTax === 'No') return 0;
     const taxable = s.militaryPensionTax === 'Partial' ? retirementIncome * 0.5 : retirementIncome;
-    return taxable * (s.stateIncomeTax / 100);
+    return calculateProgressiveTax(taxable, stateTaxBrackets[s.id] ?? []);
   }
   const annualSavings = originState && state
     ? Math.round(pensionTaxDollars(originState) - pensionTaxDollars(state))
@@ -250,10 +251,14 @@ export default function StateDetail() {
     return () => cancelAnimationFrame(rafId);
   }, [computedScore]);
 
-  // Score component breakdowns (matching calculateCustomScore internals)
+  // Score component breakdowns — must mirror calculateCustomScore in scoring.ts exactly.
+  // Uses effective rate at reference income and only awards pension pts when stateIncomeTax > 0.
   const taxScoreComponents = state ? (() => {
-    const pensionPts  = state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0;
-    const incomePts   = Math.max(0, Math.round(32 - state.stateIncomeTax * 2.4));
+    const pensionPts  = state.stateIncomeTax > 0
+      ? (state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0)
+      : 0;
+    const effectiveRate = getEffectiveTaxRate(80_000, state.id);
+    const incomePts   = Math.max(0, Math.round(32 - effectiveRate * 2.4));
     const propertyPts = state.propertyTaxLevel === 'Low' ? 18 : state.propertyTaxLevel === 'Medium' ? 10 : 0;
     return { total: pensionPts + incomePts + propertyPts, pensionPts, incomePts, propertyPts };
   })() : null;
@@ -465,7 +470,9 @@ export default function StateDetail() {
                 <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-slate-200 text-sm text-slate-500">
                   {state.stateIncomeTax === 0
                     ? <span className="text-green-600 font-medium">No income tax</span>
-                    : <span>{state.stateIncomeTax}% tax</span>}
+                    : <span title={`${state.stateIncomeTax}% top marginal rate — effective rate at your income`}>
+                        ~{getEffectiveTaxRate(retirementIncome || 60_000, state.id).toFixed(1)}% eff. rate
+                      </span>}
                   <span>COL {state.costOfLivingIndex}</span>
                   <span className={`font-bold text-base ${getScoreColor(computedScore)}`}>{computedScore}<span className="text-xs font-normal text-slate-400 ml-0.5">/ 100</span></span>
                 </div>
@@ -589,7 +596,9 @@ export default function StateDetail() {
                   <DollarSign className="w-3.5 h-3.5 text-slate-400" />
                   {state.stateIncomeTax === 0
                     ? <span className="text-green-600 font-medium">No income tax</span>
-                    : <span>{state.stateIncomeTax}% income tax</span>}
+                    : <span title={`${state.stateIncomeTax}% top marginal rate — effective rate at your income using 2026 progressive brackets`}>
+                        ~{getEffectiveTaxRate(retirementIncome || 60_000, state.id).toFixed(1)}% eff. rate
+                      </span>}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Home className="w-3.5 h-3.5 text-slate-400" />
@@ -664,7 +673,8 @@ export default function StateDetail() {
             <div className="hidden md:grid grid-cols-3 divide-x divide-slate-100">
               {taxScoreComponents && (() => {
                 const pensionTax = Math.round(pensionTaxDollars(state));
-                const incomeTax  = Math.round(retirementIncome * state.stateIncomeTax / 100);
+                const incomeTax  = Math.round(calculateProgressiveTax(retirementIncome, stateTaxBrackets[state.id] ?? []));
+                const effRate    = getEffectiveTaxRate(retirementIncome || 60_000, state.id);
                 return (
                   <ScoreGauge
                     score={taxScoreComponents.total}
@@ -675,8 +685,10 @@ export default function StateDetail() {
                         value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr`,
                       }] : []),
                       {
-                        label: 'Income tax/yr',
-                        value: incomeTax === 0 ? 'None' : `$${incomeTax.toLocaleString()}/yr`,
+                        label: 'Income tax rate',
+                        value: state.stateIncomeTax === 0
+                          ? 'None'
+                          : `~${effRate.toFixed(1)}% eff. (${state.stateIncomeTax}% top)`,
                       },
                       {
                         label: 'Property tax',
@@ -736,6 +748,7 @@ export default function StateDetail() {
             {/* Mobile: horizontal stacked rows */}
             {taxScoreComponents && (() => {
               const pensionTax = Math.round(pensionTaxDollars(state));
+              const mobileEffRate = getEffectiveTaxRate(retirementIncome || 60_000, state.id);
               const perks = stateVeteranPerks[state.id];
               const eduCount = perks ? perks.educationBenefits.retiree.length + perks.educationBenefits.family.length : 0;
               const regCount = perks ? perks.vehicleRegistrationBenefits.length : 0;
@@ -745,7 +758,12 @@ export default function StateDetail() {
                   score: taxScoreComponents.total,
                   items: [
                     ...(!isSeparating ? [{ label: 'Pension tax', value: pensionTax === 0 ? '$0 — exempt' : `$${pensionTax.toLocaleString()}/yr` }] : []),
-                    { label: 'Income tax', value: state.stateIncomeTax === 0 ? 'None' : `${state.stateIncomeTax}%` },
+                    {
+                      label: 'Income tax rate',
+                      value: state.stateIncomeTax === 0
+                        ? 'None'
+                        : `~${mobileEffRate.toFixed(1)}% eff. (${state.stateIncomeTax}% top)`,
+                    },
                     {
                       label: 'Property tax',
                       value: state.propertyTaxLevel,

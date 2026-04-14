@@ -19,6 +19,14 @@
 import { StateData } from './stateData';
 import { stateFinancialData } from './financialData';
 import { getVAMonthlyPay } from './vaRates';
+import {
+  stateTaxBrackets,
+  calculateProgressiveTax,
+  federalBracketsSingle,
+  federalBracketsMFJ,
+  FEDERAL_STANDARD_DEDUCTION_SINGLE,
+  FEDERAL_STANDARD_DEDUCTION_MFJ,
+} from './stateTaxBrackets';
 
 // Re-export for any consumers that imported VA_DISABILITY_MONTHLY directly
 export { VA_RATE_ALONE as VA_DISABILITY_MONTHLY } from './vaRates';
@@ -88,7 +96,9 @@ export const DEFAULT_USER_COST_PROFILE: UserCostProfile = {
   homeInsuranceOverride: null,
   autoInsuranceOverride: null,
   utilitiesOverride: null,
-  householdMembers: [],
+  // Default to the veteran themselves so grocery cost isn't $0 in baseline comparisons.
+  // Users can adjust this in the Budget Customizer.
+  householdMembers: [{ id: 'default-veteran', ageGroup: 'adult' }],
   groceryOverride: null,
   customLineItems: [],
 };
@@ -102,7 +112,7 @@ export interface FinancialBreakdown {
 
   // Expense line items
   stateTaxOnPension: number;
-  stateTaxOnSecondaryIncome: number; // secondary income taxed at full state rate
+  stateTaxOnSecondaryIncome: number; // secondary income taxed at progressive state rate
   propertyTaxMonthly: number;
   salesTaxOnSpending: number;
   homeInsuranceMonthly: number;
@@ -110,6 +120,11 @@ export interface FinancialBreakdown {
   utilitiesMonthly: number;
   groceryMonthly: number;
   customExpensesMonthly: number;
+
+  // Puerto Rico IRC §933 federal income tax savings (non-pension income earned in PR
+  // is exempt from federal income tax for bona fide PR residents).
+  // Non-zero only for Puerto Rico.
+  estimatedFederalTaxSavings: number;
 
   // Totals
   totalTrackedExpenses: number;
@@ -147,6 +162,7 @@ export function calculateFinancialReality(
       utilitiesMonthly: 0,
       groceryMonthly: 0,
       customExpensesMonthly: 0,
+      estimatedFederalTaxSavings: 0,
       totalTrackedExpenses: 0,
       monthlyRemaining: monthlySecondaryIncome,
       hasFinancialData: false,
@@ -161,18 +177,64 @@ export function calculateFinancialReality(
   );
   const totalMonthlyIncome = monthlyPension + monthlyDisabilityPay + monthlySecondaryIncome;
 
-  // State income tax on military pension
+  // ── Progressive state income tax calculations ────────────────────────────
+  // Convert monthly → annual for bracket lookup, then divide result back to monthly.
+  const brackets = stateTaxBrackets[state.id] ?? [];
+  const annualPension = monthlyPension * 12;
+  const annualSecondary = monthlySecondaryIncome * 12;
+
+  // State income tax on military pension (progressive)
   let stateTaxOnPension = 0;
   if (state.militaryPensionTax === 'Yes') {
-    stateTaxOnPension = monthlyPension * (state.stateIncomeTax / 100);
+    stateTaxOnPension = calculateProgressiveTax(annualPension, brackets) / 12;
   } else if (state.militaryPensionTax === 'Partial') {
-    stateTaxOnPension = monthlyPension * 0.5 * (state.stateIncomeTax / 100);
+    // ~50% of pension is taxable for Partial states (simplified — actual exempt
+    // amounts vary by state; see state detail pages for specifics).
+    stateTaxOnPension = calculateProgressiveTax(annualPension * 0.5, brackets) / 12;
   }
 
-  // Secondary income taxed at full state rate — no military exemptions
-  const stateTaxOnSecondaryIncome = monthlySecondaryIncome * (state.stateIncomeTax / 100);
+  // Secondary income taxed at progressive state rate — no military pension exemptions apply.
+  // We compute the marginal tax on the secondary income layer above any pension income.
+  // This correctly stacks secondary income on top of pension in states that fully tax pension,
+  // and treats secondary income independently when pension is exempt.
+  let stateTaxOnSecondaryIncome = 0;
+  if (annualSecondary > 0) {
+    if (state.militaryPensionTax === 'Yes') {
+      // Pension is taxed; secondary income stacks on top — compute tax on combined minus pension-only
+      const taxOnCombined = calculateProgressiveTax(annualPension + annualSecondary, brackets);
+      const taxOnPensionOnly = calculateProgressiveTax(annualPension, brackets);
+      stateTaxOnSecondaryIncome = (taxOnCombined - taxOnPensionOnly) / 12;
+    } else {
+      // Pension is exempt (No) or partially exempt — secondary income is taxed independently
+      stateTaxOnSecondaryIncome = calculateProgressiveTax(annualSecondary, brackets) / 12;
+    }
+  }
 
   // VA disability is always exempt — zero state tax regardless
+
+  // ── Puerto Rico IRC §933 federal income tax savings ───────────────────────
+  // Bona fide PR residents pay $0 federal income tax on income from PR sources.
+  // Military pension is STILL subject to federal income tax (it's US-source income).
+  // Secondary income EARNED IN PR (wages, rental, business) is federally exempt.
+  // We estimate the federal tax that would be owed on secondary income if the user
+  // were in a mainland state, which represents the PR federal savings.
+  let estimatedFederalTaxSavings = 0;
+  if (state.prFederalExemption && annualSecondary > 0) {
+    const filingMFJ = inputs.hasSpouse ?? false;
+    const fedBrackets  = filingMFJ ? federalBracketsMFJ    : federalBracketsSingle;
+    const stdDeduction = filingMFJ ? FEDERAL_STANDARD_DEDUCTION_MFJ : FEDERAL_STANDARD_DEDUCTION_SINGLE;
+
+    // Federal tax on pension + secondary income (after std deduction)
+    const totalTaxableIncome   = Math.max(0, annualPension + annualSecondary - stdDeduction);
+    const taxOnFullIncome      = calculateProgressiveTax(totalTaxableIncome, fedBrackets);
+
+    // Federal tax on pension alone (after std deduction) — still owed even in PR
+    const pensionTaxableIncome = Math.max(0, annualPension - stdDeduction);
+    const taxOnPensionAlone    = calculateProgressiveTax(pensionTaxableIncome, fedBrackets);
+
+    // PR savings = federal tax that would be owed on the secondary income layer
+    estimatedFederalTaxSavings = (taxOnFullIncome - taxOnPensionAlone) / 12;
+  }
 
   // Property tax — use override if set, otherwise state average
   const propertyTaxMonthly = profile.propertyTaxOverride !== null
@@ -233,6 +295,7 @@ export function calculateFinancialReality(
     utilitiesMonthly,
     groceryMonthly,
     customExpensesMonthly,
+    estimatedFederalTaxSavings,
     totalTrackedExpenses,
     monthlyRemaining: totalMonthlyIncome - totalTrackedExpenses,
     hasFinancialData: true,

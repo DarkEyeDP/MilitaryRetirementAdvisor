@@ -247,7 +247,7 @@ export default function BudgetCustomizerPanel({
               {onChangeInputs && (
                 <section>
                   <SectionHeader>Additional Income</SectionHeader>
-                  <p className="text-xs text-slate-400 mb-3">Taxed at full state rate — no military exemptions</p>
+                  <p className="text-xs text-slate-400 mb-1">Taxed at progressive state rate — no military exemptions. For rental income, enter the estimated taxable amount (gross rent minus deductible expenses such as mortgage interest, depreciation, and insurance).</p>
 
                   <div className="space-y-2 mb-3">
                     {secondaryIncome.map((src) => (

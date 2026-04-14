@@ -83,7 +83,7 @@ export const westStates: StateData[] = [
       'Outdoor lifestyle',
       'Strong military presence',
     ],
-    cons: ['Very high cost of living', 'Remote location', 'Harsh winters'],
+    cons: ['Very high cost of living — nearly everything is freight-shipped; day-to-day costs often exceed the COL index', 'Remote location limits specialist medical access, family travel, and emergency services', 'Harsh winters with limited daylight in many areas'],
     coordinates: { x: 5, y: 10 },
   },
   {

@@ -17,4 +17,10 @@ export interface StateData {
   cons: string[];
   avgHomeCost: number;
   coordinates: { x: number; y: number };
+  /**
+   * Puerto Rico only — IRC §933 exempts bona fide PR residents from federal income
+   * tax on income earned from Puerto Rico sources (wages, rental, business income).
+   * Military pension is still subject to federal tax (US-source income).
+   */
+  prFederalExemption?: boolean;
 }

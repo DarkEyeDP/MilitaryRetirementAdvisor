@@ -28,6 +28,7 @@ import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { militaryInstallations } from '../../data/militaryInstallations';
 import { getSpaceATerminalsByProximity } from '../../data/spaceATerminals';
 import { DATA_YEAR } from '../../data/siteConfig';
+import { stateTaxBrackets, calculateProgressiveTax, getEffectiveTaxRate, federalBracketsSingle, FEDERAL_STANDARD_DEDUCTION_SINGLE } from '../../data/stateTaxBrackets';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -38,12 +39,16 @@ function fmt$(n: number): string {
 function pensionTaxDollars(state: StateData, income: number): number {
   if (state.militaryPensionTax === 'No') return 0;
   const taxable = state.militaryPensionTax === 'Partial' ? income * 0.5 : income;
-  return taxable * (state.stateIncomeTax / 100);
+  return calculateProgressiveTax(taxable, stateTaxBrackets[state.id] ?? []);
 }
 
 function taxScoreComponents(state: StateData) {
-  const pensionPts  = state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0;
-  const incomePts   = Math.max(0, Math.round(32 - state.stateIncomeTax * 2.4));
+  // Must mirror calculateCustomScore in scoring.ts — double-credit fix + effective rate.
+  const pensionPts  = state.stateIncomeTax > 0
+    ? (state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0)
+    : 0;
+  const effectiveRate = getEffectiveTaxRate(80_000, state.id);
+  const incomePts   = Math.max(0, Math.round(32 - effectiveRate * 2.4));
   const propertyPts = state.propertyTaxLevel === 'Low' ? 18 : state.propertyTaxLevel === 'Medium' ? 10 : 0;
   return { total: pensionPts + incomePts + propertyPts, pensionPts, incomePts, propertyPts };
 }
@@ -166,11 +171,24 @@ export function StatePdfDocument({
   const retirementIncome = inputs.retirementIncome;
   const isSeparating = inputs.userType === 'separating';
 
-  const annualPensionTax = Math.round(pensionTaxDollars(state, retirementIncome));
-  const annualIncomeTax  = Math.round(retirementIncome * state.stateIncomeTax / 100);
+  const annualPensionTax  = Math.round(pensionTaxDollars(state, retirementIncome));
+  const annualIncomeTax   = Math.round(calculateProgressiveTax(retirementIncome, stateTaxBrackets[state.id] ?? []));
+  const effRateAtIncome   = getEffectiveTaxRate(retirementIncome || 60_000, state.id);
   const annualSavings = originState
     ? Math.round(pensionTaxDollars(originState, retirementIncome) - pensionTaxDollars(state, retirementIncome))
     : null;
+
+  // Puerto Rico IRC §933 federal savings estimate (non-pension income earned in PR)
+  const secondaryAnnual = (inputs.secondaryIncome ?? []).reduce((s, src) => s + src.annualAmount, 0);
+  const hasPrFederalExemption = !!(state as StateData & { prFederalExemption?: boolean }).prFederalExemption && secondaryAnnual > 0;
+  // Rough estimate: federal marginal rate on secondary income layer above pension
+  const estimatedAnnualFedSavings = hasPrFederalExemption
+    ? (() => {
+        const pensionTaxable  = Math.max(0, retirementIncome - FEDERAL_STANDARD_DEDUCTION_SINGLE);
+        const combinedTaxable = Math.max(0, retirementIncome + secondaryAnnual - FEDERAL_STANDARD_DEDUCTION_SINGLE);
+        return Math.round(calculateProgressiveTax(combinedTaxable, federalBracketsSingle) - calculateProgressiveTax(pensionTaxable, federalBracketsSingle));
+      })()
+    : 0;
   const colDiffPct = originState
     ? Math.round(((originState.costOfLivingIndex - state.costOfLivingIndex) / originState.costOfLivingIndex) * 100)
     : null;
@@ -186,7 +204,7 @@ export function StatePdfDocument({
   // Gauge sub-items
   const taxSubItems = [
     ...(!isSeparating ? [{ label: 'Pension tax/yr', value: annualPensionTax === 0 ? '$0 — exempt' : fmt$(annualPensionTax) + '/yr' }] : []),
-    { label: 'Income tax/yr', value: annualIncomeTax === 0 ? 'None' : fmt$(annualIncomeTax) + '/yr' },
+    { label: 'Income tax rate', value: effRateAtIncome === 0 ? 'None' : '~' + effRateAtIncome.toFixed(1) + '% eff. (' + state.stateIncomeTax + '% top)' },
     { label: 'Property tax',  value: state.propertyTaxLevel },
     { label: 'Sales tax',     value: state.salesTax === 0 ? 'None' : state.salesTax + '%' },
   ];
@@ -238,9 +256,10 @@ export function StatePdfDocument({
             <View style={S.statGrid}>
               <View style={S.statBox}>
                 <Text style={S.statLabel}>Income Tax</Text>
-                <Text style={[S.statValue, { color: state.stateIncomeTax === 0 ? C.green : C.slate900 }]}>
-                  {state.stateIncomeTax === 0 ? 'None' : state.stateIncomeTax + '%'}
+                <Text style={[S.statValue, { color: effRateAtIncome === 0 ? C.green : C.slate900 }]}>
+                  {effRateAtIncome === 0 ? 'None' : '~' + effRateAtIncome.toFixed(1) + '% eff.'}
                 </Text>
+                {state.stateIncomeTax > 0 && <Text style={S.statSub}>{state.stateIncomeTax}% top</Text>}
               </View>
               <View style={S.statBox}>
                 <Text style={S.statLabel}>Cost of Living</Text>
@@ -311,7 +330,7 @@ export function StatePdfDocument({
               {!isSeparating && (
                 <DataRow label="Annual Pension Tax" value={annualPensionTax === 0 ? '$0 (exempt)' : fmt$(annualPensionTax) + '/yr'} alt />
               )}
-              <DataRow label="State Income Tax Rate" value={state.stateIncomeTax === 0 ? 'None' : state.stateIncomeTax + '%'} alt={isSeparating} />
+              <DataRow label="State Income Tax Rate" value={effRateAtIncome === 0 ? 'None' : '~' + effRateAtIncome.toFixed(1) + '% eff. (' + state.stateIncomeTax + '% top)'} alt={isSeparating} />
               <DataRow label="Annual Income Tax (est.)" value={annualIncomeTax === 0 ? '$0' : fmt$(annualIncomeTax) + '/yr'} alt={!isSeparating} />
               <DataRow label="Property Tax Level" value={state.propertyTaxLevel} />
               <DataRow label="Sales Tax" value={state.salesTax === 0 ? 'None' : state.salesTax + '%'} alt />
@@ -325,6 +344,9 @@ export function StatePdfDocument({
               )}
               {colDiffPct !== null && (
                 <DataRow label={`COL vs. ${originState?.abbreviation}`} value={(colDiffPct >= 0 ? colDiffPct + '% cheaper' : Math.abs(colDiffPct) + '% more expensive')} />
+              )}
+              {estimatedAnnualFedSavings > 0 && (
+                <DataRow label="Fed. Tax Savings (IRC §933)" value={'+' + fmt$(estimatedAnnualFedSavings) + '/yr'} alt />
               )}
               {isSeparating && (
                 <DataRow label="Profile" value="Separating (no pension)" alt />

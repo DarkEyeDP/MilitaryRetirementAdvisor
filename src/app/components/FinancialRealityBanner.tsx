@@ -38,9 +38,24 @@ interface LineItem {
 }
 
 function BreakdownTooltip({ breakdown, profile, isSeparating }: { breakdown: FinancialBreakdown; profile: UserCostProfile; isSeparating?: boolean }) {
+  const pensionEffRate = breakdown.monthlyPension > 0 && breakdown.stateTaxOnPension > 0
+    ? ((breakdown.stateTaxOnPension / breakdown.monthlyPension) * 100).toFixed(1)
+    : null;
+  const secondaryEffRate = breakdown.monthlySecondaryIncome > 0 && breakdown.stateTaxOnSecondaryIncome > 0
+    ? ((breakdown.stateTaxOnSecondaryIncome / breakdown.monthlySecondaryIncome) * 100).toFixed(1)
+    : null;
+
   const items: (LineItem & { overridden?: boolean })[] = [
-    { label: isSeparating ? 'State income tax' : 'State tax on pension', value: fmt$(breakdown.stateTaxOnPension) },
-    ...(breakdown.stateTaxOnSecondaryIncome > 0 ? [{ label: 'State tax on other income', value: fmt$(breakdown.stateTaxOnSecondaryIncome) }] : []),
+    {
+      label: isSeparating ? 'State income tax' : 'State tax on pension',
+      value: fmt$(breakdown.stateTaxOnPension),
+      sub: pensionEffRate ? `~${pensionEffRate}% effective rate` : breakdown.stateTaxOnPension === 0 ? 'Exempt' : undefined,
+    },
+    ...(breakdown.stateTaxOnSecondaryIncome > 0 ? [{
+      label: 'State tax on other income',
+      value: fmt$(breakdown.stateTaxOnSecondaryIncome),
+      sub: secondaryEffRate ? `~${secondaryEffRate}% effective rate` : undefined,
+    }] : []),
     { label: 'Property tax (monthly)', value: fmt$(breakdown.propertyTaxMonthly), overridden: profile.propertyTaxOverride !== null },
     {
       label: 'Sales tax on spending',
@@ -53,6 +68,7 @@ function BreakdownTooltip({ breakdown, profile, isSeparating }: { breakdown: Fin
   ];
 
   const hasCustom = breakdown.groceryMonthly > 0 || breakdown.customExpensesMonthly > 0;
+  const hasFederalSavings = (breakdown.estimatedFederalTaxSavings ?? 0) > 0;
 
   return (
     <div className="absolute z-50 top-full right-0 w-72 pt-2">
@@ -84,11 +100,23 @@ function BreakdownTooltip({ breakdown, profile, isSeparating }: { breakdown: Fin
           <span>Total tracked</span>
           <span>{fmt$(breakdown.totalTrackedExpenses)}</span>
         </div>
+        {hasFederalSavings && (
+          <div className="border-t border-green-200 pt-2 flex justify-between font-semibold text-green-700 bg-green-50 -mx-4 px-4 pb-1 rounded-b-lg">
+            <div>
+              <span>Federal tax savings (est.)</span>
+              <p className="text-xs font-normal text-green-600">IRC §933 — non-pension PR-source income</p>
+            </div>
+            <span className="flex-shrink-0">+{fmt$(breakdown.estimatedFederalTaxSavings)}</span>
+          </div>
+        )}
       </div>
       <p className="mt-3 text-xs text-slate-400 leading-relaxed">
         {hasCustom
           ? 'Includes your customized expenses. State averages used for non-overridden items.'
-          : 'Estimates based on state averages. Does not include food, healthcare, or personal spending.'}
+          : 'Estimates based on state averages. Does not include healthcare or discretionary spending.'}
+      </p>
+      <p className="mt-1.5 text-xs text-slate-400 leading-relaxed">
+        Income taxes use 2026 progressive marginal brackets. Effective rates shown reflect your actual income, not the top marginal rate.
       </p>
     </div>
     </div>
@@ -444,9 +472,16 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
                       {fmt$(breakdown.totalTrackedExpenses)}
                     </td>
                     <td className="text-right py-2">
-                      <span className="font-bold text-green-600">
-                        {fmt$(breakdown.monthlyRemaining)}
-                      </span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="font-bold text-green-600">
+                          {fmt$(breakdown.monthlyRemaining)}
+                        </span>
+                        {(breakdown.estimatedFederalTaxSavings ?? 0) > 0 && (
+                          <span className="text-xs text-green-600 whitespace-nowrap" title="Estimated federal income tax savings under IRC §933 for bona fide PR residents">
+                            +{fmt$(breakdown.estimatedFederalTaxSavings)} fed savings
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </motion.tr>
                 ))}
@@ -470,7 +505,8 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
             median home value × effective rate. Sales tax applied to ~35% of monthly income. Does
             not include healthcare, mortgage principal, or discretionary spending unless customized.
             VA Disability Compensation is exempt from all state taxes under federal law (38 U.S.C. §
-            5301).
+            5301). Income taxes calculated using 2026 progressive marginal brackets — effective rates
+            are shown, not top marginal rates.
           </p>
         </div>
         <button

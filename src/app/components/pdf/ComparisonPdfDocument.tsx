@@ -19,6 +19,7 @@ import { stateClimateData } from '../../data/climateData';
 import { stateEmploymentData } from '../../data/employmentData';
 import { DATA_YEAR } from '../../data/siteConfig';
 import { getFlagUrl } from '../../lib/flagUrl';
+import { getEffectiveTaxRate } from '../../data/stateTaxBrackets';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -259,6 +260,14 @@ export function ComparisonPdfDocument({ states, inputs, profile, scoreWeights = 
               values={breakdowns.map((b) => b.stateTaxOnSecondaryIncome === 0 ? 'None ✓' : '-' + fmt$(b.stateTaxOnSecondaryIncome))}
               bestIndex={bestIdx(breakdowns.map((b) => b.stateTaxOnSecondaryIncome), 'min')}
             />
+            {breakdowns.some((b) => b.estimatedFederalTaxSavings > 0) && (
+              <CRow
+                alt={isSeparating}
+                label="Fed. Savings (IRC §933)"
+                values={breakdowns.map((b) => b.estimatedFederalTaxSavings > 0 ? '+' + fmt$(b.estimatedFederalTaxSavings) + '/mo' : '—')}
+                bestIndex={bestIdx(breakdowns.map((b) => b.estimatedFederalTaxSavings), 'max')}
+              />
+            )}
 
             <SectionRow label="Monthly Expenses" />
             <CRow label="Property Tax" values={breakdowns.map((b) => fmt$(b.propertyTaxMonthly) + '/mo')} bestIndex={bestIdx(breakdowns.map((b) => b.propertyTaxMonthly), 'min')} />
@@ -284,7 +293,10 @@ export function ComparisonPdfDocument({ states, inputs, profile, scoreWeights = 
             </View>
             <CRow label="Overall Score" values={scores.map((sc) => String(sc) + '/100')} bestIndex={bestIdx(scores, 'max')} />
             <CRow alt label="Pension Tax" values={states.map((s) => s.militaryPensionTax === 'No' ? 'Exempt' : s.militaryPensionTax === 'Partial' ? 'Partial' : 'Taxed')} />
-            <CRow label="Income Tax Rate" values={states.map((s) => s.stateIncomeTax === 0 ? 'None' : s.stateIncomeTax + '%')} bestIndex={bestIdx(states.map((s) => s.stateIncomeTax), 'min')} />
+            <CRow label="Income Tax Rate" values={states.map((s) => {
+                const effRate = getEffectiveTaxRate(inputs.retirementIncome || 60_000, s.id);
+                return effRate === 0 ? 'None' : '~' + effRate.toFixed(1) + '% eff. (' + s.stateIncomeTax + '% top)';
+              })} bestIndex={bestIdx(states.map((s) => getEffectiveTaxRate(inputs.retirementIncome || 60_000, s.id)), 'min')} />
             <CRow alt label="Sales Tax" values={states.map((s) => s.salesTax === 0 ? 'None' : s.salesTax + '%')} bestIndex={bestIdx(states.map((s) => s.salesTax), 'min')} />
             <CRow label="Property Tax" values={states.map((s) => s.propertyTaxLevel)} />
             <CRow alt label="Cost of Living Index" values={states.map((s) => String(s.costOfLivingIndex))} bestIndex={bestIdx(states.map((s) => s.costOfLivingIndex), 'min')} />
@@ -402,7 +414,7 @@ export function ComparisonPdfDocument({ states, inputs, profile, scoreWeights = 
         <View style={[S.section, { backgroundColor: C.slate50, borderWidth: 0.5, borderColor: C.slate200, borderRadius: 5, padding: 10 }]} wrap={false}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             <Text style={{ fontSize: 7.5, color: C.slate500, lineHeight: 1.5 }}>
-              This report is for informational purposes only. Tax laws, veteran benefits, and state policies change frequently. Always verify with official sources. Costs are estimates based on state averages. Generated {generated} ·{' '}
+              This report is for informational purposes only. Tax laws, veteran benefits, and state policies change frequently. Always verify with official sources. Costs are estimates based on state averages. Income tax rates shown are effective rates (progressive marginal brackets applied to your income) — not the top marginal rate. Generated {generated} ·{' '}
             </Text>
             <Link src="https://milretired.com">
               <Text style={{ fontSize: 7.5, color: C.blue }}>milretired.com</Text>
