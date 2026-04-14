@@ -103,7 +103,9 @@ export const westFacilities: Record<string, VAFacility[]> = {
     { name: 'Las Vegas Northwest Primary Clinic', lat: 36.2422, lon: -115.1932, address: '3968 N Rancho Dr, Las Vegas, NV 89130', phone: '(702) 791-9020', type: 'clinic' },
     { name: 'Las Vegas Southeast Primary Clinic', lat: 36.0379, lon: -114.9820, address: '1020 S Boulder, Henderson, NV 89015', phone: '(702) 791-9030', type: 'clinic' },
     { name: 'Las Vegas Southwest Primary Clinic', lat: 36.0586, lon: -115.2683, address: '7235 South Buffalo Drive, Las Vegas, NV 89113', phone: '(702) 791-9040', type: 'clinic' },
+    { name: 'North Reno VA Outpatient Clinic', lat: 39.5576725, lon: -119.7997833, address: '1140 Selmi Dr, Reno, NV 89512', phone: '(775) 786-7200', type: 'clinic' },
     { name: 'Pahrump VA Outpatient Clinic', lat: 36.208, lon: -115.984, address: '2100 E Calvada Blvd, Pahrump, NV 89048', phone: '(775) 751-2053', type: 'clinic' },
+    { name: 'Reno East Campus VA Outpatient Clinic', lat: 39.5104158, lon: -119.7514421, address: '1201 Corporate Blvd Suite 120, Reno, NV 89502', phone: '(775) 786-7200', type: 'clinic' },
   ],
   idaho: [
     // VA Medical Centers
