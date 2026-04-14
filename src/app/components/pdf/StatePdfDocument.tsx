@@ -43,9 +43,9 @@ function pensionTaxDollars(state: StateData, income: number): number {
 }
 
 function taxScoreComponents(state: StateData) {
-  // Must mirror calculateCustomScore in scoring.ts — double-credit fix + effective rate.
-  const pensionPts  = state.stateIncomeTax > 0
-    ? (state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0)
+  // Must mirror calculateCustomScore in scoring.ts exactly.
+  const pensionPts  = state.militaryPensionTax === 'No' ? 50
+    : state.militaryPensionTax === 'Partial' ? 28
     : 0;
   const effectiveRate = getEffectiveTaxRate(80_000, state.id);
   const incomePts   = Math.max(0, Math.round(32 - effectiveRate * 2.4));

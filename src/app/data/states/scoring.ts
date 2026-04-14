@@ -39,10 +39,12 @@ const SCORE_REFERENCE_INCOME = 80_000;
  * Calculates a weighted retirement score for a state (0–100).
  *
  * Tax Friendliness (0–100):
- *   Pension tax exemption  — Awarded only when stateIncomeTax > 0, because for
- *                            zero-income-tax states the pension is trivially exempt
- *                            and the rate score already captures that benefit.
- *                            No: 50 pts | Partial: 28 pts | Taxed: 0 pts
+ *   Pension tax exemption  — No: 50 pts | Partial: 28 pts | Taxed: 0 pts
+ *                            Awarded to all states based on militaryPensionTax policy.
+ *                            No-income-tax states (TX, FL, etc.) earn these points because
+ *                            their pension IS effectively exempt — and their incomePts also
+ *                            reflect 0% on secondary income. These are different income
+ *                            streams and not double-counted.
  *   Non-pension income rate — Effective rate at $80k reference income via progressive
  *                             brackets → 0% = 32 pts, scales to 0 at ~13.3% effective
  *   Property tax level     — Low: 18 pts | Medium: 10 pts | High: 0 pts
@@ -57,11 +59,8 @@ export const calculateCustomScore = (
   state: StateData,
   weights: { taxes: number; cost: number; benefits: number }
 ): number => {
-  // Only award pension exemption points when the state actually HAS an income tax to
-  // exempt from. If stateIncomeTax === 0, the pension is trivially exempt; the income
-  // rate score below already captures the full benefit of paying zero income tax.
-  const pensionPts  = state.stateIncomeTax > 0
-    ? (state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0)
+  const pensionPts  = state.militaryPensionTax === 'No' ? 50
+    : state.militaryPensionTax === 'Partial' ? 28
     : 0;
 
   // Use progressive effective rate at reference income rather than the stored top marginal rate.

@@ -252,10 +252,9 @@ export default function StateDetail() {
   }, [computedScore]);
 
   // Score component breakdowns — must mirror calculateCustomScore in scoring.ts exactly.
-  // Uses effective rate at reference income and only awards pension pts when stateIncomeTax > 0.
   const taxScoreComponents = state ? (() => {
-    const pensionPts  = state.stateIncomeTax > 0
-      ? (state.militaryPensionTax === 'No' ? 50 : state.militaryPensionTax === 'Partial' ? 28 : 0)
+    const pensionPts  = state.militaryPensionTax === 'No' ? 50
+      : state.militaryPensionTax === 'Partial' ? 28
       : 0;
     const effectiveRate = getEffectiveTaxRate(80_000, state.id);
     const incomePts   = Math.max(0, Math.round(32 - effectiveRate * 2.4));
