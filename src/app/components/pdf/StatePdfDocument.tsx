@@ -145,6 +145,8 @@ interface Props {
   housingData: HousingData | null;
   employmentData: StateEmploymentData | null;
   climateData: StateClimateData | null;
+  activeClimateData?: StateClimateData | null;
+  selectedRegion?: string | null;
   perks: VeteranPerksData | null;
   originState: StateData | null;
   scoreWeights?: { taxes: number; cost: number; benefits: number };
@@ -157,11 +159,15 @@ export function StatePdfDocument({
   housingData,
   employmentData,
   climateData,
+  activeClimateData,
+  selectedRegion,
   perks,
   originState,
   scoreWeights = { taxes: 2, cost: 2, benefits: 2 },
   perCapita = false,
 }: Props) {
+  // Use the actively-selected regional climate values when available
+  const displayClimate = activeClimateData ?? climateData;
   const liveVeteranScore = computeVeteranBenefitsScore(state, perCapita);
   const liveState = { ...state, veteranBenefitsScore: liveVeteranScore };
   const score = calculateCustomScore(liveState, scoreWeights, perCapita);
@@ -564,17 +570,19 @@ export function StatePdfDocument({
         <SectionPageHeader title={`${state.name} — Climate & Veteran Perks`} />
 
         {/* ── Climate Conditions ── */}
-        {climateData && (
+        {displayClimate && (
           <View style={S.section} wrap={false}>
-            <SectionTitle>Climate Conditions</SectionTitle>
+            <SectionTitle>
+              {selectedRegion ? `Climate Conditions — ${selectedRegion}` : 'Climate Conditions'}
+            </SectionTitle>
             <View style={S.climateGrid}>
               {[
-                { label: 'Summer High (July avg)', value: `${climateData.avgSummerHighF}°F` },
-                { label: 'Winter Low (Jan avg)',   value: `${climateData.avgWinterLowF}°F` },
-                { label: 'Humidity',               value: climateData.humidity },
-                { label: 'Annual Rainfall',        value: `${climateData.annualRainfallInches}"` },
-                { label: 'Extreme Heat Days (>95°F/yr)', value: `${climateData.extremeHeatDays} days` },
-                { label: 'Extreme Cold Days (<20°F/yr)', value: `${climateData.extremeColdDays} days` },
+                { label: 'Summer High (July avg)', value: `${displayClimate.avgSummerHighF}°F` },
+                { label: 'Winter Low (Jan avg)',   value: `${displayClimate.avgWinterLowF}°F` },
+                { label: 'Humidity',               value: displayClimate.humidity },
+                { label: 'Annual Rainfall',        value: `${displayClimate.annualRainfallInches}"` },
+                { label: 'Extreme Heat Days (>95°F/yr)', value: `${displayClimate.extremeHeatDays} days` },
+                { label: 'Extreme Cold Days (<20°F/yr)', value: `${displayClimate.extremeColdDays} days` },
               ].map((item) => (
                 <View key={item.label} style={S.climateCell}>
                   <Text style={S.climateCellLabel}>{item.label}</Text>
@@ -583,7 +591,7 @@ export function StatePdfDocument({
               ))}
             </View>
             <Text style={{ fontSize: 7, color: C.slate400, marginTop: 2 }}>
-              Climate normals from NOAA (1991–2020).
+              Climate normals from NOAA (1991–2020).{selectedRegion ? ` Regional data shown for ${selectedRegion}.` : ''}
             </Text>
           </View>
         )}

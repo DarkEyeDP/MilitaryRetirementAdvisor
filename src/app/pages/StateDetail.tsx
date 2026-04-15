@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { statesData, scoreTier } from '../data/stateData';
 import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../data/veteranScore';
@@ -267,6 +267,15 @@ export default function StateDetail() {
   const climate = state ? stateClimateData[state.id] : null;
   const employment = state ? stateEmploymentData[state.id] : null;
 
+  const [selectedRegionIdx, setSelectedRegionIdx] = useState(0);
+  // Reset region selection when navigating to a different state
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const activeClimate = climate
+    ? (climate.regions && climate.regions.length > 0
+        ? { ...climate, ...climate.regions[selectedRegionIdx] }
+        : climate)
+    : null;
+
   // Comparison favorites
   const [favorites, setFavorites] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('comparison-favorites') || '[]'); }
@@ -339,13 +348,19 @@ export default function StateDetail() {
     if (!state) return;
     setPdfLoading(true);
     try {
+      const rawClimate = stateClimateData[state.id] ?? null;
+      const regionName = (rawClimate?.regions && rawClimate.regions.length > 0)
+        ? rawClimate.regions[selectedRegionIdx].region
+        : null;
       const blob = await pdf(
         <StatePdfDocument
           state={state}
           inputs={{ userType, retirementIncome }}
           housingData={stateHousingData[state.id] ?? null}
           employmentData={stateEmploymentData[state.id] ?? null}
-          climateData={stateClimateData[state.id] ?? null}
+          climateData={rawClimate}
+          activeClimateData={activeClimate}
+          selectedRegion={regionName}
           perks={stateVeteranPerks[state.id] ?? null}
           originState={originState}
           scoreWeights={scoreWeights}
@@ -1423,7 +1438,7 @@ export default function StateDetail() {
             })()}
 
             {/* Climate & Natural Disaster Risk */}
-            {climate && (
+            {activeClimate && (
               <Card>
                 <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
@@ -1432,44 +1447,126 @@ export default function StateDetail() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Region picker */}
+                  {climate?.regions && climate.regions.length > 1 && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-slate-500 font-medium">Region:</span>
+                      {climate.regions.map((r, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSelectedRegionIdx(i)}
+                          className={`text-xs px-3 py-1 rounded-full border transition-colors ${
+                            selectedRegionIdx === i
+                              ? 'bg-blue-600 text-white border-blue-600'
+                              : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                          }`}
+                        >
+                          {r.region}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Temperature & Conditions */}
                   <div>
                     <h4 className="text-sm font-semibold text-slate-700 mb-3">Typical Climate Conditions</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                      <div className="p-3 bg-orange-50 rounded-lg text-center">
-                        <div className="text-2xl font-bold text-orange-600">{climate.avgSummerHighF}°F</div>
+                      <div className="p-3 bg-orange-50 rounded-lg text-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`summer-${selectedRegionIdx}`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="text-2xl font-bold text-orange-600"
+                          >
+                            {activeClimate.avgSummerHighF}°F
+                          </motion.div>
+                        </AnimatePresence>
                         <div className="text-xs text-slate-500 mt-1">Summer High (July avg)</div>
                       </div>
-                      <div className="p-3 bg-blue-50 rounded-lg text-center">
-                        <div className="text-2xl font-bold text-blue-600">{climate.avgWinterLowF}°F</div>
+                      <div className="p-3 bg-blue-50 rounded-lg text-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`winter-${selectedRegionIdx}`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="text-2xl font-bold text-blue-600"
+                          >
+                            {activeClimate.avgWinterLowF}°F
+                          </motion.div>
+                        </AnimatePresence>
                         <div className="text-xs text-slate-500 mt-1">Winter Low (Jan avg)</div>
                       </div>
-                      <div className="p-3 bg-slate-50 rounded-lg text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Droplets className="w-4 h-4 text-sky-500" />
-                          <span className="text-xl font-bold text-sky-600">{climate.humidity}</span>
-                        </div>
+                      <div className="p-3 bg-slate-50 rounded-lg text-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`humidity-${selectedRegionIdx}`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="flex items-center justify-center gap-1"
+                          >
+                            <Droplets className="w-4 h-4 text-sky-500" />
+                            <span className="text-xl font-bold text-sky-600">{activeClimate.humidity}</span>
+                          </motion.div>
+                        </AnimatePresence>
                         <div className="text-xs text-slate-500 mt-1">Humidity</div>
                       </div>
-                      <div className="p-3 bg-sky-50 rounded-lg text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <CloudRain className="w-4 h-4 text-sky-600" />
-                          <span className="text-2xl font-bold text-sky-700">{climate.annualRainfallInches}&quot;</span>
-                        </div>
+                      <div className="p-3 bg-sky-50 rounded-lg text-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`rain-${selectedRegionIdx}`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="flex items-center justify-center gap-1"
+                          >
+                            <CloudRain className="w-4 h-4 text-sky-600" />
+                            <span className="text-2xl font-bold text-sky-700">{activeClimate.annualRainfallInches}&quot;</span>
+                          </motion.div>
+                        </AnimatePresence>
                         <div className="text-xs text-slate-500 mt-1">Annual Rainfall</div>
                       </div>
-                      <div className="p-3 bg-red-50 rounded-lg text-center">
-                        <div className="text-2xl font-bold text-red-500">{climate.extremeHeatDays}</div>
+                      <div className="p-3 bg-red-50 rounded-lg text-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`heat-${selectedRegionIdx}`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="text-2xl font-bold text-red-500"
+                          >
+                            {activeClimate.extremeHeatDays}
+                          </motion.div>
+                        </AnimatePresence>
                         <div className="text-xs text-slate-500 mt-1">Days &gt;95°F / yr</div>
                       </div>
-                      <div className="p-3 bg-indigo-50 rounded-lg text-center">
-                        <div className="text-2xl font-bold text-indigo-600">{climate.extremeColdDays}</div>
+                      <div className="p-3 bg-indigo-50 rounded-lg text-center overflow-hidden">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={`cold-${selectedRegionIdx}`}
+                            initial={{ opacity: 0, y: 8 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -8 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="text-2xl font-bold text-indigo-600"
+                          >
+                            {activeClimate.extremeColdDays}
+                          </motion.div>
+                        </AnimatePresence>
                         <div className="text-xs text-slate-500 mt-1">Days &lt;20°F / yr</div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Disaster Risk Grid */}
+                  {/* Disaster Risk Grid — always state-level */}
                   <div>
                     <h4 className="text-sm font-semibold text-slate-700 mb-3">Natural Disaster Risk</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1486,7 +1583,7 @@ export default function StateDetail() {
                   </div>
 
                   <p className="text-xs text-slate-400">
-                    Climate normals from NOAA (1991–2020). Disaster risk based on FEMA National Risk Index and historical frequency data. Individual risk varies by location within state.
+                    Climate normals from NOAA (1991–2020).{climate?.regions ? ' Regional data shown — select a region above to compare.' : ''} Disaster risk based on FEMA National Risk Index and is state-level.
                   </p>
                 </CardContent>
               </Card>

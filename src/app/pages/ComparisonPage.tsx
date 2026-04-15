@@ -697,6 +697,9 @@ export default function ComparisonPage() {
               </CTable>
             </div>
           </div>
+          <p className="px-6 pb-4 text-xs text-slate-400">
+            Climate values are state-wide averages. For regional breakdowns (e.g. South FL vs. North FL), view each state's detail page.
+          </p>
         </Section>
 
         {/* ── Section 6: Economy & Jobs ─────────────────────────────────── */}
