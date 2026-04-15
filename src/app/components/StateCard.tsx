@@ -219,21 +219,10 @@ export default function StateCard({
             </div>
           </div>
 
-          <div className="pt-2 border-t border-slate-100">
-            <div className="text-xs text-slate-500 mb-1">Top Benefits:</div>
-            <ul className="space-y-1">
-              {state.militaryBenefits.slice(0, 2).map((benefit, idx) => (
-                <li key={idx} className="text-sm text-slate-700 line-clamp-1">
-                  • {benefit}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="flex items-center justify-end pt-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-            <span className="text-xs text-blue-500 font-medium flex items-center gap-1">
+          <div className="flex justify-end mt-1">
+            <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               View details
-              <ArrowRight className="w-3.5 h-3.5 translate-x-0 group-hover:translate-x-0.5 transition-transform duration-200" />
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-200" />
             </span>
           </div>
 
