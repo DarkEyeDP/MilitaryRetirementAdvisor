@@ -590,7 +590,7 @@ export default function StateDetail() {
                   </Badge>
                 )}
               </div>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mb-4">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-0.5 mb-3">
                 <p className="text-sm text-slate-400">{isSeparating ? 'Transitioning service member' : 'Military retirement profile'} · {DATA_YEAR} data</p>
                 {stateVeteranUrls[state.id] && (
                   <a
@@ -605,9 +605,9 @@ export default function StateDetail() {
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-x-5 gap-y-2 text-sm text-slate-600">
                 <div className="flex items-center gap-1.5">
-                  <DollarSign className="w-3.5 h-3.5 text-slate-400" />
+                  <DollarSign className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   {state.stateIncomeTax === 0
                     ? <span className="text-green-600 font-medium">No income tax</span>
                     : <span title={`${state.stateIncomeTax}% top marginal rate — effective rate at your income using 2026 progressive brackets`}>
@@ -615,16 +615,16 @@ export default function StateDetail() {
                       </span>}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Home className="w-3.5 h-3.5 text-slate-400" />
-                  <span>COL index {state.costOfLivingIndex}</span>
-                  <span className="text-slate-400 text-xs">(US avg = 100)</span>
+                  <Home className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                  <span>COL {state.costOfLivingIndex}</span>
+                  <span className="text-slate-400 text-xs hidden sm:inline">(US avg = 100)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-slate-400" />
+                  <Users className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   <span>{formatVeteranPop(state.veteranPopulation)} veterans</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                  <Building2 className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   <span>{vamcs.length} VAMC{vamcs.length !== 1 ? 's' : ''} · {clinics.length} clinic{clinics.length !== 1 ? 's' : ''}</span>
                 </div>
               </div>
@@ -663,14 +663,19 @@ export default function StateDetail() {
 
           {/* Score Breakdown — Gauge Charts */}
           <div className="border-t border-slate-100 pt-5">
-            {/* 100% disability property tax callout — compact inline banner above gauges */}
+            {/* 100% disability property tax callout — left-bar style on mobile, boxed on sm+ */}
             {disabilityRating === '100' && state.propertyTaxExemption100 !== 'None' && (
-              <div className={`mx-4 mb-4 px-3 py-2 rounded-md border text-xs flex items-center gap-2 ${
+              <div className={`mx-2 sm:mx-4 mb-4 flex items-start gap-2.5 py-1.5 sm:px-3 sm:py-2 sm:rounded-md sm:border text-xs ${
                 state.propertyTaxExemption100 === 'Full'
-                  ? 'bg-green-50 border-green-200 text-green-800'
-                  : 'bg-yellow-50 border-yellow-200 text-yellow-800'
+                  ? 'sm:bg-green-50 sm:border-green-200 sm:text-green-800 text-green-900'
+                  : 'sm:bg-yellow-50 sm:border-yellow-200 sm:text-yellow-800 text-yellow-900'
               }`}>
-                <span className="text-sm leading-none shrink-0">{state.propertyTaxExemption100 === 'Full' ? '✓' : '◑'}</span>
+                <div className={`w-1 self-stretch rounded-full flex-shrink-0 sm:hidden ${
+                  state.propertyTaxExemption100 === 'Full' ? 'bg-green-400' : 'bg-yellow-400'
+                }`} />
+                <CheckCircle2 className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                  state.propertyTaxExemption100 === 'Full' ? 'text-green-500' : 'text-yellow-500'
+                }`} />
                 <span>
                   <strong>100% VA Disability:</strong>{' '}
                   {state.propertyTaxExemption100 === 'Full'
