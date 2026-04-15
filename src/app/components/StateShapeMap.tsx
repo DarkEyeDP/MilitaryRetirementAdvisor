@@ -254,27 +254,27 @@ export default function StateShapeMap({ stateId, stateName: _stateName, height =
 
       {/* Legend */}
       <div className="px-4 py-3 bg-white border-t border-slate-100 flex flex-col gap-2">
-        {/* Marker type row — never wraps; scrolls horizontally on very narrow viewports */}
-        <div className="flex items-center gap-3 text-xs text-slate-600 overflow-x-auto">
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-sm" />
-            <span className="whitespace-nowrap">VA Medical Center ({facilities.filter((f) => f.type !== 'clinic').length})</span>
+        {/* Marker type row — wraps on narrow viewports */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-slate-600">
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-blue-600 border-2 border-white shadow-sm flex-shrink-0" />
+            <span>VA Medical Center ({facilities.filter((f) => f.type !== 'clinic').length})</span>
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow-sm" />
-            <span className="whitespace-nowrap">VA Clinic ({facilities.filter((f) => f.type === 'clinic').length})</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-full bg-green-600 border-2 border-white shadow-sm flex-shrink-0" />
+            <span>VA Clinic ({facilities.filter((f) => f.type === 'clinic').length})</span>
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[9px]" style={{ backgroundColor: SPACE_A_COLOR }}>✈</div>
-            <span className="whitespace-nowrap">Space-A Terminal ({spaceATerminals.filter((t) => t.stateId === stateId).length})</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex items-center justify-center text-white text-[9px] flex-shrink-0" style={{ backgroundColor: SPACE_A_COLOR }}>✈</div>
+            <span>Space-A Terminal ({spaceATerminals.filter((t) => t.stateId === stateId).length})</span>
           </div>
-          <div className="flex items-center gap-1.5 flex-shrink-0">
-            <div className="w-6 h-3 rounded-sm bg-blue-100 border border-blue-700 opacity-70" />
-            <span className="whitespace-nowrap">{TERRITORY_IDS.has(stateId) ? 'Territory' : 'State'} boundary</span>
+          <div className="flex items-center gap-1.5">
+            <div className="w-6 h-3 rounded-sm bg-blue-100 border border-blue-700 opacity-70 flex-shrink-0" />
+            <span>{TERRITORY_IDS.has(stateId) ? 'Territory' : 'State'} boundary</span>
           </div>
         </div>
-        {/* Controls row */}
-        <div className="flex items-center gap-3">
+        {/* Controls row — wraps on narrow viewports */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           {stateInstallations.length > 0 && (
             <button
               onClick={() => setShowInstallations((v) => !v)}
