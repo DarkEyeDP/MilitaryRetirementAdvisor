@@ -3,7 +3,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { StateData, statesData, scoreTier } from '../data/stateData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
-import { GitCompare, TrendingUp, TrendingDown, DollarSign, Home, Star, Building2, ArrowRight } from 'lucide-react';
+import { GitCompare, TrendingUp, TrendingDown, DollarSign, Home, Star, Building2, ArrowRight, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { getFlagUrl } from '../lib/flagUrl';
 import { computeVeteranBenefitsScore } from '../data/veteranScore';
@@ -12,6 +12,16 @@ function pensionTaxDollars(s: StateData, annualIncome: number): number {
   if (s.militaryPensionTax === 'No') return 0;
   const taxable = s.militaryPensionTax === 'Partial' ? annualIncome * 0.5 : annualIncome;
   return taxable * (s.stateIncomeTax / 100);
+}
+
+// Arrow indicator — direction (up/down) shows value level; color shows if that's good/bad
+function StatArrow({ dir, higherIsBetter = false }: { dir: 'high' | 'normal' | 'low'; higherIsBetter?: boolean }) {
+  if (dir === 'normal') return <Minus className="w-2.5 h-2.5 text-slate-300 flex-shrink-0" />;
+  const isGood = higherIsBetter ? dir === 'high' : dir === 'low';
+  const color  = isGood ? 'text-emerald-500' : 'text-red-400';
+  return dir === 'high'
+    ? <ArrowUp   className={`w-2.5 h-2.5 ${color} flex-shrink-0`} />
+    : <ArrowDown className={`w-2.5 h-2.5 ${color} flex-shrink-0`} />;
 }
 
 interface StateCardProps {
@@ -154,28 +164,40 @@ export default function StateCard({
       <CardContent>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-slate-400" />
-              <div>
-                <div className="text-xs text-slate-500">Cost of Living</div>
-                <div className="font-medium">{state.costOfLivingIndex}</div>
+            {/* Cost of Living */}
+            <div className="flex items-start gap-2">
+              <DollarSign className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-slate-500 w-fit border-b border-slate-100 pb-0.5 mb-1">Cost of Living</div>
+                <div className="font-medium text-sm flex items-center gap-1">
+                  {state.costOfLivingIndex}/100
+                  <StatArrow dir={state.costOfLivingIndex <= 90 ? 'low' : state.costOfLivingIndex >= 115 ? 'high' : 'normal'} />
+                </div>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Star className="w-4 h-4 text-slate-400" />
-              <div>
-                <div className="text-xs text-slate-500">VA Benefits</div>
-                <div className="font-medium">{computeVeteranBenefitsScore(state, perCapita)}/100</div>
+            {/* VA Benefits */}
+            <div className="flex items-start gap-2">
+              <Star className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-slate-500 w-fit border-b border-slate-100 pb-0.5 mb-1">VA Benefits</div>
+                <div className="font-medium text-sm flex items-center gap-1">
+                  {computeVeteranBenefitsScore(state, perCapita)}/100
+                  <StatArrow dir={computeVeteranBenefitsScore(state, perCapita) >= 85 ? 'high' : computeVeteranBenefitsScore(state, perCapita) < 70 ? 'low' : 'normal'} higherIsBetter />
+                </div>
               </div>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-slate-400" />
-              <div>
-                <div className="text-xs text-slate-500">Property Tax</div>
-                <div className="font-medium">{state.propertyTaxLevel}</div>
+            {/* Property Tax */}
+            <div className="flex items-start gap-2">
+              <TrendingUp className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-slate-500 w-fit border-b border-slate-100 pb-0.5 mb-1">Property Tax</div>
+                <div className="font-medium text-sm flex items-center gap-1">
+                  {state.propertyTaxLevel}
+                  <StatArrow dir={state.propertyTaxLevel === 'Low' ? 'low' : state.propertyTaxLevel === 'High' ? 'high' : 'normal'} />
+                </div>
                 {disabilityRating === '100' && state.propertyTaxExemption100 === 'Full' && (
                   <div className="text-[10px] font-semibold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full mt-0.5 leading-none inline-block">Exempt at 100%</div>
                 )}
@@ -184,11 +206,15 @@ export default function StateCard({
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Home className="w-4 h-4 text-slate-400" />
-              <div>
-                <div className="text-xs text-slate-500">Avg Home</div>
-                <div className="font-medium">${(state.avgHomeCost / 1000).toFixed(0)}k</div>
+            {/* Avg Home */}
+            <div className="flex items-start gap-2">
+              <Home className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="text-xs text-slate-500 w-fit border-b border-slate-100 pb-0.5 mb-1">Avg Home</div>
+                <div className="font-medium text-sm flex items-center gap-1">
+                  ${(state.avgHomeCost / 1000).toFixed(0)}k
+                  <StatArrow dir={state.avgHomeCost <= 300_000 ? 'low' : state.avgHomeCost >= 550_000 ? 'high' : 'normal'} />
+                </div>
               </div>
             </div>
           </div>
