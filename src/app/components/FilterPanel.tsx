@@ -62,9 +62,13 @@ export default function FilterPanel({
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-lg">Filters & Preferences</h3>
         {onClose && (
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 transition-colors"
+            aria-label="Close filters"
+          >
+            <X className="w-5 h-5" />
+          </button>
         )}
       </div>
 

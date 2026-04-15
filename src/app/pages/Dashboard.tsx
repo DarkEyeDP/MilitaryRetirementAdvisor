@@ -1032,7 +1032,7 @@ export default function Dashboard() {
 
       {/* Mobile Filter Sheet */}
       <Sheet open={showFilters} onOpenChange={setShowFilters}>
-        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto [&>button]:hidden">
           <FilterPanel
             filters={filters}
             weights={weights}
@@ -1041,6 +1041,7 @@ export default function Dashboard() {
             onWeightChange={handleWeightChange}
             onPerCapitaChange={handlePerCapitaChange}
             onReset={handleReset}
+            onClose={() => setShowFilters(false)}
             excludedStates={excludedStates}
             onExcludeState={handleExcludeState}
             onIncludeState={handleIncludeState}
