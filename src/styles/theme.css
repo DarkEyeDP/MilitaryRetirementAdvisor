@@ -119,6 +119,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
+/* Dot grid background — faint on mobile, full opacity on md+ */
+.dot-bg {
+  background-image: radial-gradient(circle, rgba(203, 213, 225, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+@media (min-width: 768px) {
+  .dot-bg {
+    background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

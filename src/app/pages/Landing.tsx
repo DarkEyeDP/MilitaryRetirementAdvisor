@@ -421,7 +421,7 @@ export default function Landing() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50" style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
+    <div className="min-h-screen bg-slate-50 dot-bg">
       <WhatsNewModal />
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">

@@ -5,6 +5,7 @@ import { StateData, statesData, scoreTier } from '../data/stateData';
 import { vaFacilityLocations } from '../data/vaFacilityLocations';
 import { GitCompare, TrendingUp, TrendingDown, DollarSign, Home, Star, Building2, ArrowRight, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useRef, useEffect } from 'react';
 import { getFlagUrl } from '../lib/flagUrl';
 import { computeVeteranBenefitsScore } from '../data/veteranScore';
 
@@ -50,6 +51,39 @@ export default function StateCard({
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el || window.innerWidth >= 768) return;
+
+    let rafId: number;
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      const cardCenter = rect.top + rect.height / 2;
+      const viewportCenter = window.innerHeight / 2;
+      const distance = Math.abs(cardCenter - viewportCenter);
+      const maxDistance = window.innerHeight * 0.65;
+      const proximity = Math.max(0, 1 - distance / maxDistance);
+      el.style.transform = `scale(${(0.92 + 0.08 * proximity).toFixed(4)})`;
+      const shadowAlpha = (0.06 + 0.12 * proximity).toFixed(3);
+      const shadowBlur = Math.round(8 + 16 * proximity);
+      el.style.filter = `drop-shadow(0 4px ${shadowBlur}px rgba(0,0,0,${shadowAlpha}))`;
+    };
+
+    const onScroll = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   const currentState = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
   const annualSavings = currentState
     ? Math.round(pensionTaxDollars(currentState, retirementIncome) - pensionTaxDollars(state, retirementIncome))
@@ -78,8 +112,12 @@ export default function StateCard({
   const flagUrl = getFlagUrl(state.abbreviation);
 
   return (
+    <div
+      ref={cardRef}
+      className="will-change-transform"
+    >
     <Card
-      className="hover:shadow-lg transition-shadow cursor-pointer group"
+      className="hover:shadow-lg transition-transform duration-300 ease-out cursor-pointer group hover:scale-[1.05] will-change-transform"
       onClick={() => navigate(`/state/${state.id}`, { state: { resultIds, currentStateId, retirementIncome } })}
     >
       <CardHeader>
@@ -229,5 +267,6 @@ export default function StateCard({
         </div>
       </CardContent>
     </Card>
+    </div>
   );
 }

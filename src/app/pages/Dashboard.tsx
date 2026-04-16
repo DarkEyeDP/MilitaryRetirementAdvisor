@@ -433,7 +433,7 @@ export default function Dashboard() {
   const totalActiveCount = activeFiltersCount + excludedStates.length + customWeightsCount;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dot-bg">
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
