@@ -52,6 +52,7 @@ export default function StateCard({
   const displayScore = customScore ?? state.retirementScore;
 
   const cardRef = useRef<HTMLDivElement>(null);
+  const tapHintRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const el = cardRef.current;
     if (!el || window.innerWidth >= 768) return;
@@ -69,6 +70,9 @@ export default function StateCard({
       const shadowAlpha = (0.06 + 0.12 * proximity).toFixed(3);
       const shadowBlur = Math.round(8 + 16 * proximity);
       el.style.filter = `drop-shadow(0 4px ${shadowBlur}px rgba(0,0,0,${shadowAlpha}))`;
+      if (tapHintRef.current) {
+        tapHintRef.current.style.opacity = proximity > 0.5 ? String(((proximity - 0.5) * 2).toFixed(3)) : '0';
+      }
     };
 
     const onScroll = () => {
@@ -258,9 +262,17 @@ export default function StateCard({
           </div>
 
           <div className="flex justify-end mt-1">
-            <span className="text-xs text-blue-500 font-medium flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <span className="hidden md:flex text-xs text-blue-500 font-medium items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               View details
               <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform duration-200" />
+            </span>
+            <span
+              ref={tapHintRef}
+              className="md:hidden text-xs text-blue-500 font-medium flex items-center gap-0.5"
+              style={{ opacity: 0 }}
+            >
+              Tap to view details
+              <ArrowRight className="w-3 h-3" />
             </span>
           </div>
 
