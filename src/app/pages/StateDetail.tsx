@@ -425,6 +425,12 @@ export default function StateDetail() {
   const TaxIcon = taxBadge.icon;
   const flagUrl = getFlagUrl(state.abbreviation);
 
+  const stateNameSizeClass = state.name.length >= 13
+    ? 'text-xl sm:text-3xl'
+    : state.name.length >= 10
+      ? 'text-2xl sm:text-3xl'
+      : 'text-3xl';
+
   const formatVeteranPop = (n: number) => {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
     if (n >= 1_000) return `${Math.round(n / 1_000)}k`;
@@ -564,7 +570,7 @@ export default function StateDetail() {
                   className="h-6 w-auto shadow-sm border border-slate-200/60"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
-                <h1 className="text-3xl font-bold text-slate-900">{state.name}</h1>
+                <h1 className={`${stateNameSizeClass} font-bold text-slate-900`}>{state.name}</h1>
                 <Badge className={`${taxBadge.color} flex items-center gap-1`}>
                   <TaxIcon className="w-3 h-3" />
                   {taxBadge.text}
