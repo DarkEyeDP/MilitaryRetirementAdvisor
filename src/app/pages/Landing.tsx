@@ -287,7 +287,7 @@ export default function Landing() {
                     value={member.ageGroup}
                     onValueChange={(v) => updateMemberAge(member.id, v as AgeGroup)}
                   >
-                    <SelectTrigger className="h-6 flex-1 text-base md:text-xs border-0 bg-transparent p-0 min-w-0">
+                    <SelectTrigger className="h-6 flex-1 text-xs border-0 bg-transparent p-0 min-w-0">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
