@@ -397,7 +397,7 @@ export default function StateDetail() {
 
   if (!state) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dot-bg flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">State not found</h2>
           <Button onClick={() => navigate('/dashboard')}>Back to Dashboard</Button>
@@ -441,7 +441,7 @@ export default function StateDetail() {
   const directoryHeight = facilityPanelHeight + 80;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dot-bg">
       {/* Sticky Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
