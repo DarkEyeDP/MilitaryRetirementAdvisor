@@ -73,6 +73,15 @@ const statesSorted = [...statesData].sort((a, b) => a.name.localeCompare(b.name)
 let _idCounter = 0;
 const nextId = () => `m_${++_idCounter}_${Date.now()}`;
 
+function SectionDivider() {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="w-4 h-4 rounded-full border border-slate-200 bg-white shadow-sm shrink-0" />
+      <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, #cbd5e1, transparent)' }} />
+    </div>
+  );
+}
+
 export default function Landing() {
   const navigate = useNavigate();
   const prefs = loadPrefs();
@@ -412,7 +421,7 @@ export default function Landing() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className="min-h-screen bg-slate-50" style={{ backgroundImage: 'radial-gradient(circle, #cbd5e1 1px, transparent 1px)', backgroundSize: '24px 24px' }}>
       <WhatsNewModal />
       {/* Header */}
       <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
@@ -441,18 +450,22 @@ export default function Landing() {
             </div>
 
             <div>
-              <div className="py-5 border-t border-slate-200/80">
+              <SectionDivider />
+              <div className="py-5">
                 <h3 className="font-semibold text-slate-900 mb-1">Tax Analysis</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">Compare military pension exemptions, income tax rates, property tax levels, and sales tax across all 50 states, DC & territories.</p>
               </div>
-              <div className="py-5 border-t border-slate-200/80">
+              <SectionDivider />
+              <div className="py-5">
                 <h3 className="font-semibold text-slate-900 mb-1">Veteran Benefits</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">See VA medical centers, veteran populations, education programs, and state-specific perks ranked for your profile.</p>
               </div>
-              <div className="py-5 border-t border-b border-slate-200/80">
+              <SectionDivider />
+              <div className="py-5">
                 <h3 className="font-semibold text-slate-900 mb-1">Cost of Living</h3>
                 <p className="text-sm text-slate-500 leading-relaxed">Understand how far your retirement income goes with COL index, median rent, home prices, and savings vs. your current state.</p>
               </div>
+              <SectionDivider />
             </div>
 
             <div className="flex gap-10 text-sm">

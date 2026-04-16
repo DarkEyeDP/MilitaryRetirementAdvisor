@@ -1,7 +1,5 @@
 # Military Retirement Advisor
 
-**Live site: [https://milretired.com](https://milretired.com)**
-
 The ultimate hub for service members and their families planning military retirement and transition. Compare all 50 states on taxes, cost of living, VA benefits, and quality of life — and get a personalized financial picture based on your actual pension, VA disability rating, and family situation.
 
 **Target audience:** Active duty members 12–36 months from retirement (E-6 through O-6 range), recently retired service members, and military families evaluating relocation options.
