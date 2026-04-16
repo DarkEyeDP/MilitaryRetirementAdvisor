@@ -108,8 +108,13 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
   massachusetts:[{ min: 0, max: Infinity, rate: 5.0  }], // 9% surtax at $1M+ ignored
   michigan:     [{ min: 0, max: Infinity, rate: 4.25 }],
   mississippi:  [{ min: 0, max: Infinity, rate: 4.4  }], // Flat 4.4% (phasedown complete)
-  'north-carolina': [{ min: 0, max: Infinity, rate: 3.99 }],
-  'north-dakota':   [{ min: 0, max: Infinity, rate: 2.5  }], // Flat since 2024 reform
+  'north-carolina': [{ min: 0, max: Infinity, rate: 4.25 }],
+  // North Dakota — 3 brackets: 0% under $48,475; 1.95% to $244,825; 2.5% above
+  'north-dakota': [
+    { min:      0, max:  48_475, rate: 0.0  },
+    { min: 48_475, max: 244_825, rate: 1.95 },
+    { min: 244_825, max: Infinity, rate: 2.5 },
+  ],
   pennsylvania: [{ min: 0, max: Infinity, rate: 3.07 }],
   utah:         [{ min: 0, max: Infinity, rate: 4.55 }],
   idaho:        [{ min: 0, max: Infinity, rate: 5.3  }], // Flat 5.3% (rate cut effective 2025)
@@ -278,13 +283,11 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
     { min:2_155_350,max: Infinity, rate:  9.65 },
   ],
 
-  // Ohio — 2024 (single filer)
+  // Ohio — 3 brackets: 0% under $26,050; 2.75% to $100,000; 3.5% above
   ohio: [
-    { min:      0, max:  26_050, rate: 0.0   },
-    { min: 26_050, max:  46_100, rate: 2.765 },
-    { min: 46_100, max:  92_150, rate: 3.226 },
-    { min: 92_150, max: 115_300, rate: 3.688 },
-    { min: 115_300, max: Infinity, rate: 3.99 },
+    { min:      0, max:  26_050, rate: 0.0  },
+    { min: 26_050, max: 100_000, rate: 2.75 },
+    { min: 100_000, max: Infinity, rate: 3.5 },
   ],
 
   // Oklahoma — 2024
@@ -298,33 +301,34 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
   ],
 
   // Oregon — 2024 (single filer)
+  // Oregon — top rate 9.9% on income over $125,000
   oregon: [
     { min:      0, max:  18_400, rate: 4.75 },
     { min: 18_400, max:  46_200, rate: 6.75 },
-    { min: 46_200, max: 250_000, rate: 8.75 },
-    { min: 250_000, max: Infinity, rate: 9.9 },
+    { min: 46_200, max: 125_000, rate: 8.75 },
+    { min: 125_000, max: Infinity, rate: 9.9 },
   ],
 
-  // Rhode Island — 2024 (single filer)
+  // Rhode Island — 2025 (single filer)
   'rhode-island': [
-    { min:      0, max:  73_450, rate: 3.75 },
-    { min: 73_450, max: 166_950, rate: 4.75 },
-    { min: 166_950, max: Infinity, rate: 5.99 },
+    { min:      0, max:  79_900, rate: 3.75 },
+    { min: 79_900, max: 181_650, rate: 4.75 },
+    { min: 181_650, max: Infinity, rate: 5.99 },
   ],
 
-  // South Carolina — 2024 (post-reform, phasing to flat 6.2%)
+  // South Carolina — 2025
   'south-carolina': [
-    { min:      0, max:  3_460, rate: 0.0 },
-    { min:  3_460, max: 17_330, rate: 3.0 },
-    { min: 17_330, max: Infinity, rate: 6.4 },
+    { min:      0, max:  3_560, rate: 0.0 },
+    { min:  3_560, max: 17_830, rate: 3.0 },
+    { min: 17_830, max: Infinity, rate: 6.2 },
   ],
 
-  // Vermont — 2024 (single filer)
+  // Vermont — 2025 (single filer)
   vermont: [
     { min:      0, max:  45_400, rate: 3.35 },
     { min:  45_400, max: 110_050, rate: 6.6  },
-    { min: 110_050, max: 229_550, rate: 7.6  },
-    { min: 229_550, max: Infinity, rate: 8.75 },
+    { min: 110_050, max: 242_000, rate: 7.6  },
+    { min: 242_000, max: Infinity, rate: 8.75 },
   ],
 
   // Virginia — 2024 (effectively flat above $17k; legislature considering reform)
@@ -344,12 +348,12 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
     { min: 60_000, max: Infinity, rate: 5.12 },
   ],
 
-  // Wisconsin — 2024 (single filer)
+  // Wisconsin — 2025 (single filer)
   wisconsin: [
     { min:       0, max:  14_320, rate: 3.54 },
     { min:  14_320, max:  28_640, rate: 4.65 },
-    { min:  28_640, max: 315_310, rate: 5.3  },
-    { min: 315_310, max: Infinity, rate: 7.65 },
+    { min:  28_640, max: 323_290, rate: 5.3  },
+    { min: 323_290, max: Infinity, rate: 7.65 },
   ],
 
   // ── Territories ────────────────────────────────────────────────────────────
