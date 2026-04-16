@@ -107,7 +107,7 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
   kentucky:     [{ min: 0, max: Infinity, rate: 4.0  }],
   massachusetts:[{ min: 0, max: Infinity, rate: 5.0  }], // 9% surtax at $1M+ ignored
   michigan:     [{ min: 0, max: Infinity, rate: 4.25 }],
-  mississippi:  [{ min: 0, max: Infinity, rate: 4.7  }], // Phasing to flat
+  mississippi:  [{ min: 0, max: Infinity, rate: 4.4  }], // Flat 4.4% (phasedown complete)
   'north-carolina': [{ min: 0, max: Infinity, rate: 3.99 }],
   'north-dakota':   [{ min: 0, max: Infinity, rate: 2.5  }], // Flat since 2024 reform
   pennsylvania: [{ min: 0, max: Infinity, rate: 3.07 }],
@@ -182,25 +182,21 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
     { min: 600_000, max: Infinity, rate: 11.0 },
   ],
 
-  // Kansas — 2024
+  // Kansas — two brackets: 5.2% ≤$23,000; 5.58% >$23,000
   kansas: [
-    { min:      0, max: 15_000, rate: 3.1 },
-    { min: 15_000, max: 30_000, rate: 5.25 },
-    { min: 30_000, max: Infinity, rate: 5.7 },
+    { min:      0, max: 23_000, rate: 5.2  },
+    { min: 23_000, max: Infinity, rate: 5.58 },
   ],
 
   // Louisiana — 2024
-  louisiana: [
-    { min:      0, max: 12_500, rate: 1.85 },
-    { min: 12_500, max: 50_000, rate: 3.5  },
-    { min: 50_000, max: Infinity, rate: 4.25 },
-  ],
+  // Louisiana — flat 3.0% (reformed from prior 3-bracket structure)
+  louisiana: [{ min: 0, max: Infinity, rate: 3.0 }],
 
   // Maine — 2024 (single filer)
   maine: [
-    { min:      0, max: 24_500, rate: 5.8  },
-    { min: 24_500, max: 58_050, rate: 6.75 },
-    { min: 58_050, max: Infinity, rate: 7.15 },
+    { min:      0, max: 26_800, rate: 5.8  },
+    { min: 26_800, max: 63_450, rate: 6.75 },
+    { min: 63_450, max: Infinity, rate: 7.15 },
   ],
 
   // Maryland — 2024 (state-only; county local tax not modeled)
@@ -224,29 +220,31 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
   ],
 
   // Missouri — 2024 (top rate 4.8%, phasing down annually)
+  // Missouri — 8 brackets, top rate 4.7% on income over $9,191 (first $1,000 exempt)
   missouri: [
-    { min:     0, max: 1_207, rate: 0.0  },
-    { min: 1_207, max: 2_414, rate: 2.0  },
-    { min: 2_414, max: 3_622, rate: 2.5  },
-    { min: 3_622, max: 4_829, rate: 3.0  },
-    { min: 4_829, max: 6_036, rate: 3.5  },
-    { min: 6_036, max: 7_244, rate: 4.0  },
-    { min: 7_244, max: 8_451, rate: 4.5  },
-    { min: 8_451, max: Infinity, rate: 4.8 },
+    { min:     0, max: 1_000, rate: 0.0  },
+    { min: 1_000, max: 2_000, rate: 1.5  },
+    { min: 2_000, max: 3_000, rate: 2.0  },
+    { min: 3_000, max: 4_000, rate: 2.5  },
+    { min: 4_000, max: 5_000, rate: 3.0  },
+    { min: 5_000, max: 6_000, rate: 3.5  },
+    { min: 6_000, max: 9_191, rate: 4.0  },
+    { min: 9_191, max: Infinity, rate: 4.7 },
   ],
 
   // Montana — 2024 (reformed to 2-bracket flat-ish system)
   montana: [
-    { min:      0, max: 20_500, rate: 4.7 },
-    { min: 20_500, max: Infinity, rate: 5.9 },
+    { min:      0, max: 21_100, rate: 4.7 },
+    { min: 21_100, max: Infinity, rate: 5.9 },
   ],
 
   // Nebraska — 2024 (rates phasing down; use current schedule)
+  // Nebraska — LB 754 phasedown; top rate 5.2% on income over $38,870
   nebraska: [
     { min:      0, max:  3_700, rate: 2.46 },
     { min:  3_700, max: 22_170, rate: 3.51 },
-    { min: 22_170, max: 35_730, rate: 5.01 },
-    { min: 35_730, max: Infinity, rate: 5.84 },
+    { min: 22_170, max: 38_870, rate: 5.01 },
+    { min: 38_870, max: Infinity, rate: 5.2  },
   ],
 
   // New Jersey — 2024 (single filer)
