@@ -93,6 +93,9 @@ export const stateVeteranPerks: Record<string, VeteranPerksData> = {
       'Purple Heart: free "Purple Heart" specialty plate, free hunting & fishing license',
       'POW/MIA: complimentary POW/MIA plate, free state parks access',
       'Silver Star & Bronze Star: specialty plates available at reduced cost',
+      '100% service-connected disabled veterans: free day-use pass to all AZ State Parks — pick up pass at any park visitor center or Central Phoenix Office (VA proof of 100% required)',
+      'Military retirees and service-disabled veterans (<100%): 50% off day-use entrance at all AZ State Parks — show military ID at gate',
+      'Active duty, Reserves, and National Guard: 50% off day-use entrance — show military ID; discount extends to up to 3 accompanied adults',
     ],
     propertyTaxExemptions: [
       'Property tax exemption up to approximately $4,873 of assessed value for qualifying disabled veterans',

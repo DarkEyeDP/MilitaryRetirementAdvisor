@@ -100,9 +100,9 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
   // ── Flat Rate States (single bracket) ─────────────────────────────────────
   arizona:      [{ min: 0, max: Infinity, rate: 2.5  }],
   colorado:     [{ min: 0, max: Infinity, rate: 4.4  }],
-  georgia:      [{ min: 0, max: Infinity, rate: 5.49 }],
+  georgia:      [{ min: 0, max: Infinity, rate: 5.39 }],
   illinois:     [{ min: 0, max: Infinity, rate: 4.95 }],
-  indiana:      [{ min: 0, max: Infinity, rate: 3.15 }],
+  indiana:      [{ min: 0, max: Infinity, rate: 3.0  }],
   iowa:         [{ min: 0, max: Infinity, rate: 3.8  }], // Flat since 2025 reform
   kentucky:     [{ min: 0, max: Infinity, rate: 4.0  }],
   massachusetts:[{ min: 0, max: Infinity, rate: 5.0  }], // 9% surtax at $1M+ ignored
@@ -112,7 +112,7 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
   'north-dakota':   [{ min: 0, max: Infinity, rate: 2.5  }], // Flat since 2024 reform
   pennsylvania: [{ min: 0, max: Infinity, rate: 3.07 }],
   utah:         [{ min: 0, max: Infinity, rate: 4.55 }],
-  idaho:        [{ min: 0, max: Infinity, rate: 5.8  }], // Flat since 2023 reform
+  idaho:        [{ min: 0, max: Infinity, rate: 5.3  }], // Flat 5.3% (rate cut effective 2025)
 
   // ── Progressive States ─────────────────────────────────────────────────────
 
@@ -123,11 +123,12 @@ export const stateTaxBrackets: Record<string, StateTaxBrackets> = {
     { min: 3_000, max: Infinity, rate: 5 },
   ],
 
-  // Arkansas — simplified progressive (post-2023 reform, top 4.7%)
+  // Arkansas — two-schedule system (2025): low-income progressive table; high-income flat 3.9% above ~$95,500
+  // Top rate reduced from 4.7% to 3.9% per ongoing legislative reform. Simplified to progressive-to-3.9%.
   arkansas: [
-    { min:      0, max:  4_300, rate: 2.0 },
-    { min:  4_300, max:  8_500, rate: 4.0 },
-    { min:  8_500, max: Infinity, rate: 4.7 },
+    { min:      0, max:  4_999, rate: 0.0 },
+    { min:  5_000, max:  8_999, rate: 2.0 },
+    { min:  9_000, max: Infinity, rate: 3.9 },
   ],
 
   // California — 2024 (single filer, SDI ignored)
