@@ -115,6 +115,12 @@ export default function StateCard({
 
   const flagUrl = getFlagUrl(state.abbreviation);
 
+  const nameSizeClass = state.name.length >= 13
+    ? 'text-base sm:text-xl'
+    : state.name.length >= 10
+      ? 'text-lg sm:text-xl'
+      : 'text-xl';
+
   return (
     <div
       ref={cardRef}
@@ -134,7 +140,7 @@ export default function StateCard({
                 className="h-5 w-auto shadow-sm border border-slate-200/60 flex-shrink-0"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
               />
-              <CardTitle className="text-xl">{state.name}</CardTitle>
+              <CardTitle className={nameSizeClass}>{state.name}</CardTitle>
             </div>
             <div className="flex items-center gap-2 flex-wrap mb-2">
               <Badge className={getTaxBadgeColor(state.militaryPensionTax)}>
