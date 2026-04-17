@@ -4,7 +4,7 @@ import { statesData, TERRITORY_IDS } from '../data/stateData';
 import { calculateScore as calculateCustomScore } from '../data/veteranScore';
 import { LAST_UPDATED } from '../data/siteConfig';
 import { stateEmploymentData } from '../data/employmentData';
-import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, fmt$ } from '../data/financialReality';
+import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, sanitizeCostProfile, fmt$ } from '../data/financialReality';
 import { stateFinancialData } from '../data/financialData';
 import FinancialRealityBanner from '../components/FinancialRealityBanner';
 import BudgetCustomizerPanel from '../components/BudgetCustomizerPanel';
@@ -185,7 +185,7 @@ export default function Dashboard() {
   const [userCostProfile, setUserCostProfile] = useState<UserCostProfile>(() => {
     try {
       const saved = localStorage.getItem('budget-profile');
-      const base: UserCostProfile = saved ? JSON.parse(saved) : DEFAULT_USER_COST_PROFILE;
+      const base: UserCostProfile = saved ? sanitizeCostProfile(JSON.parse(saved)) : DEFAULT_USER_COST_PROFILE;
       // Pre-populate household members from landing form (overrides saved whenever landing state was passed, including empty)
       if (locationState?.familyMembers !== undefined) {
         const profile = {

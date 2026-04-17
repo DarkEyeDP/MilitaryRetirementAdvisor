@@ -15,7 +15,7 @@ import { stateClimateData } from '../data/climateData';
 import type { RiskLevel } from '../data/climateData';
 import { DATA_YEAR, LAST_UPDATED } from '../data/siteConfig';
 import { stateTaxBrackets, calculateProgressiveTax, getEffectiveTaxRate } from '../data/stateTaxBrackets';
-import { calculateFinancialReality, DEFAULT_USER_COST_PROFILE, fmt$, type UserCostProfile, type SecondaryIncomeSource, type FinancialInputs } from '../data/financialReality';
+import { calculateFinancialReality, DEFAULT_USER_COST_PROFILE, sanitizeCostProfile, fmt$, type UserCostProfile, type SecondaryIncomeSource, type FinancialInputs } from '../data/financialReality';
 import { stateFinancialData } from '../data/financialData';
 import BudgetCustomizerPanel from '../components/BudgetCustomizerPanel';
 import { Button } from '../components/ui/button';
@@ -230,7 +230,7 @@ export default function StateDetail() {
   const [budgetProfile, setBudgetProfile] = useState<UserCostProfile>(() => {
     try {
       const saved = localStorage.getItem('budget-profile');
-      if (saved) return { ...DEFAULT_USER_COST_PROFILE, ...JSON.parse(saved) };
+      if (saved) return sanitizeCostProfile(JSON.parse(saved));
     } catch { /* ignore */ }
     return DEFAULT_USER_COST_PROFILE;
   });

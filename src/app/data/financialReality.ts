@@ -94,6 +94,20 @@ export interface UserCostProfile {
   customLineItems: CustomLineItem[];
 }
 
+/** Merge a raw localStorage parse with defaults, ensuring no undefined slips through for number | null fields. */
+export function sanitizeCostProfile(raw: Partial<UserCostProfile>): UserCostProfile {
+  const merged = { ...DEFAULT_USER_COST_PROFILE, ...raw };
+  // Coerce any undefined number|null fields back to null (old saves pre-date these fields)
+  if (merged.homeValue === undefined) merged.homeValue = null;
+  if (merged.propertyTaxOverride === undefined) merged.propertyTaxOverride = null;
+  if (merged.homeInsuranceOverride === undefined) merged.homeInsuranceOverride = null;
+  if (merged.autoInsuranceOverride === undefined) merged.autoInsuranceOverride = null;
+  if (merged.utilitiesOverride === undefined) merged.utilitiesOverride = null;
+  if (merged.groceryOverride === undefined) merged.groceryOverride = null;
+  if (merged.isRenting === undefined) merged.isRenting = false;
+  return merged;
+}
+
 export const DEFAULT_USER_COST_PROFILE: UserCostProfile = {
   isRenting: false,
   homeValue: null,
