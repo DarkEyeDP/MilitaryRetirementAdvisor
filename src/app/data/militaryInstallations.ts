@@ -436,6 +436,14 @@ export const militaryInstallations: MilitaryInstallation[] = [
 
   // ── TEXAS ─────────────────────────────────────────────────────────────────
   {
+    id: 'camp-mabry',
+    name: 'Camp Mabry',
+    stateId: 'texas',
+    stateAbbr: 'TX',
+    lat: 30.3134263,
+    lon: -97.7666194,
+  },
+  {
     id: 'fort-cavazos',
     name: 'Fort Cavazos (formerly Fort Hood)',
     stateId: 'texas',
