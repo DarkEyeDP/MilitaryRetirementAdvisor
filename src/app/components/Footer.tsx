@@ -21,7 +21,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <SiteLogo className="w-5 h-5" />
-              <span className="font-semibold text-white text-base">Military Retirement Advisor</span>
+              <span className="font-semibold text-white text-base">MilRetired.com</span>
             </div>
             <p className="text-sm text-slate-400 leading-relaxed mb-4">
               Helping service members and their families make informed decisions about where to retire —
@@ -103,9 +103,14 @@ export default function Footer() {
           <div>
             <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Important Notice</h3>
             <p className="text-xs text-slate-500 leading-relaxed">
-              This tool is for informational purposes only. Always verify data with official government
-              sources before making relocation or financial decisions. Tax laws and benefit programs
-              change annually.
+              All financial projections are <strong className="text-slate-400 font-medium">estimates only</strong> based
+              on state averages and user-provided inputs. They do not constitute financial, tax, or legal advice and
+              should not be the sole basis for any relocation or retirement decision.
+            </p>
+            <p className="text-xs text-slate-500 leading-relaxed mt-3">
+              Consult a qualified financial planner, tax professional, or military benefits counselor before
+              making major financial decisions. Tax laws, benefit programs, and cost figures change annually —
+              always verify with official government sources.
             </p>
             <p className="text-xs text-slate-600 mt-3 leading-relaxed">
               VA disability rates sourced from VA.gov. State tax data reflects {DATA_YEAR} statutes.

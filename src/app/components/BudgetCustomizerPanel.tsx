@@ -23,6 +23,7 @@ interface Props {
   profile: UserCostProfile;
   onChange: (profile: UserCostProfile) => void;
   stateAvgs: StateFinancialData | null;
+  stateAvgHomeCost?: number | null;
   financialInputs?: FinancialInputs;
   onChangeInputs?: (inputs: FinancialInputs) => void;
 }
@@ -41,6 +42,7 @@ export default function BudgetCustomizerPanel({
   profile,
   onChange,
   stateAvgs,
+  stateAvgHomeCost,
   financialInputs,
   onChangeInputs,
 }: Props) {
@@ -158,6 +160,10 @@ export default function BudgetCustomizerPanel({
   // ── State avg display values ──────────────────────────────────────────────
 
   const avgPropertyTax = stateAvgs ? stateAvgs.medianAnnualPropertyTax / 12 : null;
+  const estPropertyTaxFromHomeValue =
+    profile.homeValue !== null && stateAvgs && stateAvgHomeCost
+      ? (profile.homeValue * (stateAvgs.medianAnnualPropertyTax / stateAvgHomeCost)) / 12
+      : null;
   const avgHomeIns = stateAvgs ? stateAvgs.avgHomeInsuranceMonthly : null;
   const avgAutoIns = stateAvgs ? stateAvgs.avgAutoInsuranceMonthly : null;
   const avgUtils = stateAvgs ? stateAvgs.avgMonthlyUtilities : null;
@@ -320,38 +326,112 @@ export default function BudgetCustomizerPanel({
             {/* Section 1: Monthly Expenses */}
               <section>
                 <SectionHeader>Monthly Expenses</SectionHeader>
+
+                {/* Renting toggle */}
+                <div className="flex items-center justify-between py-3 border-b border-slate-100 mb-0">
+                  <div>
+                    <Label className="text-sm font-medium text-slate-700">I'm renting, not buying</Label>
+                    <p className="text-xs text-slate-400 mt-0.5">Removes property tax and home insurance from estimates</p>
+                  </div>
+                  <button
+                    onClick={() => update({ isRenting: !profile.isRenting })}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${profile.isRenting ? 'bg-amber-500' : 'bg-slate-200'}`}
+                    role="switch"
+                    aria-checked={profile.isRenting}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${profile.isRenting ? 'translate-x-5' : 'translate-x-0'}`}
+                    />
+                  </button>
+                </div>
+
                 <div className="space-y-0">
-                  {overrideFields.map((field) => (
-                    <div
-                      key={field.key}
-                      className="flex items-center justify-between py-3 border-b border-slate-100"
-                    >
-                      <div>
-                        <Label className="text-sm font-medium text-slate-700">
-                          {field.label}
-                        </Label>
-                        {field.avg !== null && (
+                  {/* Home Value + property/home insurance overrides hidden when renting */}
+                  {!profile.isRenting && (
+                    <>
+                      <div className="flex items-center justify-between py-3 border-b border-slate-100">
+                        <div>
+                          <Label className="text-sm font-medium text-slate-700">Home Value</Label>
                           <p className="text-xs text-slate-400 mt-0.5">
-                            State avg: {fmt$(field.avg)}/mo
+                            {estPropertyTaxFromHomeValue !== null
+                              ? `Est. property tax: ${fmt$(estPropertyTaxFromHomeValue)}/mo`
+                              : stateAvgHomeCost
+                                ? `State median: ${fmt$(stateAvgHomeCost / 1000)}k`
+                                : 'Estimates property tax based on state effective rate'}
                           </p>
-                        )}
-                        {field.avg === null && (
-                          <p className="text-xs text-slate-400 mt-0.5">Select a state to see avg</p>
-                        )}
+                        </div>
+                        <div className="relative flex items-center w-28 shrink-0">
+                          <span className="absolute left-2 text-xs text-slate-400">$</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            step={10000}
+                            placeholder={stateAvgHomeCost ? String(Math.round(stateAvgHomeCost / 1000) * 1000) : '400000'}
+                            value={profile.homeValue !== null ? String(profile.homeValue) : ''}
+                            onChange={(e) => update({ homeValue: parseOverride(e.target.value) })}
+                            className="w-28 text-right h-8 text-base md:text-sm pl-5"
+                          />
+                        </div>
                       </div>
-                      <div className="relative flex items-center w-28 shrink-0">
-                        <span className="absolute left-2 text-xs text-slate-400">$</span>
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder={field.avg !== null ? String(Math.round(field.avg)) : '0'}
-                          value={field.value !== null ? String(field.value) : ''}
-                          onChange={(e) => update({ [field.key]: parseOverride(e.target.value) })}
-                          className="w-28 text-right h-8 text-base md:text-sm pl-5"
-                        />
+                      {overrideFields
+                        .filter((f) => f.key === 'propertyTaxOverride' || f.key === 'homeInsuranceOverride')
+                        .map((field) => (
+                          <div key={field.key} className="flex items-center justify-between py-3 border-b border-slate-100">
+                            <div>
+                              <Label className="text-sm font-medium text-slate-700">
+                                {field.label}
+                                {field.key === 'propertyTaxOverride' && (
+                                  <span className="ml-1 text-xs font-normal text-slate-400">(override)</span>
+                                )}
+                              </Label>
+                              {field.key === 'propertyTaxOverride' && profile.homeValue !== null ? (
+                                <p className="text-xs text-slate-400 mt-0.5">Overrides home value estimate above</p>
+                              ) : field.avg !== null ? (
+                                <p className="text-xs text-slate-400 mt-0.5">State avg: {fmt$(field.avg)}/mo</p>
+                              ) : (
+                                <p className="text-xs text-slate-400 mt-0.5">Select a state to see avg</p>
+                              )}
+                            </div>
+                            <div className="relative flex items-center w-28 shrink-0">
+                              <span className="absolute left-2 text-xs text-slate-400">$</span>
+                              <Input
+                                type="number"
+                                min={0}
+                                placeholder={field.avg !== null ? String(Math.round(field.avg)) : '0'}
+                                value={field.value !== null ? String(field.value) : ''}
+                                onChange={(e) => update({ [field.key]: parseOverride(e.target.value) })}
+                                className="w-28 text-right h-8 text-base md:text-sm pl-5"
+                              />
+                            </div>
+                          </div>
+                        ))}
+                    </>
+                  )}
+                  {overrideFields
+                    .filter((f) => f.key !== 'propertyTaxOverride' && f.key !== 'homeInsuranceOverride')
+                    .map((field) => (
+                      <div key={field.key} className="flex items-center justify-between py-3 border-b border-slate-100">
+                        <div>
+                          <Label className="text-sm font-medium text-slate-700">{field.label}</Label>
+                          {field.avg !== null ? (
+                            <p className="text-xs text-slate-400 mt-0.5">State avg: {fmt$(field.avg)}/mo</p>
+                          ) : (
+                            <p className="text-xs text-slate-400 mt-0.5">Select a state to see avg</p>
+                          )}
+                        </div>
+                        <div className="relative flex items-center w-28 shrink-0">
+                          <span className="absolute left-2 text-xs text-slate-400">$</span>
+                          <Input
+                            type="number"
+                            min={0}
+                            placeholder={field.avg !== null ? String(Math.round(field.avg)) : '0'}
+                            value={field.value !== null ? String(field.value) : ''}
+                            onChange={(e) => update({ [field.key]: parseOverride(e.target.value) })}
+                            className="w-28 text-right h-8 text-base md:text-sm pl-5"
+                          />
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </section>
 

@@ -428,7 +428,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center">
           <div className="flex items-center gap-2">
             <SiteLogo className="w-8 h-8" />
-            <h1 className="font-semibold text-xl">Military Retirement Advisor</h1>
+            <h1 className="font-semibold text-xl">MilRetired.com</h1>
           </div>
         </div>
       </header>

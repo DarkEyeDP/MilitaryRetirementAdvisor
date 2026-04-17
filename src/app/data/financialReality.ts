@@ -18,6 +18,7 @@
 
 import { StateData } from './stateData';
 import { stateFinancialData } from './financialData';
+import { getGroceryMultiplier } from './groceryData';
 import { getVAMonthlyPay } from './vaRates';
 import {
   stateTaxBrackets,
@@ -79,8 +80,10 @@ export interface CustomLineItem {
 }
 
 export interface UserCostProfile {
+  isRenting: boolean;                   // When true, omits property tax and home insurance
   // Override state estimates — null means "use state average"
-  propertyTaxOverride: number | null;
+  homeValue: number | null;             // Used to estimate property tax via state effective rate
+  propertyTaxOverride: number | null;   // Exact monthly amount — takes precedence over homeValue
   homeInsuranceOverride: number | null;
   autoInsuranceOverride: number | null;
   utilitiesOverride: number | null;
@@ -92,6 +95,8 @@ export interface UserCostProfile {
 }
 
 export const DEFAULT_USER_COST_PROFILE: UserCostProfile = {
+  isRenting: false,
+  homeValue: null,
   propertyTaxOverride: null,
   homeInsuranceOverride: null,
   autoInsuranceOverride: null,
@@ -125,6 +130,12 @@ export interface FinancialBreakdown {
   // is exempt from federal income tax for bona fide PR residents).
   // Non-zero only for Puerto Rico.
   estimatedFederalTaxSavings: number;
+
+  // Property tax exemption status for 100% disabled veterans.
+  // 'full'    → $0 applied (exemption zeroed out property tax)
+  // 'partial' → median estimate used; actual tax may be lower (home-value-dependent)
+  // 'none'    → no exemption applies at this rating / state
+  propertyTaxExemptionApplied: 'full' | 'partial' | 'none';
 
   // Totals
   totalTrackedExpenses: number;
@@ -163,6 +174,7 @@ export function calculateFinancialReality(
       groceryMonthly: 0,
       customExpensesMonthly: 0,
       estimatedFederalTaxSavings: 0,
+      propertyTaxExemptionApplied: 'none',
       totalTrackedExpenses: 0,
       monthlyRemaining: monthlySecondaryIncome,
       hasFinancialData: false,
@@ -236,17 +248,45 @@ export function calculateFinancialReality(
     estimatedFederalTaxSavings = (taxOnFullIncome - taxOnPensionAlone) / 12;
   }
 
-  // Property tax — use override if set, otherwise state average
-  const propertyTaxMonthly = profile.propertyTaxOverride !== null
-    ? profile.propertyTaxOverride
-    : fin.medianAnnualPropertyTax / 12;
+  // Property tax — priority: renting (skip) → full legal exemption → exact override → home value estimate → median
+  const isFullyDisabled = inputs.disabilityRating === '100';
+  let propertyTaxMonthly: number;
+  let propertyTaxExemptionApplied: 'full' | 'partial' | 'none' = 'none';
+
+  if (profile.isRenting) {
+    propertyTaxMonthly = 0;
+  } else if (isFullyDisabled && state.propertyTaxExemption100 === 'Full') {
+    // Legal exemption always wins — cannot be overridden by user entries
+    propertyTaxMonthly = 0;
+    propertyTaxExemptionApplied = 'full';
+  } else if (profile.propertyTaxOverride !== null) {
+    // User-provided exact monthly amount
+    propertyTaxMonthly = profile.propertyTaxOverride;
+    if (isFullyDisabled && state.propertyTaxExemption100 === 'Partial') {
+      propertyTaxExemptionApplied = 'partial';
+    }
+  } else if (profile.homeValue !== null && state.avgHomeCost > 0) {
+    // Estimate from home value using the state's effective property tax rate
+    const effectiveAnnualRate = fin.medianAnnualPropertyTax / state.avgHomeCost;
+    propertyTaxMonthly = (profile.homeValue * effectiveAnnualRate) / 12;
+    if (isFullyDisabled && state.propertyTaxExemption100 === 'Partial') {
+      propertyTaxExemptionApplied = 'partial';
+    }
+  } else {
+    propertyTaxMonthly = fin.medianAnnualPropertyTax / 12;
+    if (isFullyDisabled && state.propertyTaxExemption100 === 'Partial') {
+      propertyTaxExemptionApplied = 'partial';
+    }
+  }
 
   // Sales tax on estimated taxable spending (~35% of total income)
   const salesTaxOnSpending = totalMonthlyIncome * 0.35 * (fin.salesTaxCombined / 100);
 
-  const homeInsuranceMonthly = profile.homeInsuranceOverride !== null
-    ? profile.homeInsuranceOverride
-    : fin.avgHomeInsuranceMonthly;
+  const homeInsuranceMonthly = profile.isRenting
+    ? 0
+    : profile.homeInsuranceOverride !== null
+      ? profile.homeInsuranceOverride
+      : fin.avgHomeInsuranceMonthly;
 
   const autoInsuranceMonthly = profile.autoInsuranceOverride !== null
     ? profile.autoInsuranceOverride
@@ -256,11 +296,14 @@ export function calculateFinancialReality(
     ? profile.utilitiesOverride
     : fin.avgMonthlyUtilities;
 
-  // Groceries — use override or calculate from household members
+  // Groceries — use override or calculate from household members scaled by state price level.
+  // The state multiplier comes from GoBankingRates 2025 weekly costs (50 states) relative
+  // to the national average, so Hawaii at 1.33× correctly costs more than Texas at 0.95×.
+  const groceryStateMultiplier = getGroceryMultiplier(state.id);
   const groceryMonthly = profile.groceryOverride !== null
     ? profile.groceryOverride
     : profile.householdMembers.reduce(
-        (sum, m) => sum + GROCERY_MONTHLY_PER_PERSON[m.ageGroup],
+        (sum, m) => sum + GROCERY_MONTHLY_PER_PERSON[m.ageGroup] * groceryStateMultiplier,
         0
       );
 
@@ -296,6 +339,7 @@ export function calculateFinancialReality(
     groceryMonthly,
     customExpensesMonthly,
     estimatedFederalTaxSavings,
+    propertyTaxExemptionApplied,
     totalTrackedExpenses,
     monthlyRemaining: totalMonthlyIncome - totalTrackedExpenses,
     hasFinancialData: true,

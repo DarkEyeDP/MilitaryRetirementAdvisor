@@ -75,7 +75,8 @@ export default function Dashboard() {
 
   const [financialInputs, setFinancialInputs] = useState<FinancialInputs>({
     userType,
-    retirementIncome: locationState?.retirementIncome ?? 60000,
+    retirementIncome: locationState?.retirementIncome
+      ?? (Number(localStorage.getItem('origin-retirement-income') || '0') || 60000),
     disabilityRating: locationState?.disabilityRating
       ?? localStorage.getItem('origin-disability-rating')
       ?? 'none',
@@ -187,10 +188,14 @@ export default function Dashboard() {
       const base: UserCostProfile = saved ? JSON.parse(saved) : DEFAULT_USER_COST_PROFILE;
       // Pre-populate household members from landing form (overrides saved whenever landing state was passed, including empty)
       if (locationState?.familyMembers !== undefined) {
-        return {
+        const profile = {
           ...base,
           householdMembers: landingFamilyMembers.map((m) => ({ id: m.id, ageGroup: m.ageGroup })),
         };
+        // Persist immediately so it survives navigating to a state page and back,
+        // which clears locationState (StateDetail uses navigate('/dashboard') with no state).
+        try { localStorage.setItem('budget-profile', JSON.stringify(profile)); } catch { /* ignore */ }
+        return profile;
       }
       return base;
     } catch {
@@ -1070,6 +1075,7 @@ export default function Dashboard() {
             profile={userCostProfile}
             onChange={handleProfileChange}
             stateAvgs={topStateAvg}
+            stateAvgHomeCost={sortedStates[0]?.avgHomeCost ?? null}
             financialInputs={financialInputs}
             onChangeInputs={handleChangeInputs}
           />
