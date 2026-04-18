@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef } from 'react';
+import { useNavigate } from 'react-router';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   ChevronDown,
@@ -124,6 +125,7 @@ function BreakdownTooltip({ breakdown, profile, isSeparating }: { breakdown: Fin
 }
 
 export default function FinancialRealityBanner({ states, inputs, profile, stateAvg: _stateAvg, onCustomize, onChangeInputs }: Props) {
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
   const [editingIncome, setEditingIncome] = useState(false);
@@ -441,7 +443,12 @@ export default function FinancialRealityBanner({ states, inputs, profile, stateA
                             Best
                           </span>
                         )}
-                        <span className="text-slate-900 font-medium">{state.name}</span>
+                        <button
+                          onClick={() => navigate(`/state/${state.id}`)}
+                          className="text-slate-900 font-medium hover:text-blue-600 transition-colors"
+                        >
+                          {state.name}
+                        </button>
                         <span className="text-slate-400 text-xs">{state.abbreviation}</span>
                       </div>
                     </td>
