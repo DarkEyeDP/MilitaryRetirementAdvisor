@@ -58,9 +58,9 @@ function fmtVetPop(n: number): string {
 }
 
 function getScoreColor(score: number) {
-  if (score >= 90) return 'text-green-600';
-  if (score >= 80) return 'text-blue-600';
-  if (score >= 70) return 'text-yellow-600';
+  if (score >= 85) return 'text-green-600';
+  if (score >= 75) return 'text-blue-600';
+  if (score >= 65) return 'text-yellow-600';
   return 'text-slate-500';
 }
 

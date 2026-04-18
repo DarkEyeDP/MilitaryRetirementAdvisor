@@ -101,9 +101,9 @@ export default function StateTable({
   };
 
   const getScoreBadge = (score: number) => {
-    if (score >= 90) return 'bg-green-100 text-green-700';
-    if (score >= 80) return 'bg-blue-100 text-blue-700';
-    if (score >= 70) return 'bg-yellow-100 text-yellow-700';
+    if (score >= 85) return 'bg-green-100 text-green-700';
+    if (score >= 75) return 'bg-blue-100 text-blue-700';
+    if (score >= 65) return 'bg-yellow-100 text-yellow-700';
     return 'bg-slate-100 text-slate-700';
   };
 

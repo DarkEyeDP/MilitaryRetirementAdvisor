@@ -35,9 +35,9 @@ const stateById: Record<string, StateData> = Object.fromEntries(
 );
 
 const getScoreColor = (score: number) => {
-  if (score >= 90) return '#22c55e';
-  if (score >= 80) return '#3b82f6';
-  if (score >= 70) return '#eab308';
+  if (score >= 85) return '#22c55e';
+  if (score >= 75) return '#3b82f6';
+  if (score >= 65) return '#eab308';
   return '#94a3b8';
 };
 
@@ -321,10 +321,10 @@ export default function MapView({ states, customScores }: MapViewProps) {
       <div className="flex items-center gap-4 text-xs text-slate-600 mb-4 flex-wrap">
         <span className="text-slate-400 font-medium uppercase tracking-wide">Score</span>
         {[
-          { label: '90+', color: '#22c55e' },
-          { label: '80–89', color: '#3b82f6' },
-          { label: '70–79', color: '#eab308' },
-          { label: '<70', color: '#94a3b8' },
+          { label: '85+', color: '#22c55e' },
+          { label: '75–84', color: '#3b82f6' },
+          { label: '65–74', color: '#eab308' },
+          { label: '<65', color: '#94a3b8' },
         ].map(({ label, color }) => (
           <div key={label} className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />

@@ -110,9 +110,9 @@ export default function StateCard({
   const clinicCount = facilities.filter((f) => f.type === 'clinic').length;
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600 bg-green-50';
-    if (score >= 80) return 'text-blue-600 bg-blue-50';
-    if (score >= 70) return 'text-yellow-600 bg-yellow-50';
+    if (score >= 85) return 'text-green-600 bg-green-50';
+    if (score >= 75) return 'text-blue-600 bg-blue-50';
+    if (score >= 65) return 'text-yellow-600 bg-yellow-50';
     return 'text-slate-600 bg-slate-50';
   };
 

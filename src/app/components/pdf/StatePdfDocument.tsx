@@ -73,7 +73,7 @@ function pensionBadgeColors(tax: StateData['militaryPensionTax']): { bg: string;
 function tierColor(score: number): string {
   if (score >= 95) return C.green;
   if (score >= 85) return C.blue;
-  if (score >= 70) return C.amber;
+  if (score >= 65) return C.amber;
   return C.slate400;
 }
 

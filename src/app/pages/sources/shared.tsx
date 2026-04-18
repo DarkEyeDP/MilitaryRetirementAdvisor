@@ -131,7 +131,7 @@ export function ScorePill({ score }: { score: number }) {
   const color =
     score >= 95 ? 'bg-emerald-100 text-emerald-700' :
     score >= 85 ? 'bg-blue-100 text-blue-700' :
-    score >= 70 ? 'bg-yellow-100 text-yellow-700' :
+    score >= 65 ? 'bg-yellow-100 text-yellow-700' :
     'bg-slate-100 text-slate-500';
   return <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full tabular-nums ${color}`}>{score}</span>;
 }

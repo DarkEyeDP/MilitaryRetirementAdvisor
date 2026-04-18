@@ -19,9 +19,9 @@ interface GaugeSvgProps {
 }
 
 function scoreColor(score: number): string {
-  if (score >= 90) return C.green;
-  if (score >= 80) return C.blue;
-  if (score >= 70) return C.amber;
+  if (score >= 85) return C.green;
+  if (score >= 75) return C.blue;
+  if (score >= 65) return C.amber;
   return C.slate400;
 }
 

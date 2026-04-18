@@ -747,9 +747,9 @@ export default function Dashboard() {
                         </div>
                         <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 h-14 rounded-full border-2 border-slate-100 bg-slate-50">
                           <span className={`text-xl font-bold tabular-nums leading-none ${
-                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 90 ? 'text-green-600' :
-                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 80 ? 'text-blue-600' :
-                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 70 ? 'text-amber-600' :
+                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 85 ? 'text-green-600' :
+                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 75 ? 'text-blue-600' :
+                            effectiveOriginStateScore !== null && effectiveOriginStateScore >= 65 ? 'text-amber-600' :
                             'text-slate-500'
                           }`}>{effectiveOriginStateScore}</span>
                           <span className="text-[10px] text-slate-400 leading-none mt-0.5">score</span>
@@ -815,7 +815,7 @@ export default function Dashboard() {
                                   >
                                     <span className={`text-sm font-medium ${isActive ? 'text-blue-700' : 'text-slate-700'}`}>{s.name}</span>
                                     <div className="flex items-center gap-2">
-                                      <span className={`text-xs font-bold ${sc >= 90 ? 'text-green-600' : sc >= 80 ? 'text-blue-600' : sc >= 70 ? 'text-amber-600' : 'text-slate-500'}`}>{sc}</span>
+                                      <span className={`text-xs font-bold ${sc >= 85 ? 'text-green-600' : sc >= 75 ? 'text-blue-600' : sc >= 65 ? 'text-amber-600' : 'text-slate-500'}`}>{sc}</span>
                                       <span className="text-xs text-slate-400">{s.abbreviation}</span>
                                     </div>
                                   </button>
