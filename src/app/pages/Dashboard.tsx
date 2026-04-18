@@ -1,7 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router';
 import { statesData, TERRITORY_IDS } from '../data/stateData';
-import { calculateScore as calculateCustomScore } from '../data/veteranScore';
+import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../data/veteranScore';
 import { LAST_UPDATED } from '../data/siteConfig';
 import { stateEmploymentData } from '../data/employmentData';
 import { FinancialInputs, UserCostProfile, DEFAULT_USER_COST_PROFILE, sanitizeCostProfile, fmt$ } from '../data/financialReality';
@@ -112,7 +112,7 @@ export default function Dashboard() {
   // Effective home state: local override (set by picker) takes priority
   const effectiveHomeStateId = homeStateOverride ?? currentStateId;
   const effectiveOriginStateData = effectiveHomeStateId ? statesData.find((s) => s.id === effectiveHomeStateId) ?? null : null;
-  const effectiveOriginStateScore = effectiveOriginStateData ? calculateCustomScore(effectiveOriginStateData, { taxes: 40, cost: 30, benefits: 30 }) : null;
+  // Score computed later (after weights/perCapita state) — see effectiveOriginStateScore useMemo below
 
   function handleHomeStateChange(newId: string) {
     localStorage.setItem('origin-state-id', newId);
@@ -275,6 +275,11 @@ export default function Dashboard() {
   const [perCapita, setPerCapita] = useState(() => {
     return localStorage.getItem('va-scoring-per-capita') === 'true';
   });
+
+  const effectiveOriginStateScore = useMemo(
+    () => effectiveOriginStateData ? calculateCustomScore(effectiveOriginStateData, weights, perCapita) : null,
+    [effectiveOriginStateData, weights, perCapita]
+  );
 
   const handleFilterChange = (key: string, value: boolean) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -711,14 +716,16 @@ export default function Dashboard() {
                           <div className="flex items-center gap-2 flex-wrap mb-2.5">
                             <span className="text-base font-bold text-slate-900">{effectiveOriginStateData.name}</span>
                             <span className="text-xs text-slate-400 font-medium">{effectiveOriginStateData.abbreviation}</span>
-                            <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
-                              effectiveOriginStateData.militaryPensionTax === 'No' ? 'bg-green-100 text-green-700' :
-                              effectiveOriginStateData.militaryPensionTax === 'Partial' ? 'bg-amber-100 text-amber-700' :
-                              'bg-red-100 text-red-700'
-                            }`}>
-                              {effectiveOriginStateData.militaryPensionTax === 'No' ? 'Tax-Free Pension' :
-                               effectiveOriginStateData.militaryPensionTax === 'Partial' ? 'Partial Pension Tax' : 'Pension Taxed'}
-                            </span>
+                            {financialInputs.userType !== 'separating' && (
+                              <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${
+                                effectiveOriginStateData.militaryPensionTax === 'No' ? 'bg-green-100 text-green-700' :
+                                effectiveOriginStateData.militaryPensionTax === 'Partial' ? 'bg-amber-100 text-amber-700' :
+                                'bg-red-100 text-red-700'
+                              }`}>
+                                {effectiveOriginStateData.militaryPensionTax === 'No' ? 'Tax-Free Pension' :
+                                 effectiveOriginStateData.militaryPensionTax === 'Partial' ? 'Partial Pension Tax' : 'Pension Taxed'}
+                              </span>
+                            )}
                           </div>
                           <div className="grid grid-cols-3 gap-x-4 gap-y-2">
                             {[
@@ -726,7 +733,7 @@ export default function Dashboard() {
                               { label: 'Cost of Living', value: `${effectiveOriginStateData.costOfLivingIndex}`, sub: ' avg=100', color: 'text-slate-800' },
                               { label: 'Property Tax', value: effectiveOriginStateData.propertyTaxLevel, color: effectiveOriginStateData.propertyTaxLevel === 'Low' ? 'text-green-600' : effectiveOriginStateData.propertyTaxLevel === 'Medium' ? 'text-amber-600' : 'text-red-600' },
                               { label: 'Sales Tax', value: effectiveOriginStateData.salesTax === 0 ? 'None' : `${effectiveOriginStateData.salesTax}%`, color: effectiveOriginStateData.salesTax === 0 ? 'text-green-600' : 'text-slate-800' },
-                              { label: 'VA Benefits', value: `${effectiveOriginStateData.veteranBenefitsScore}`, sub: '/100', color: 'text-slate-800' },
+                              { label: 'VA Benefits', value: `${computeVeteranBenefitsScore(effectiveOriginStateData, perCapita)}`, sub: '/100', color: 'text-slate-800' },
                               { label: 'Avg Home', value: `$${Math.round(effectiveOriginStateData.avgHomeCost / 1000)}k`, color: 'text-slate-800' },
                             ].map(({ label, value, sub, color }) => (
                               <div key={label}>
@@ -798,7 +805,7 @@ export default function Dashboard() {
                               )
                               .sort((a, b) => a.name.localeCompare(b.name))
                               .map((s) => {
-                                const sc = calculateCustomScore(s, { taxes: 40, cost: 30, benefits: 30 });
+                                const sc = calculateCustomScore(s, weights, perCapita);
                                 const isActive = s.id === effectiveHomeStateId;
                                 return (
                                   <button
