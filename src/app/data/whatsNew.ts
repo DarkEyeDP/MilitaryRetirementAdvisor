@@ -26,22 +26,22 @@ export const whatsNewReleaseLabel = 'April 2026';
 export const whatsNewEntries: WhatsNewEntry[] = [
   {
     badge: 'new',
-    title: 'Per-Capita VA Facility Scoring',
-    body: 'The VA Benefits score can now rate facilities per 100k veterans instead of raw counts — so small states that actually serve their veterans well score accurately against large states. Enable it via the per-capita toggle in Dashboard filters.',
-  },
-  {
-    badge: 'data',
-    title: 'Complete VA Facility Directory',
-    body: 'All 50 states now have a fully populated list of VA Medical Centers and outpatient clinics with addresses, phone numbers, and map pins. Open any state page and explore the VA Facilities tab.',
+    title: 'Full Financial Reality Engine',
+    body: 'Every state page now shows what your finances are estimated to look like, but built on your real numbers. Add your pension and any other income (including post-EAS/ETS scenarios), enter your actual expenses, and see which state leaves you with more money in your pocket. Includes a monthly/yearly toggle to understand long-term impact, a rent vs. buy toggle that adjusts taxes and costs automatically, and a fully customizable budget sandbox for bills, savings, and anything else. Estimated federal and state income tax are both factored in.',
   },
   {
     badge: 'new',
-    title: '100% Disability Property Tax Exemptions',
-    body: 'Every state now shows whether 100% disabled veterans qualify for a full or partial property tax exemption. Set your disability rating to 100% and look for the exemption callout on any state detail page.',
+    title: 'Transitioning Service Member Mode',
+    body: 'Members separating without a military pension can now select "Transitioning Service Member" on the landing page. Tax calculations, state information, and financial breakdowns all adapt with regular income no longer being treated as pension income with military-specific exemptions.',
   },
   {
-    badge: 'improvement',
-    title: 'Quality of Life Improvements',
-    body: 'State result cards now show who you\'re comparing against (e.g. "COL 12% lower vs. CA"). The mobile layout has been significantly improved throughout. The scoring methodology panel now reflects which mode is currently active.',
+    badge: 'new',
+    title: 'Financial Breakdown in PDF Export',
+    body: 'State PDF reports now include a full financial reality page: monthly income, estimated costs, state and federal tax deductions, and estimated discretionary funds with a side-by-side comparison against your current state where applicable.',
+  },
+  {
+    badge: 'fix',
+    title: 'Score Consistency Fixes',
+    body: 'The "Your Current State" card, state dropdown picker, and state result cards all now show identical scores using your active weight settings and VA scoring mode. Scores were previously inconsistent between views.',
   },
 ];

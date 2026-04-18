@@ -108,7 +108,7 @@ export function WhatsNewModal() {
                     href="https://buymeacoffee.com/staymarinesim"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-[11px] px-2.5 py-1.5 rounded-md transition-colors"
+                    className="w-full flex items-center justify-center gap-1.5 bg-yellow-400 hover:bg-yellow-300 text-slate-900 font-semibold text-[11px] px-2.5 py-1.5 rounded-md transition-colors"
                   >
                     <CrayonIcon className="w-3 h-3" />
                     Buy Me a Crayon
@@ -118,7 +118,7 @@ export function WhatsNewModal() {
                   onClick={dismiss}
                   className="w-full bg-slate-900 hover:bg-slate-700 text-white font-semibold text-xs py-2 rounded-lg transition-colors"
                 >
-                  Got it, let&apos;s go
+                  We get it, a Marine built this site, let&apos;s get on with it
                 </button>
               </div>
 

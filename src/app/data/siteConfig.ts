@@ -14,7 +14,7 @@ export const DATA_YEAR = '2026';
  * Bump this string to re-show the "What's New" modal for all users.
  * localStorage key: 'whats-new-seen' stores the last seen version.
  */
-export const WHATS_NEW_VERSION = 'april-2026-v1';
+export const WHATS_NEW_VERSION = 'april-2026-v2';
 
 /** Month + year shown in footers and disclaimers */
 export const LAST_UPDATED = 'April 2026';
