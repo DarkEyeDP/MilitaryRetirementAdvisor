@@ -9,7 +9,14 @@ import { useRef, useEffect } from 'react';
 import { getFlagUrl } from '../lib/flagUrl';
 import { computeVeteranBenefitsScore } from '../data/veteranScore';
 
-function pensionTaxDollars(s: StateData, annualIncome: number): number {
+function pensionTaxDollars(
+  s: StateData,
+  annualIncome: number,
+  userType?: 'retiree' | 'separating'
+): number {
+  if (userType === 'separating') {
+    return annualIncome * (s.stateIncomeTax / 100);
+  }
   if (s.militaryPensionTax === 'No') return 0;
   const taxable = s.militaryPensionTax === 'Partial' ? annualIncome * 0.5 : annualIncome;
   return taxable * (s.stateIncomeTax / 100);
@@ -35,6 +42,7 @@ interface StateCardProps {
   retirementIncome?: number;
   disabilityRating?: string;
   perCapita?: boolean;
+  userType?: 'retiree' | 'separating';
 }
 
 export default function StateCard({
@@ -47,6 +55,7 @@ export default function StateCard({
   retirementIncome = 60000,
   disabilityRating,
   perCapita = false,
+  userType,
 }: StateCardProps) {
   const navigate = useNavigate();
   const displayScore = customScore ?? state.retirementScore;
@@ -90,7 +99,7 @@ export default function StateCard({
 
   const currentState = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
   const annualSavings = currentState
-    ? Math.round(pensionTaxDollars(currentState, retirementIncome) - pensionTaxDollars(state, retirementIncome))
+    ? Math.round(pensionTaxDollars(currentState, retirementIncome, userType) - pensionTaxDollars(state, retirementIncome, userType))
     : null;
   // COL delta: positive = destination is cheaper, negative = more expensive
   const colDiffPct = currentState
@@ -137,13 +146,15 @@ export default function StateCard({
               <CardTitle className="text-xl">{state.name}</CardTitle>
             </div>
             <div className="flex items-center gap-2 flex-wrap mb-2">
-              <Badge className={getTaxBadgeColor(state.militaryPensionTax)}>
-                {state.militaryPensionTax === 'No'
-                  ? 'Tax Free'
-                  : state.militaryPensionTax === 'Partial'
-                    ? 'Partial Tax'
-                    : 'Taxed'}
-              </Badge>
+              {userType !== 'separating' && (
+                <Badge className={getTaxBadgeColor(state.militaryPensionTax)}>
+                  {state.militaryPensionTax === 'No'
+                    ? 'Tax Free'
+                    : state.militaryPensionTax === 'Partial'
+                      ? 'Partial Tax'
+                      : 'Taxed'}
+                </Badge>
+              )}
               {state.stateIncomeTax === 0 && <Badge variant="outline">No Income Tax</Badge>}
               {annualSavings !== null && annualSavings > 0 && (
                 <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">

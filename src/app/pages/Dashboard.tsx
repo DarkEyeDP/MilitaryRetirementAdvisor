@@ -486,14 +486,14 @@ export default function Dashboard() {
                           }}
                           className="w-20 text-sm font-semibold text-slate-900 border-b-2 border-blue-500 bg-transparent focus:outline-none tabular-nums"
                         />
-                        <span className="text-sm font-semibold text-slate-900">/mo pension</span>
+                        <span className="text-sm font-semibold text-slate-900">/mo {financialInputs.userType === 'separating' ? 'income' : 'pension'}</span>
                       </span>
                     ) : (
                       <button
                         onClick={startHeaderEditIncome}
                         className="text-sm font-semibold text-slate-900 hover:text-blue-600 hover:underline underline-offset-2 transition-colors whitespace-nowrap"
                       >
-                        {fmt$(financialInputs.retirementIncome / 12)}/mo pension
+                        {fmt$(financialInputs.retirementIncome / 12)}/mo {financialInputs.userType === 'separating' ? 'income' : 'pension'}
                       </button>
                     )}
                     {hasHeaderDisability && (
@@ -953,6 +953,7 @@ export default function Dashboard() {
                         retirementIncome={financialInputs.retirementIncome}
                         disabilityRating={financialInputs.disabilityRating}
                         perCapita={perCapita}
+                        userType={financialInputs.userType}
                       />
                     ))}
                   </div>

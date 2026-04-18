@@ -209,9 +209,13 @@ export function calculateFinancialReality(
   const annualPension = monthlyPension * 12;
   const annualSecondary = monthlySecondaryIncome * 12;
 
-  // State income tax on military pension (progressive)
+  // State income tax on primary income (progressive)
+  // For separating members, retirementIncome is regular employment income — no military
+  // pension tax exemptions apply regardless of the state's militaryPensionTax setting.
   let stateTaxOnPension = 0;
-  if (state.militaryPensionTax === 'Yes') {
+  if (inputs.userType === 'separating') {
+    stateTaxOnPension = calculateProgressiveTax(annualPension, brackets) / 12;
+  } else if (state.militaryPensionTax === 'Yes') {
     stateTaxOnPension = calculateProgressiveTax(annualPension, brackets) / 12;
   } else if (state.militaryPensionTax === 'Partial') {
     // ~50% of pension is taxable for Partial states (simplified — actual exempt
@@ -220,13 +224,15 @@ export function calculateFinancialReality(
   }
 
   // Secondary income taxed at progressive state rate — no military pension exemptions apply.
-  // We compute the marginal tax on the secondary income layer above any pension income.
-  // This correctly stacks secondary income on top of pension in states that fully tax pension,
-  // and treats secondary income independently when pension is exempt.
+  // Separating members' primary income is fully taxed, so secondary income must stack on top
+  // (same stacking logic as states that fully tax military pension).
   let stateTaxOnSecondaryIncome = 0;
   if (annualSecondary > 0) {
-    if (state.militaryPensionTax === 'Yes') {
-      // Pension is taxed; secondary income stacks on top — compute tax on combined minus pension-only
+    const primaryIsFullyTaxed =
+      inputs.userType === 'separating' || state.militaryPensionTax === 'Yes';
+
+    if (primaryIsFullyTaxed) {
+      // Primary income is taxed in full; secondary income stacks on top
       const taxOnCombined = calculateProgressiveTax(annualPension + annualSecondary, brackets);
       const taxOnPensionOnly = calculateProgressiveTax(annualPension, brackets);
       stateTaxOnSecondaryIncome = (taxOnCombined - taxOnPensionOnly) / 12;

@@ -206,8 +206,8 @@ export default function StateDetail() {
   // Tax savings vs current state
   const originState = currentStateId ? statesData.find((s) => s.id === currentStateId) ?? null : null;
   function pensionTaxDollars(s: StateData): number {
-    if (s.militaryPensionTax === 'No') return 0;
-    const taxable = s.militaryPensionTax === 'Partial' ? retirementIncome * 0.5 : retirementIncome;
+    if (!isSeparating && s.militaryPensionTax === 'No') return 0;
+    const taxable = (!isSeparating && s.militaryPensionTax === 'Partial') ? retirementIncome * 0.5 : retirementIncome;
     return calculateProgressiveTax(taxable, stateTaxBrackets[s.id] ?? []);
   }
   const annualSavings = originState && state
@@ -539,10 +539,12 @@ export default function StateDetail() {
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <span className={`font-bold text-slate-900 whitespace-nowrap ${state.name.length >= 13 ? 'text-sm' : 'text-base'}`}>{state.name}</span>
-                <Badge className={`${taxBadge.color} flex items-center gap-1 text-xs`}>
-                  <TaxIcon className="w-3 h-3" />
-                  {taxBadge.text}
-                </Badge>
+                {!isSeparating && (
+                  <Badge className={`${taxBadge.color} flex items-center gap-1 text-xs`}>
+                    <TaxIcon className="w-3 h-3" />
+                    {taxBadge.text}
+                  </Badge>
+                )}
                 <div className="hidden sm:flex items-center gap-3 pl-3 border-l border-slate-200 text-sm text-slate-500 shrink-0">
                   {state.stateIncomeTax === 0
                     ? <span className="text-green-600 font-medium whitespace-nowrap">No income tax</span>
@@ -627,10 +629,12 @@ export default function StateDetail() {
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
                 <h1 className={`${stateNameSizeClass} font-bold text-slate-900`}>{state.name}</h1>
-                <Badge className={`${taxBadge.color} flex items-center gap-1`}>
-                  <TaxIcon className="w-3 h-3" />
-                  {taxBadge.text}
-                </Badge>
+                {!isSeparating && (
+                  <Badge className={`${taxBadge.color} flex items-center gap-1`}>
+                    <TaxIcon className="w-3 h-3" />
+                    {taxBadge.text}
+                  </Badge>
+                )}
                 {annualSavings !== null && annualSavings > 0 && (
                   <Badge className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
                     <TrendingDown className="w-3 h-3" />
