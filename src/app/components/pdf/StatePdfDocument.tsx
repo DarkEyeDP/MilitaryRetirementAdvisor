@@ -23,7 +23,7 @@ import type { StateEmploymentData } from '../../data/employmentData';
 import { NATIONAL_EMPLOYMENT } from '../../data/employmentData';
 import type { StateClimateData, RiskLevel } from '../../data/climateData';
 import type { VeteranPerksData } from '../../data/veteranPerksData';
-import type { FinancialInputs } from '../../data/financialReality';
+import type { FinancialInputs, FinancialBreakdown } from '../../data/financialReality';
 import { vaFacilityLocations } from '../../data/vaFacilityLocations';
 import { militaryInstallations } from '../../data/militaryInstallations';
 import { getSpaceATerminalsByProximity } from '../../data/spaceATerminals';
@@ -142,6 +142,8 @@ function SectionPageHeader({ title }: { title: string }) {
 interface Props {
   state: StateData;
   inputs: FinancialInputs;
+  breakdown?: FinancialBreakdown | null;
+  originBreakdown?: FinancialBreakdown | null;
   housingData: HousingData | null;
   employmentData: StateEmploymentData | null;
   climateData: StateClimateData | null;
@@ -156,6 +158,8 @@ interface Props {
 export function StatePdfDocument({
   state,
   inputs,
+  breakdown,
+  originBreakdown,
   housingData,
   employmentData,
   climateData,
@@ -385,6 +389,165 @@ export function StatePdfDocument({
             </View>
           </View>
         </View>
+
+        {/* ── Financial Reality page ── */}
+        {breakdown?.hasFinancialData && (() => {
+          const ob = originBreakdown?.hasFinancialData ? originBreakdown : null;
+          const stateTax = breakdown.stateTaxOnPension + breakdown.stateTaxOnSecondaryIncome;
+          const obStateTax = ob ? ob.stateTaxOnPension + ob.stateTaxOnSecondaryIncome : null;
+          const netAfterTaxes = breakdown.totalMonthlyIncome - stateTax - breakdown.federalIncomeTaxMonthly;
+          const obNetAfterTaxes = ob ? ob.totalMonthlyIncome - (obStateTax ?? 0) - ob.federalIncomeTaxMonthly : null;
+          return (
+            <>
+              <SectionPageHeader title={`Your Financial Reality in ${state.name}`} />
+
+              <View style={S.section}>
+                <View style={S.row}>
+
+                  {/* ── Left: Income ── */}
+                  <View style={S.col}>
+                    <Text style={[S.sectionSubHeading, { color: C.navy, marginBottom: 8 }]}>Monthly Income</Text>
+                    <View style={S.dataTable}>
+                      {/* Pension / primary income */}
+                      <View style={S.dataTableRow}>
+                        <Text style={S.dataTableLabel}>{isSeparating ? 'Monthly Income' : 'Military Pension'}</Text>
+                        <Text style={[S.dataTableValue, { color: C.green }]}>{fmt$(breakdown.monthlyPension)}</Text>
+                      </View>
+                      {breakdown.monthlyDisabilityPay > 0 && (
+                        <View style={[S.dataTableRow, S.dataTableRowAlt]}>
+                          <Text style={S.dataTableLabel}>VA Disability (tax-free)</Text>
+                          <Text style={[S.dataTableValue, { color: C.green }]}>{fmt$(breakdown.monthlyDisabilityPay)}</Text>
+                        </View>
+                      )}
+                      {breakdown.monthlySecondaryIncome > 0 && (
+                        <View style={[S.dataTableRow, breakdown.monthlyDisabilityPay === 0 ? S.dataTableRowAlt : {}]}>
+                          <Text style={S.dataTableLabel}>Other Income</Text>
+                          <Text style={S.dataTableValue}>{fmt$(breakdown.monthlySecondaryIncome)}</Text>
+                        </View>
+                      )}
+                      {/* State income tax */}
+                      {stateTax > 0 && (
+                        <View style={[S.dataTableRow]}>
+                          <Text style={[S.dataTableLabel, { color: C.slate400, paddingLeft: 8 }]}>State income tax</Text>
+                          <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(stateTax)}</Text>
+                        </View>
+                      )}
+                      {/* Federal income tax */}
+                      {breakdown.federalIncomeTaxMonthly > 0 && (
+                        <View style={[S.dataTableRow, S.dataTableRowAlt]}>
+                          <Text style={[S.dataTableLabel, { color: C.slate400, paddingLeft: 8 }]}>Federal income tax</Text>
+                          <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.federalIncomeTaxMonthly)}</Text>
+                        </View>
+                      )}
+                      {/* Net after taxes */}
+                      <View style={[S.dataTableRowLast, { backgroundColor: C.slate50, borderTopWidth: 0.5, borderTopColor: C.slate200 }]}>
+                        <Text style={[S.dataTableLabel, { fontFamily: 'Helvetica-Bold', color: C.slate700 }]}>Net After Taxes</Text>
+                        <Text style={[S.dataTableValue, { fontSize: 10 }]}>{fmt$(netAfterTaxes)}</Text>
+                      </View>
+                    </View>
+
+                    {/* Origin state comparison */}
+                    {ob && obNetAfterTaxes !== null && (
+                      <View style={{ marginTop: 8 }}>
+                        <Text style={[S.sectionSubHeading, { color: C.slate500, marginBottom: 4 }]}>
+                          vs. Staying in {originState?.abbreviation}
+                        </Text>
+                        <View style={S.dataTable}>
+                          <View style={S.dataTableRow}>
+                            <Text style={S.dataTableLabel}>{originState?.abbreviation} Net After Taxes</Text>
+                            <Text style={[S.dataTableValue, { color: C.slate500 }]}>{fmt$(obNetAfterTaxes)}</Text>
+                          </View>
+                          <View style={[S.dataTableRowLast]}>
+                            <Text style={[S.dataTableLabel, { fontFamily: 'Helvetica-Bold' }]}>Difference</Text>
+                            <Text style={[S.dataTableValue, { color: netAfterTaxes >= obNetAfterTaxes ? C.green : C.red }]}>
+                              {netAfterTaxes >= obNetAfterTaxes ? '+' : ''}{fmt$(netAfterTaxes - obNetAfterTaxes)}/mo
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* ── Right: Expenses ── */}
+                  <View style={S.col}>
+                    <Text style={[S.sectionSubHeading, { color: C.navy, marginBottom: 8 }]}>Est. Monthly Costs</Text>
+                    <View style={S.dataTable}>
+                      <View style={S.dataTableRow}>
+                        <Text style={S.dataTableLabel}>Property Tax</Text>
+                        <Text style={[S.dataTableValue, { color: C.red }]}>
+                          {breakdown.propertyTaxExemptionApplied === 'full' ? '$0 (exempt)' : `-${fmt$(breakdown.propertyTaxMonthly)}`}
+                        </Text>
+                      </View>
+                      <View style={[S.dataTableRow, S.dataTableRowAlt]}>
+                        <Text style={S.dataTableLabel}>Sales Tax (est.)</Text>
+                        <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.salesTaxOnSpending)}</Text>
+                      </View>
+                      {breakdown.homeInsuranceMonthly > 0 && (
+                        <View style={S.dataTableRow}>
+                          <Text style={S.dataTableLabel}>Home Insurance</Text>
+                          <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.homeInsuranceMonthly)}</Text>
+                        </View>
+                      )}
+                      <View style={[S.dataTableRow, breakdown.homeInsuranceMonthly > 0 ? S.dataTableRowAlt : {}]}>
+                        <Text style={S.dataTableLabel}>Auto Insurance</Text>
+                        <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.autoInsuranceMonthly)}</Text>
+                      </View>
+                      <View style={S.dataTableRow}>
+                        <Text style={S.dataTableLabel}>Utilities</Text>
+                        <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.utilitiesMonthly)}</Text>
+                      </View>
+                      <View style={[S.dataTableRow, S.dataTableRowAlt]}>
+                        <Text style={S.dataTableLabel}>Groceries</Text>
+                        <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.groceryMonthly)}</Text>
+                      </View>
+                      {breakdown.customExpensesMonthly > 0 && (
+                        <View style={S.dataTableRow}>
+                          <Text style={S.dataTableLabel}>Additional Expenses</Text>
+                          <Text style={[S.dataTableValue, { color: C.red }]}>-{fmt$(breakdown.customExpensesMonthly)}</Text>
+                        </View>
+                      )}
+                      <View style={[S.dataTableRowLast, { backgroundColor: C.slate50, borderTopWidth: 0.5, borderTopColor: C.slate200 }]}>
+                        <Text style={[S.dataTableLabel, { fontFamily: 'Helvetica-Bold', color: C.slate700 }]}>Total Est. Costs</Text>
+                        <Text style={[S.dataTableValue, { color: C.red, fontSize: 10 }]}>-{fmt$(breakdown.totalTrackedExpenses)}</Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                {/* ── Est. Discretionary Funds ── */}
+                <View style={{ marginTop: 10 }}>
+                  <View style={[S.dataTable, { backgroundColor: breakdown.monthlyRemaining >= 0 ? C.greenLight : C.redLight, borderColor: breakdown.monthlyRemaining >= 0 ? C.green : C.red }]}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 10 }}>
+                      <View>
+                        <Text style={{ fontSize: 7, color: breakdown.monthlyRemaining >= 0 ? C.green : C.red, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+                          Est. Discretionary Funds
+                        </Text>
+                        <Text style={{ fontSize: 7, color: C.slate500 }}>After all tracked income taxes &amp; expenses</Text>
+                      </View>
+                      <Text style={{ fontSize: 22, fontFamily: 'Helvetica-Bold', color: breakdown.monthlyRemaining >= 0 ? C.green : C.red }}>
+                        {fmt$(breakdown.monthlyRemaining)}/mo
+                      </Text>
+                    </View>
+                    {ob && (
+                      <View style={{ borderTopWidth: 0.5, borderTopColor: breakdown.monthlyRemaining >= 0 ? C.green : C.red, paddingHorizontal: 14, paddingVertical: 6, flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 7.5, color: C.slate500 }}>
+                          vs. staying in {originState?.abbreviation}: {fmt$(ob.monthlyRemaining)}/mo
+                        </Text>
+                        <Text style={{ fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: breakdown.monthlyRemaining >= ob.monthlyRemaining ? C.green : C.red }}>
+                          {breakdown.monthlyRemaining >= ob.monthlyRemaining ? '+' : ''}{fmt$(breakdown.monthlyRemaining - ob.monthlyRemaining)}/mo
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </View>
+
+                <Text style={{ fontSize: 7, color: C.slate400, marginTop: 6 }}>
+                  Estimates based on {breakdown.propertyTaxMonthly > 0 ? 'state median' : 'your custom'} data. State averages used where not overridden. Does not include healthcare or discretionary spending. Federal income tax applies equally to all states.
+                </Text>
+              </View>
+            </>
+          );
+        })()}
 
         <SectionPageHeader title={`${state.name} — Resources & Economy`} />
 

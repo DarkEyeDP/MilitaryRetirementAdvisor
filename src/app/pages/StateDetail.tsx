@@ -411,7 +411,9 @@ export default function StateDetail() {
       const blob = await pdf(
         <StatePdfDocument
           state={state}
-          inputs={{ userType, retirementIncome }}
+          inputs={frInputs}
+          breakdown={financialBreakdown}
+          originBreakdown={originBreakdown?.hasFinancialData ? originBreakdown : null}
           housingData={stateHousingData[state.id] ?? null}
           employmentData={stateEmploymentData[state.id] ?? null}
           climateData={rawClimate}
