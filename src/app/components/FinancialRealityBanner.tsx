@@ -97,6 +97,12 @@ function BreakdownTooltip({ breakdown, profile, isSeparating }: { breakdown: Fin
             <span className="font-medium text-blue-600 flex-shrink-0">{fmt$(breakdown.customExpensesMonthly)}</span>
           </div>
         )}
+        {breakdown.federalIncomeTaxMonthly > 0 && (
+          <div className="flex justify-between items-start gap-2">
+            <span className="text-slate-600">Federal income tax <span className="text-slate-400 font-normal text-[10px]">(same all states)</span></span>
+            <span className="font-medium text-red-400 flex-shrink-0">-{fmt$(breakdown.federalIncomeTaxMonthly)}</span>
+          </div>
+        )}
         <div className="border-t border-slate-200 pt-2 flex justify-between font-semibold text-slate-900">
           <span>Total tracked</span>
           <span>{fmt$(breakdown.totalTrackedExpenses)}</span>

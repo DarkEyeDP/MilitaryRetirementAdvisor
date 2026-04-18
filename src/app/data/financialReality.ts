@@ -140,6 +140,11 @@ export interface FinancialBreakdown {
   groceryMonthly: number;
   customExpensesMonthly: number;
 
+  // Federal income tax on pension + secondary income (after standard deduction).
+  // VA disability is always federally exempt. Same in every state — not used for
+  // state comparison, but deducted from monthlyRemaining for accurate take-home.
+  federalIncomeTaxMonthly: number;
+
   // Puerto Rico IRC §933 federal income tax savings (non-pension income earned in PR
   // is exempt from federal income tax for bona fide PR residents).
   // Non-zero only for Puerto Rico.
@@ -187,6 +192,7 @@ export function calculateFinancialReality(
       utilitiesMonthly: 0,
       groceryMonthly: 0,
       customExpensesMonthly: 0,
+      federalIncomeTaxMonthly: 0,
       estimatedFederalTaxSavings: 0,
       propertyTaxExemptionApplied: 'none',
       totalTrackedExpenses: 0,
@@ -267,6 +273,17 @@ export function calculateFinancialReality(
     // PR savings = federal tax that would be owed on the secondary income layer
     estimatedFederalTaxSavings = (taxOnFullIncome - taxOnPensionAlone) / 12;
   }
+
+  // ── Federal income tax ────────────────────────────────────────────────────
+  // VA disability is always federally exempt (38 U.S.C. § 5301).
+  // Military pension and all other income IS subject to federal income tax.
+  // Same in every state — not used for state comparison but deducted from
+  // monthlyRemaining so "Est. Discretionary Funds" reflects true take-home.
+  const fedFilingMFJ = inputs.hasSpouse ?? false;
+  const fedBrackets = fedFilingMFJ ? federalBracketsMFJ : federalBracketsSingle;
+  const fedStdDeduction = fedFilingMFJ ? FEDERAL_STANDARD_DEDUCTION_MFJ : FEDERAL_STANDARD_DEDUCTION_SINGLE;
+  const annualFederalTaxable = Math.max(0, annualPension + annualSecondary - fedStdDeduction);
+  const federalIncomeTaxMonthly = calculateProgressiveTax(annualFederalTaxable, fedBrackets) / 12;
 
   // Property tax — priority: renting (skip) → full legal exemption → exact override → home value estimate → median
   const isFullyDisabled = inputs.disabilityRating === '100';
@@ -358,10 +375,11 @@ export function calculateFinancialReality(
     utilitiesMonthly,
     groceryMonthly,
     customExpensesMonthly,
+    federalIncomeTaxMonthly,
     estimatedFederalTaxSavings,
     propertyTaxExemptionApplied,
     totalTrackedExpenses,
-    monthlyRemaining: totalMonthlyIncome - totalTrackedExpenses,
+    monthlyRemaining: totalMonthlyIncome - totalTrackedExpenses - federalIncomeTaxMonthly,
     hasFinancialData: true,
   };
 }

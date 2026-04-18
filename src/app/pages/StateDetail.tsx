@@ -1270,7 +1270,7 @@ export default function StateDetail() {
                               </div>
                             )}
                             <div className="border-t border-slate-100 pt-2.5">
-                              {/* Total income tax + Net — show ghost comparison when origin state is present */}
+                              {/* Tax summary + Net — show ghost comparison when origin state is present */}
                               {ob ? (
                                 <div className={`grid gap-x-4 gap-y-1.5 text-sm grid-cols-[1fr_auto_auto]`}>
                                   <span />
@@ -1278,7 +1278,7 @@ export default function StateDetail() {
                                   <span className="text-[11px] font-semibold text-slate-300 uppercase tracking-wider text-right border-l border-slate-100 pl-3">{originState!.abbreviation}</span>
                                   {(totalTax > 0 || (obTotalTax ?? 0) > 0) && (
                                     <>
-                                      <span className="text-slate-500">Total income tax paid</span>
+                                      <span className="text-slate-500">State income tax</span>
                                       <span className={`font-medium tabular-nums text-right ${totalTax > 0 ? 'text-red-400' : 'text-emerald-600'}`}>
                                         {totalTax > 0 ? `-${fmtV(totalTax)}` : 'None'}
                                       </span>
@@ -1287,21 +1287,34 @@ export default function StateDetail() {
                                       </span>
                                     </>
                                   )}
-                                  <span className="font-semibold text-slate-700">Net {frShowYearly ? 'Annual' : 'Monthly'}</span>
-                                  <span className="font-bold text-slate-900 tabular-nums text-right">{fmtV(financialBreakdown.totalMonthlyIncome - totalTax)}</span>
-                                  <span className="font-semibold text-slate-300 tabular-nums text-right border-l border-slate-100 pl-3">{fmtV(ob.totalMonthlyIncome - (obTotalTax ?? 0))}</span>
+                                  {financialBreakdown.federalIncomeTaxMonthly > 0 && (
+                                    <>
+                                      <span className="text-slate-500 flex items-center gap-1">Federal income tax <span className="text-[10px] text-slate-300 italic">same all states</span></span>
+                                      <span className="font-medium text-red-400 tabular-nums text-right">-{fmtV(financialBreakdown.federalIncomeTaxMonthly)}</span>
+                                      <span className="font-medium text-slate-300 tabular-nums text-right border-l border-slate-100 pl-3">-{fmtV(ob.federalIncomeTaxMonthly)}</span>
+                                    </>
+                                  )}
+                                  <span className="font-semibold text-slate-700">Net After Taxes</span>
+                                  <span className="font-bold text-slate-900 tabular-nums text-right">{fmtV(financialBreakdown.totalMonthlyIncome - totalTax - financialBreakdown.federalIncomeTaxMonthly)}</span>
+                                  <span className="font-semibold text-slate-300 tabular-nums text-right border-l border-slate-100 pl-3">{fmtV(ob.totalMonthlyIncome - (obTotalTax ?? 0) - ob.federalIncomeTaxMonthly)}</span>
                                 </div>
                               ) : (
                                 <div className="space-y-1.5">
                                   {totalTax > 0 && (
                                     <div className="flex justify-between items-center text-sm">
-                                      <span className="text-slate-500">Total income tax paid</span>
+                                      <span className="text-slate-500">State income tax</span>
                                       <span className="font-medium text-red-400 tabular-nums">-{fmtV(totalTax)}</span>
                                     </div>
                                   )}
+                                  {financialBreakdown.federalIncomeTaxMonthly > 0 && (
+                                    <div className="flex justify-between items-center text-sm">
+                                      <span className="text-slate-500 flex items-center gap-1">Federal income tax <span className="text-[10px] text-slate-300 italic">same all states</span></span>
+                                      <span className="font-medium text-red-400 tabular-nums">-{fmtV(financialBreakdown.federalIncomeTaxMonthly)}</span>
+                                    </div>
+                                  )}
                                   <div className="flex justify-between items-center text-sm">
-                                    <span className="font-semibold text-slate-700">Net {frShowYearly ? 'Annual' : 'Monthly'}</span>
-                                    <span className="font-bold text-slate-900 tabular-nums">{fmtV(financialBreakdown.totalMonthlyIncome - totalTax)}</span>
+                                    <span className="font-semibold text-slate-700">Net After Taxes</span>
+                                    <span className="font-bold text-slate-900 tabular-nums">{fmtV(financialBreakdown.totalMonthlyIncome - totalTax - financialBreakdown.federalIncomeTaxMonthly)}</span>
                                   </div>
                                 </div>
                               )}

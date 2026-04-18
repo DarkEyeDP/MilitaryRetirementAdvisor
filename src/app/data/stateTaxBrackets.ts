@@ -56,30 +56,30 @@ export function getEffectiveTaxRate(annualIncome: number, stateId: string): numb
   return (calculateProgressiveTax(annualIncome, brackets) / annualIncome) * 100;
 }
 
-// ─── Federal Brackets (2026 estimate, Single Filer) ──────────────────────────
-// Used ONLY for Puerto Rico IRC §933 federal savings calculation.
-// Standard deduction applied before these brackets ($15,050 single, est. 2026).
-export const FEDERAL_STANDARD_DEDUCTION_SINGLE = 15_050;
-export const FEDERAL_STANDARD_DEDUCTION_MFJ    = 30_100;
+// ─── Federal Brackets (2026, IRS IR-2025-103 / Rev. Proc. 2025-32) ───────────
+// Source: IRS announcement Oct 9, 2025 — One Big Beautiful Bill adjustments.
+// Standard deduction applied before these brackets.
+export const FEDERAL_STANDARD_DEDUCTION_SINGLE = 16_100; // 2026 (OBBB)
+export const FEDERAL_STANDARD_DEDUCTION_MFJ    = 32_200; // 2026 (OBBB)
 
 export const federalBracketsSingle: StateTaxBrackets = [
-  { min:       0, max:   12_350, rate: 10   },
-  { min:  12_350, max:   49_750, rate: 12   },
-  { min:  49_750, max:  106_200, rate: 22   },
-  { min: 106_200, max:  202_600, rate: 24   },
-  { min: 202_600, max:  257_300, rate: 32   },
-  { min: 257_300, max:  643_050, rate: 35   },
-  { min: 643_050, max: Infinity, rate: 37   },
+  { min:       0, max:   12_400, rate: 10 },
+  { min:  12_400, max:   50_400, rate: 12 },
+  { min:  50_400, max:  105_700, rate: 22 },
+  { min: 105_700, max:  201_775, rate: 24 },
+  { min: 201_775, max:  256_225, rate: 32 },
+  { min: 256_225, max:  640_600, rate: 35 },
+  { min: 640_600, max: Infinity, rate: 37 },
 ];
 
 export const federalBracketsMFJ: StateTaxBrackets = [
-  { min:       0, max:   24_700, rate: 10   },
-  { min:  24_700, max:   99_500, rate: 12   },
-  { min:  99_500, max:  212_400, rate: 22   },
-  { min: 212_400, max:  405_200, rate: 24   },
-  { min: 405_200, max:  514_600, rate: 32   },
-  { min: 514_600, max:  772_750, rate: 35   },
-  { min: 772_750, max: Infinity, rate: 37   },
+  { min:       0, max:   24_800, rate: 10 },
+  { min:  24_800, max:  100_800, rate: 12 },
+  { min: 100_800, max:  211_400, rate: 22 },
+  { min: 211_400, max:  403_550, rate: 24 },
+  { min: 403_550, max:  512_450, rate: 32 },
+  { min: 512_450, max:  768_700, rate: 35 },
+  { min: 768_700, max: Infinity, rate: 37 },
 ];
 
 // ─── State Brackets ──────────────────────────────────────────────────────────
