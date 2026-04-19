@@ -6,9 +6,9 @@
  * Reads user cost profile from localStorage ('budget-profile').
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import {
   ArrowLeft, DollarSign, LayoutGrid, Building2, ShieldCheck,
   CheckCircle2, AlertCircle, XCircle, TrendingUp, TrendingDown,
@@ -351,8 +351,17 @@ function EmptyWithSlots({
 
 export default function ComparisonPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [annual, setAnnual] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
+
+  // URL params — take priority over localStorage for shareable links
+  const spStates   = searchParams.get('states');
+  const spIncome   = searchParams.get('income');
+  const spDr       = searchParams.get('dr');
+  const spSpouse   = searchParams.get('spouse');
+  const spChildren = searchParams.get('children');
+  const spSi       = searchParams.get('si');
 
   const handleExportPdf = async () => {
     setPdfLoading(true);
@@ -387,10 +396,14 @@ export default function ComparisonPage() {
     }
   };
 
-  // Load compared state IDs — reactive so empty-state slots can populate it
-  const [favoriteIds, setFavoriteIds] = useState<string[]>(() =>
-    JSON.parse(localStorage.getItem('comparison-favorites') ?? '[]'),
-  );
+  // Load compared state IDs — URL params win over localStorage for shared links
+  const [favoriteIds, setFavoriteIds] = useState<string[]>(() => {
+    if (spStates) {
+      const ids = spStates.split(',').filter((id) => statesData.some((s) => s.id === id));
+      if (ids.length > 0) return ids;
+    }
+    return JSON.parse(localStorage.getItem('comparison-favorites') ?? '[]');
+  });
 
   function commitFavorites(ids: string[]) {
     setFavoriteIds(ids);
@@ -401,23 +414,45 @@ export default function ComparisonPage() {
     .map((id) => statesData.find((s) => s.id === id))
     .filter((s): s is (typeof statesData)[0] => s !== undefined);
 
-  // Financial inputs — read from multiple possible localStorage keys
+  // Financial inputs — URL params take priority over localStorage
   const financialInputs: FinancialInputs = {
-    retirementIncome:
-      Number(localStorage.getItem('origin-retirement-income') || '0') ||
-      JSON.parse(localStorage.getItem('landing-preferences') ?? '{}').retirementIncome ||
-      60000,
-    disabilityRating:
+    retirementIncome: spIncome
+      ? Number(spIncome)
+      : Number(localStorage.getItem('origin-retirement-income') || '0') ||
+        JSON.parse(localStorage.getItem('landing-preferences') ?? '{}').retirementIncome ||
+        60000,
+    disabilityRating: spDr ?? (
       localStorage.getItem('origin-disability-rating') ||
       JSON.parse(localStorage.getItem('landing-preferences') ?? '{}').disabilityRating ||
-      'none',
+      'none'
+    ),
     secondaryIncome: (() => {
+      if (spSi) { try { return JSON.parse(spSi); } catch { /* ignore */ } }
       try { return JSON.parse(localStorage.getItem('origin-secondary-income') || '[]'); }
       catch { return []; }
     })(),
-    hasSpouse: localStorage.getItem('origin-has-spouse') === 'true',
-    dependentChildren: parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10),
+    hasSpouse: spSpouse !== null ? spSpouse === 'true' : localStorage.getItem('origin-has-spouse') === 'true',
+    dependentChildren: spChildren !== null
+      ? parseInt(spChildren, 10)
+      : parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10),
   };
+
+  // Keep URL in sync — address bar is always a shareable snapshot
+  useEffect(() => {
+    const params: Record<string, string> = {
+      income:   String(financialInputs.retirementIncome),
+      dr:       financialInputs.disabilityRating || 'none',
+      spouse:   String(financialInputs.hasSpouse ?? false),
+      children: String(financialInputs.dependentChildren ?? 0),
+    };
+    if (favoriteIds.length > 0) params.states = favoriteIds.join(',');
+    if ((financialInputs.secondaryIncome?.length ?? 0) > 0)
+      params.si = JSON.stringify(financialInputs.secondaryIncome);
+    setSearchParams(params, { replace: true });
+  // financialInputs is derived inline — track its primitive fields directly
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [favoriteIds, financialInputs.retirementIncome, financialInputs.disabilityRating,
+      financialInputs.hasSpouse, financialInputs.dependentChildren, setSearchParams]);
   const perCapita = localStorage.getItem('va-scoring-per-capita') === 'true';
 
   const userCostProfile: UserCostProfile =

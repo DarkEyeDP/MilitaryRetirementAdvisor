@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useParams, useNavigate, useLocation } from 'react-router';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router';
 import { statesData, scoreTier } from '../data/stateData';
 import { calculateScore as calculateCustomScore, computeVeteranBenefitsScore } from '../data/veteranScore';
 import type { StateData } from '../data/stateData';
@@ -214,17 +214,29 @@ export default function StateDetail() {
   const { stateId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const state = statesData.find((s) => s.id === stateId);
+
+  // URL search params take priority over localStorage — enables shareable links.
+  // Recipient opens the URL and sees the exact same financial picture without any account.
+  const spIncome   = searchParams.get('income');
+  const spDr       = searchParams.get('dr');
+  const spSpouse   = searchParams.get('spouse');
+  const spChildren = searchParams.get('children');
+  const spType     = searchParams.get('type') as 'retiree' | 'separating' | null;
+  const spOrigin   = searchParams.get('origin');
+  const spSi       = searchParams.get('si');
 
   // Result list for prev/next browsing — passed via router state from Dashboard
   const locState = location.state as { resultIds?: string[]; currentStateId?: string; retirementIncome?: number } | null;
   const resultIds: string[] = locState?.resultIds ?? statesData.map((s) => s.id);
-  const currentStateId: string | null = locState?.currentStateId ?? localStorage.getItem('origin-state-id');
-  const retirementIncome: number = locState?.retirementIncome
-    ?? (Number(localStorage.getItem('origin-retirement-income') || '0') || 60000);
-  const userType = (localStorage.getItem('origin-user-type') ?? 'retiree') as 'retiree' | 'separating';
+  const currentStateId: string | null = spOrigin ?? locState?.currentStateId ?? localStorage.getItem('origin-state-id');
+  const retirementIncome: number = spIncome
+    ? Number(spIncome)
+    : (locState?.retirementIncome ?? (Number(localStorage.getItem('origin-retirement-income') || '0') || 60000));
+  const userType = (spType ?? localStorage.getItem('origin-user-type') ?? 'retiree') as 'retiree' | 'separating';
   const isSeparating = userType === 'separating';
-  const disabilityRating = localStorage.getItem('origin-disability-rating') ?? '';
+  const disabilityRating = spDr ?? localStorage.getItem('origin-disability-rating') ?? '';
   const perCapita = localStorage.getItem('va-scoring-per-capita') === 'true';
 
   const currentIdx = resultIds.indexOf(stateId ?? '');
@@ -232,11 +244,11 @@ export default function StateDetail() {
   const nextId = currentIdx < resultIds.length - 1 ? resultIds[currentIdx + 1] : null;
   const navTo = (id: string) => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    navigate(`/state/${id}`, { state: { resultIds, currentStateId, retirementIncome } });
+    navigate(`/state/${id}${window.location.search}`, { state: { resultIds, currentStateId, retirementIncome } });
   };
   const navToKeepScroll = (id: string) => {
     sessionStorage.setItem('preserveScroll', '1');
-    navigate(`/state/${id}`, { state: { resultIds, currentStateId, retirementIncome } });
+    navigate(`/state/${id}${window.location.search}`, { state: { resultIds, currentStateId, retirementIncome } });
   };
 
   // Tax savings vs current state
@@ -281,13 +293,14 @@ export default function StateDetail() {
     retirementIncome,
     disabilityRating: disabilityRating || 'none',
     secondaryIncome: (() => {
+      if (spSi) { try { return JSON.parse(spSi); } catch { /* ignore */ } }
       try {
         const stored = localStorage.getItem('origin-secondary-income');
         return stored ? JSON.parse(stored) : [];
       } catch { return []; }
     })(),
-    hasSpouse: localStorage.getItem('origin-has-spouse') === 'true',
-    dependentChildren: parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10),
+    hasSpouse: spSpouse !== null ? spSpouse === 'true' : localStorage.getItem('origin-has-spouse') === 'true',
+    dependentChildren: spChildren !== null ? parseInt(spChildren, 10) : parseInt(localStorage.getItem('origin-dependent-children') ?? '0', 10),
   }));
   const handleChangeInputs = useCallback((updated: FinancialInputs) => {
     setFrInputs(updated);
@@ -295,6 +308,22 @@ export default function StateDetail() {
     localStorage.setItem('origin-disability-rating', updated.disabilityRating || 'none');
     localStorage.setItem('origin-secondary-income', JSON.stringify(updated.secondaryIncome ?? []));
   }, []);
+
+  // Keep URL search params in sync so the address bar is always a shareable snapshot.
+  // replace: true so browsing prev/next doesn't pollute history with param-only entries.
+  useEffect(() => {
+    const params: Record<string, string> = {
+      income:   String(frInputs.retirementIncome),
+      dr:       frInputs.disabilityRating || 'none',
+      spouse:   String(frInputs.hasSpouse ?? false),
+      children: String(frInputs.dependentChildren ?? 0),
+      type:     frInputs.userType ?? 'retiree',
+    };
+    if (currentStateId) params.origin = currentStateId;
+    if ((frInputs.secondaryIncome?.length ?? 0) > 0)
+      params.si = JSON.stringify(frInputs.secondaryIncome);
+    setSearchParams(params, { replace: true });
+  }, [frInputs, currentStateId, setSearchParams]);
 
   const financialBreakdown = state ? calculateFinancialReality(state, frInputs, budgetProfile) : null;
   const hasCustomizations = budgetProfile.isRenting
