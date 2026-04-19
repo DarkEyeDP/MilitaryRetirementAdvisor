@@ -68,6 +68,42 @@ import { SiteLogo } from '../components/ui/SiteLogo';
 import { getFlagUrl } from '../lib/flagUrl';
 import { trackEvent } from '../lib/analytics';
 
+function SectionMeter({ score, color }: { score: number; color: string }) {
+  const [animVal, setAnimVal] = useState(0);
+  const fromRef = useRef(0);
+  useEffect(() => {
+    const from = fromRef.current;
+    const to = score;
+    let rafId: number;
+    let startTime: number | null = null;
+    const tick = (ts: number) => {
+      if (startTime === null) startTime = ts;
+      const progress = Math.min((ts - startTime) / 600, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = from + (to - from) * eased;
+      fromRef.current = current;
+      setAnimVal(current);
+      if (progress < 1) rafId = requestAnimationFrame(tick);
+      else fromRef.current = to;
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [score]);
+
+  return (
+    <div className="relative h-1.5 bg-slate-100 rounded-full mb-2.5 overflow-visible">
+      <div
+        className="absolute inset-y-0 left-0 rounded-full"
+        style={{ width: `${animVal}%`, backgroundColor: color }}
+      />
+      <div
+        className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full border-2 border-white shadow-sm"
+        style={{ left: `calc(${animVal}% - 6px)`, backgroundColor: color }}
+      />
+    </div>
+  );
+}
+
 function ScoreGauge({
   score,
   label,
@@ -849,7 +885,7 @@ export default function StateDetail() {
                       label: 'Income tax rate',
                       value: state.stateIncomeTax === 0
                         ? 'None'
-                        : `~${mobileEffRate.toFixed(1)}% eff. (${state.stateIncomeTax}% top)`,
+                        : `~${mobileEffRate.toFixed(1)}% eff.`,
                     },
                     {
                       label: 'Property tax',
@@ -887,11 +923,12 @@ export default function StateDetail() {
                 },
               ];
               const scoreColor = (s: number) =>
-                s >= 90 ? '#16a34a' : s >= 80 ? '#2563eb' : s >= 70 ? '#d97706' : '#94a3b8';
+                s >= 85 ? '#16a34a' : s >= 75 ? '#2563eb' : s >= 65 ? '#d97706' : '#94a3b8';
               return (
                 <div className="md:hidden space-y-3">
                   {sections.map((sec) => (
                     <div key={sec.label} className="py-3 border-t border-slate-100 first:border-t-0">
+                      <SectionMeter score={sec.score} color={scoreColor(sec.score)} />
                       <div className="flex items-baseline gap-2 mb-2">
                         <span className="text-2xl font-bold tabular-nums leading-none" style={{ color: scoreColor(sec.score) }}>{sec.score}</span>
                         <span className="text-[9px] text-slate-400 uppercase tracking-wide">/100</span>
