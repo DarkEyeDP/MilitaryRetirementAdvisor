@@ -106,8 +106,8 @@ export function FinancialSection({
   const obTotalTax = ob ? ob.stateTaxOnPension + ob.stateTaxOnSecondaryIncome : null;
 
   return (
-    <Card>
-      <CardHeader className="border-b">
+    <Card className="border-emerald-200 shadow-[0_0_0_1px_theme(colors.emerald.200)] gap-0">
+      <CardHeader className="border-b border-emerald-100 bg-emerald-50/40">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="min-w-0">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -153,7 +153,7 @@ export function FinancialSection({
         </div>
       </CardHeader>
 
-      <CardContent className="pt-5">
+      <CardContent className="pt-6">
         <div className="grid grid-cols-1 sm:grid-cols-2">
           {/* Income column */}
           <div className="sm:border-r border-slate-100 sm:pr-6 pb-6 sm:pb-0">
@@ -345,10 +345,14 @@ export function FinancialSection({
             <div className="mt-5">
               <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Est. Discretionary Funds</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className={`relative flex items-center justify-between rounded-xl px-4 py-3.5 overflow-visible ${financialBreakdown.monthlyRemaining >= 0 ? 'bg-emerald-50 border border-emerald-100' : 'bg-red-50 border border-red-100'}`}>
+                <div className={`relative flex items-center justify-between rounded-xl px-4 py-3.5 overflow-visible ${
+                  ob
+                    ? viewedWins ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-50 border border-slate-200'
+                    : financialBreakdown.monthlyRemaining >= 0 ? 'bg-emerald-50 border border-emerald-100' : 'bg-red-50 border border-red-100'
+                }`}>
                   {viewedWins && <BetterDealStamp />}
                   <div>
-                    <p className="text-sm font-semibold text-slate-700">{ob ? `Moving to ${state.abbreviation}` : `Remaining in ${state.abbreviation}`}</p>
+                    <p className={`text-sm font-semibold ${ob && !viewedWins ? 'text-slate-400' : 'text-slate-700'}`}>{ob ? `Moving to ${state.abbreviation}` : `Remaining in ${state.abbreviation}`}</p>
                     {ob ? (
                       Math.abs(diff) < 5
                         ? <p className="text-xs text-slate-500 mt-0.5">After tracked costs</p>
@@ -359,18 +363,22 @@ export function FinancialSection({
                           </p>
                     ) : <p className="text-xs text-slate-500 mt-0.5">After tracked costs</p>}
                   </div>
-                  <p className={`text-2xl font-bold tabular-nums ${financialBreakdown.monthlyRemaining >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                  <p className={`text-2xl font-bold tabular-nums ${
+                    ob
+                      ? viewedWins ? 'text-emerald-600' : 'text-slate-400'
+                      : financialBreakdown.monthlyRemaining >= 0 ? 'text-emerald-600' : 'text-red-500'
+                  }`}>
                     {fmtV(financialBreakdown.monthlyRemaining)}
                   </p>
                 </div>
                 {ob && (
-                  <div className="relative flex items-center justify-between rounded-xl px-4 py-3.5 bg-slate-50 border border-slate-200 overflow-visible">
+                  <div className={`relative flex items-center justify-between rounded-xl px-4 py-3.5 overflow-visible ${originWins ? 'bg-emerald-50 border border-emerald-100' : 'bg-slate-50 border border-slate-200'}`}>
                     {originWins && <BetterDealStamp />}
                     <div>
-                      <p className="text-sm font-semibold text-slate-400">Staying in {originState!.abbreviation}</p>
+                      <p className={`text-sm font-semibold ${originWins ? 'text-slate-700' : 'text-slate-400'}`}>Staying in {originState!.abbreviation}</p>
                       <p className="text-xs text-slate-400 mt-0.5">Your current state</p>
                     </div>
-                    <p className="text-2xl font-bold tabular-nums text-slate-400">{fmtV(ob.monthlyRemaining)}</p>
+                    <p className={`text-2xl font-bold tabular-nums ${originWins ? 'text-emerald-600' : 'text-slate-400'}`}>{fmtV(ob.monthlyRemaining)}</p>
                   </div>
                 )}
               </div>
