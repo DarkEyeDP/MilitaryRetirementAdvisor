@@ -95,6 +95,8 @@ export default function Dashboard() {
     localStorage.setItem('origin-retirement-income', String(updated.retirementIncome));
     localStorage.setItem('origin-disability-rating', updated.disabilityRating || 'none');
     localStorage.setItem('origin-secondary-income', JSON.stringify(updated.secondaryIncome ?? []));
+    localStorage.setItem('origin-has-spouse', String(updated.hasSpouse ?? false));
+    localStorage.setItem('origin-dependent-children', String(updated.dependentChildren ?? 0));
   };
 
   // currentStateId: prefer router state from landing, fall back to localStorage (survives refresh)
@@ -136,6 +138,14 @@ export default function Dashboard() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Keep localStorage in sync with financialInputs so state pages always read correct spouse/children values.
+  useEffect(() => {
+    try {
+      localStorage.setItem('origin-has-spouse', String(financialInputs.hasSpouse ?? false));
+      localStorage.setItem('origin-dependent-children', String(financialInputs.dependentChildren ?? 0));
+    } catch { /* storage unavailable */ }
+  }, [financialInputs.hasSpouse, financialInputs.dependentChildren]);
 
   const startHeaderEditIncome = () => {
     setHeaderIncomeValue(String(Math.round(financialInputs.retirementIncome / 12)));

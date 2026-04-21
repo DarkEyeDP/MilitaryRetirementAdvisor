@@ -136,6 +136,8 @@ export default function StateDetail() {
     localStorage.setItem('origin-retirement-income', String(updated.retirementIncome));
     localStorage.setItem('origin-disability-rating', updated.disabilityRating || 'none');
     localStorage.setItem('origin-secondary-income', JSON.stringify(updated.secondaryIncome ?? []));
+    localStorage.setItem('origin-has-spouse', String(updated.hasSpouse ?? false));
+    localStorage.setItem('origin-dependent-children', String(updated.dependentChildren ?? 0));
   }, []);
 
   useEffect(() => {
